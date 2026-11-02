@@ -35,6 +35,7 @@ import { isMovePlayerToEventConfig } from "./MovePlayerToEvent";
 import { isMovePlayerToEventAnswer } from "./MovePlayerToEventAnswer";
 import { isAddActionsMenuKeyToRemotePlayerEvent } from "./AddActionsMenuKeyToRemotePlayerEvent";
 import { isKeyDownEvent } from "./KeyDownEvent";
+import { monsterCommandSchema } from "./MonsterEvent";
 import { isRemoveActionsMenuKeyFromRemotePlayerEvent } from "./RemoveActionsMenuKeyFromRemotePlayerEvent";
 import { isSetAreaPropertyEvent } from "./SetAreaPropertyEvent";
 import { isCreateUIWebsiteEvent, isModifyUIWebsiteEvent, isUIWebsiteEvent } from "./Ui/UIWebsiteEvent";
@@ -207,6 +208,10 @@ export const isIframeEventWrapper = z.union([
     z.object({
         type: z.literal("onKeyDown"),
         data: z.undefined(),
+    }),
+    z.object({
+        type: z.literal("monster"),
+        data: monsterCommandSchema,
     }),
     z.object({
         type: z.literal("onCameraUpdate"),

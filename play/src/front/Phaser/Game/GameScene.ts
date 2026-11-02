@@ -65,6 +65,7 @@ import { localUserStore } from "../../Connection/LocalUserStore";
 import { HtmlUtils } from "../../WebRtc/HtmlUtils";
 import { Loader } from "../Components/Loader";
 import { RemotePlayer } from "../Entity/RemotePlayer";
+import { MonsterManager } from "../Entity/Monster";
 import { SelectCharacterScene, SelectCharacterSceneName } from "../Login/SelectCharacterScene";
 import { hasMovedEventName, Player, requestEmoteEventName } from "../Player/Player";
 import { ErrorSceneName } from "../Reconnecting/ErrorScene";
@@ -3514,6 +3515,10 @@ ${escapedMessage}
                 // became visible on the next local player input).
                 this.markDirty();
             }),
+        );
+        const monsterManager = new MonsterManager(this);
+        this.iframeSubscriptionList.push(
+            iframeListener.monsterStream.subscribe((command) => monsterManager.handle(command)),
         );
         iframeListener.registerAnswerer("enablePlayersTracking", (enablePlayersTrackingEvent, source) => {
             if (source === null) {

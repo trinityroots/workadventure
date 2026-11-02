@@ -28,6 +28,7 @@ import type { IframeQueryMap, IframeResponseEvent } from "./Events/IframeEvent";
 import { isIframeEventWrapper, isIframeQueryWrapper, isLookingLikeIframeEventWrapper } from "./Events/IframeEvent";
 import type { PlaySoundEvent } from "./Events/PlaySoundEvent";
 import type { KeyDownEvent } from "./Events/KeyDownEvent";
+import type { MonsterCommand } from "./Events/MonsterEvent";
 import type { StopSoundEvent } from "./Events/StopSoundEvent";
 import type { LoadSoundEvent } from "./Events/LoadSoundEvent";
 import type { SetPropertyEvent } from "./Events/SetPropertyEvent";
@@ -180,6 +181,9 @@ class IframeListener {
 
     private readonly _setTilesStream: Subject<SetTilesEvent> = new Subject();
     public readonly setTilesStream = this._setTilesStream.asObservable();
+
+    private readonly _monsterStream: Subject<MonsterCommand> = new Subject();
+    public readonly monsterStream = this._monsterStream.asObservable();
 
     private readonly _modifyEmbeddedWebsiteStream: Subject<ModifyEmbeddedWebsiteEvent> = new Subject();
     public readonly modifyEmbeddedWebsiteStream = this._modifyEmbeddedWebsiteStream.asObservable();
@@ -541,6 +545,8 @@ class IframeListener {
                             this._trackCameraUpdateStream.next();
                         } else if (iframeEvent.type == "setTiles") {
                             this._setTilesStream.next(iframeEvent.data);
+                        } else if (iframeEvent.type == "monster") {
+                            this._monsterStream.next(iframeEvent.data);
                         } else if (iframeEvent.type == "modifyEmbeddedWebsite") {
                             this._modifyEmbeddedWebsiteStream.next(iframeEvent.data);
                         } else if (iframeEvent.type == "modifyArea") {

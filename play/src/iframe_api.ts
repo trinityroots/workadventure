@@ -10,6 +10,7 @@ import chat from "./front/Api/Iframe/chat";
 import type { CoWebsite } from "./front/Api/Iframe/nav";
 import nav from "./front/Api/Iframe/nav";
 import controls from "./front/Api/Iframe/controls";
+import monsters from "./front/Api/Iframe/monsters";
 import ui from "./front/Api/Iframe/ui";
 import sound from "./front/Api/Iframe/sound";
 import event from "./front/Api/Iframe/event";
@@ -116,6 +117,7 @@ const wa = {
     ui,
     nav,
     controls,
+    monsters,
     chat,
     sound,
     room,
