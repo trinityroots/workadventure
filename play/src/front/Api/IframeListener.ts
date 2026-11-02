@@ -27,6 +27,7 @@ import { scriptUtils } from "./ScriptUtils";
 import type { IframeQueryMap, IframeResponseEvent } from "./Events/IframeEvent";
 import { isIframeEventWrapper, isIframeQueryWrapper, isLookingLikeIframeEventWrapper } from "./Events/IframeEvent";
 import type { PlaySoundEvent } from "./Events/PlaySoundEvent";
+import type { KeyDownEvent } from "./Events/KeyDownEvent";
 import type { StopSoundEvent } from "./Events/StopSoundEvent";
 import type { LoadSoundEvent } from "./Events/LoadSoundEvent";
 import type { SetPropertyEvent } from "./Events/SetPropertyEvent";
@@ -245,6 +246,7 @@ class IframeListener {
     private readonly scripts = new Map<string, HTMLIFrameElement>();
 
     private sendPlayerMove = false;
+    private sendKeyDown = false;
 
     // Note: we are forced to type this in unknown and later cast with "as" because of https://github.com/microsoft/TypeScript/issues/31904
     private answerers: {
@@ -529,6 +531,8 @@ class IframeListener {
                             this._removeBubbleStream.next();
                         } else if (iframeEvent.type == "onPlayerMove") {
                             this.sendPlayerMove = true;
+                        } else if (iframeEvent.type == "onKeyDown") {
+                            this.sendKeyDown = true;
                         } else if (iframeEvent.type == "addActionsMenuKeyToRemotePlayer") {
                             this._addActionsMenuKeyToRemotePlayerStream.next(iframeEvent.data);
                         } else if (iframeEvent.type == "removeActionsMenuKeyFromRemotePlayer") {
@@ -1046,6 +1050,15 @@ class IframeListener {
                     direction: ProtobufClientUtils.toDirectionString(event.direction),
                     moving: event.moving,
                 },
+            });
+        }
+    }
+
+    sendKeyDownEvent(event: KeyDownEvent) {
+        if (this.sendKeyDown) {
+            this.postMessage({
+                type: "keyDownEvent",
+                data: event,
             });
         }
     }

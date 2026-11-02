@@ -1,7 +1,32 @@
+import { Subject, type Subscription } from "rxjs";
+import type { KeyDownEvent, KeyDownEventCallback } from "../Events/KeyDownEvent";
+import { apiCallback } from "./registeredCallbacks";
 import { IframeApiContribution, sendToWorkadventure } from "./IframeApiContribution";
 
+const keyDownStream = new Subject<KeyDownEvent>();
+
 export class WorkadventureControlsCommands extends IframeApiContribution<WorkadventureControlsCommands> {
-    callbacks = [];
+    callbacks = [
+        apiCallback({
+            type: "keyDownEvent",
+            callback: (payloadData) => keyDownStream.next(payloadData),
+        }),
+    ];
+
+    /**
+     * Listens to keys pressed while the game keeps focus, so map scripts can bind
+     * hotkeys without taking keyboard focus away from the player.
+     * @param callback called with the pressed key on every keydown
+     * @return Subscription to the stream. Use ".unsubscribe()" to stop listening.
+     */
+    onKeyDown(callback: KeyDownEventCallback): Subscription {
+        const subscription = keyDownStream.subscribe(callback);
+        sendToWorkadventure({
+            type: "onKeyDown",
+            data: undefined,
+        });
+        return subscription;
+    }
 
     /**
      *  Disable player controls.

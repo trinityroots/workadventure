@@ -20,6 +20,7 @@ import { followRoleStore, followStateStore, followUsersStore } from "../../Store
 import { localUserStore } from "../../Connection/LocalUserStore";
 import { isKeyFromInteractiveElement } from "../../Utils/isKeyFromInteractiveElement";
 import { waScaleManager } from "../Services/WaScaleManager";
+import { iframeListener } from "../../Api/IframeListener";
 import { MapDragPointerCapture } from "./MapDragPointerCapture";
 import { MapDragGesture } from "./MapDragGesture";
 import { MapPanShortcut } from "./MapPanShortcut";
@@ -365,6 +366,7 @@ export class GameSceneUserInputHandler implements UserInputHandlerInterface {
         }
     }
     public handleKeyDownEvent(event: KeyboardEvent): KeyboardEvent {
+        iframeListener.sendKeyDownEvent({ key: event.key, code: event.code, repeat: event.repeat });
         const hasExecutedCommand = this.gameScene.getMapEditorModeManager()?.handleKeyDownEvent(event);
         if (hasExecutedCommand) {
             return event;

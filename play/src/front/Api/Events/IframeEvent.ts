@@ -34,6 +34,7 @@ import { isColorEvent } from "./ColorEvent";
 import { isMovePlayerToEventConfig } from "./MovePlayerToEvent";
 import { isMovePlayerToEventAnswer } from "./MovePlayerToEventAnswer";
 import { isAddActionsMenuKeyToRemotePlayerEvent } from "./AddActionsMenuKeyToRemotePlayerEvent";
+import { isKeyDownEvent } from "./KeyDownEvent";
 import { isRemoveActionsMenuKeyFromRemotePlayerEvent } from "./RemoveActionsMenuKeyFromRemotePlayerEvent";
 import { isSetAreaPropertyEvent } from "./SetAreaPropertyEvent";
 import { isCreateUIWebsiteEvent, isModifyUIWebsiteEvent, isUIWebsiteEvent } from "./Ui/UIWebsiteEvent";
@@ -201,6 +202,10 @@ export const isIframeEventWrapper = z.union([
     }),
     z.object({
         type: z.literal("onPlayerMove"),
+        data: z.undefined(),
+    }),
+    z.object({
+        type: z.literal("onKeyDown"),
         data: z.undefined(),
     }),
     z.object({
@@ -451,6 +456,10 @@ export const isIframeResponseEvent = z.union([
     z.object({
         type: z.literal("hasPlayerMoved"),
         data: isHasPlayerMovedEvent,
+    }),
+    z.object({
+        type: z.literal("keyDownEvent"),
+        data: isKeyDownEvent,
     }),
     z.object({
         type: z.literal("wasCameraUpdated"),
