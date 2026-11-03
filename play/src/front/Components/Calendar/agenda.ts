@@ -102,7 +102,7 @@ export function overlapsWith(
 // undefined locale everywhere: follow the browser's own date/time settings.
 
 export function formatTime(date: Date): string {
-    return date.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" });
+    return date.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
 }
 
 /** "Today", "Tomorrow", then the weekday. */

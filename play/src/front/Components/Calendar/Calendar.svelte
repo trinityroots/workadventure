@@ -54,7 +54,7 @@
             <h3 class="m-0 truncate text-sm normal-case leading-tight">
                 {$LL.externalModule.calendar.title()}
             </h3>
-            <span class="truncate text-xxs text-contrast-200">
+            <span class="truncate text-xs text-contrast-200">
                 {now.toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long" })}
             </span>
         </div>
@@ -99,11 +99,11 @@
                         <div class="flex items-baseline justify-between gap-2">
                             <h4 class="m-0 font-title text-sm font-medium normal-case">
                                 {formatDayName(day.date, now)}
-                                <span class="font-main text-xxs font-normal text-contrast-200">
+                                <span class="font-main text-xs font-normal text-contrast-200">
                                     {day.date.toLocaleDateString(undefined, { day: "numeric", month: "long" })}
                                 </span>
                             </h4>
-                            <span class="whitespace-nowrap text-xxs text-contrast-200">
+                            <span class="whitespace-nowrap text-xs text-contrast-200">
                                 {$LL.externalModule.calendar.meetingCount({ count: day.count })}
                             </span>
                         </div>

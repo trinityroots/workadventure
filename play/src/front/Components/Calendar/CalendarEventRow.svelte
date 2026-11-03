@@ -30,7 +30,7 @@
     {/if}
 
     <div class="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 px-1 py-1.5">
-        <span class="rounded-md bg-white/10 px-1.5 py-0.5 text-xs font-bold tabular-nums">
+        <span class="text-xs font-bold tabular-nums">
             {formatTime(event.start)}
         </span>
         <div class="flex min-w-0 flex-col">
@@ -38,9 +38,9 @@
                 {#if long}
                     <IconStack2 class="h-3.5 w-3.5 shrink-0 text-contrast-200" aria-hidden="true" />
                 {/if}
-                <span class="truncate text-[13px] font-bold {ended ? 'line-through' : ''}">{event.title}</span>
+                <span class="truncate text-sm font-bold {ended ? 'line-through' : ''}">{event.title}</span>
             </span>
-            <span class="text-xxs text-contrast-200">
+            <span class="text-xs text-contrast-200">
                 {#if inProgress}
                     <span class="font-bold text-danger-600">{$LL.externalModule.calendar.inProgress()}</span>&nbsp;·
                 {/if}

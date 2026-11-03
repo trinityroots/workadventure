@@ -76,7 +76,7 @@
         </button>
     </div>
 
-    <div class="grid grid-cols-7 gap-0.5 text-center text-xxs uppercase text-contrast-200">
+    <div class="grid grid-cols-7 gap-0.5 text-center text-xs uppercase text-contrast-200">
         {#each weekdays as weekday (weekday)}
             <span>{weekday}</span>
         {/each}
