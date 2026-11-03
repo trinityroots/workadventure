@@ -30,8 +30,8 @@ roomListWidthStore.subscribe((value) => {
     localUserStore.setChatRoomListWidth(value);
 });
 
-// The agenda / tasks panel alone always leaves enough room (it only takes room from md up): it counts with the
-// chat or the map editor.
+// The tasks panel alone always leaves enough room (it only takes room from md up): it counts with the chat
+// or the map editor. The agenda needs no room of its own — it is a tab of the chat sidebar.
 export const hideActionBarStoreBecauseOfChatBar = derived(
     [
         chatVisibilityStore,

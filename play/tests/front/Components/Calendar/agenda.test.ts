@@ -40,10 +40,20 @@ describe("buildAgenda", () => {
         expect(days.map((day) => day.count)).toEqual([1, 1]);
     });
 
-    it("drops finished meetings but keeps the one in progress", () => {
-        const [day] = buildAgenda([event("done", "16:00", "17:00"), event("running", "17:00", "17:30")], NOW);
-        expect(day.items.map((item) => (item.kind === "event" ? item.event.id : item.kind))).toEqual(["running"]);
-        expect(day.count).toBe(1);
+    it("keeps today's finished meetings but drops the ones that ended before today", () => {
+        const [day] = buildAgenda(
+            [
+                event("done", "16:00", "17:00"),
+                event("running", "17:00", "17:30"),
+                event("gone", "16:00+-1", "17:00+-1"),
+            ],
+            NOW,
+        );
+        expect(day.items.map((item) => (item.kind === "event" ? item.event.id : item.kind))).toEqual([
+            "done",
+            "running",
+        ]);
+        expect(day.count).toBe(2);
     });
 
     it("keeps a meeting started yesterday and still running in today", () => {

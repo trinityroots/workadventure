@@ -18,7 +18,7 @@
         mapEditorModeStore,
         mapEditorSelectedEntityPrefabStore,
     } from "../../Stores/MapEditorStore";
-    import { isCalendarVisibleStore } from "../../Stores/CalendarStore";
+    import { closeCalendarSidebar } from "../Calendar/sidebar";
     import { isTodoListVisibleStore } from "../../Stores/TodoListStore";
     import { warningMessageStore } from "../../Stores/ErrorStore";
     import { EditorToolName } from "../../Phaser/Game/MapEditor/MapEditorModeManager";
@@ -120,7 +120,7 @@
         mapEditorEntityModeStore.set("ADD");
         mapEditorSelectedEntityPrefabStore.set($state.snapshot(entityPrefab || defaultEntityPrefab));
         isTodoListVisibleStore.set(false);
-        isCalendarVisibleStore.set(false);
+        closeCalendarSidebar();
 
         mapEditorCopiedEntityDataPropertiesStore.update((properties) => {
             const newProperties = properties ? [...properties] : [];

@@ -5,10 +5,8 @@
     import ActionBarButton from "../ActionBarButton.svelte";
     import ExternalComponents from "../../ExternalModules/ExternalComponents.svelte";
     import LL from "../../../../i18n/i18n-svelte";
-    import {
-        isActivatedStore as isCalendarActivatedStore,
-        isCalendarVisibleStore,
-    } from "../../../Stores/CalendarStore";
+    import { isActivatedStore as isCalendarActivatedStore } from "../../../Stores/CalendarStore";
+    import { closeCalendarSidebar, isCalendarSidebarOpen, openCalendarSidebar } from "../../Calendar/sidebar";
     import {
         isActivatedStore as isTodoListActivatedStore,
         isTodoListVisibleStore,
@@ -57,10 +55,13 @@
     // read the new state. Reporting first counted the click that closes the panel as
     // an opening too.
     function openExternalModuleCalendar() {
-        isCalendarVisibleStore.set(!$isCalendarVisibleStore);
+        const opening = !isCalendarSidebarOpen();
         isTodoListVisibleStore.set(false);
-        if ($isCalendarVisibleStore) {
+        if (opening) {
+            openCalendarSidebar();
             analyticsClient.trackAdminEvent("external_module.calendar_opened");
+        } else {
+            closeCalendarSidebar();
         }
         mapEditorModeStore.switchMode(false);
         openedMenuStore.closeAll();
@@ -68,7 +69,7 @@
 
     function openExternalModuleTodoList() {
         isTodoListVisibleStore.set(!$isTodoListVisibleStore);
-        isCalendarVisibleStore.set(false);
+        closeCalendarSidebar();
         if ($isTodoListVisibleStore) {
             analyticsClient.trackAdminEvent("external_module.todo_list_opened");
         }

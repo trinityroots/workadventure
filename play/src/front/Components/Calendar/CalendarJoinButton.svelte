@@ -3,7 +3,7 @@
     import Button from "../UI/Button.svelte";
     import LL from "../../../i18n/i18n-svelte";
     import { scriptUtils } from "../../Api/ScriptUtils";
-    import { isCalendarVisibleStore } from "../../Stores/CalendarStore";
+    import { chatVisibilityStore } from "../../Stores/ChatStore";
     import { gameManager } from "../../Phaser/Game/GameManager";
     import { IconDoorIn, IconVideo } from "@wa-icons";
 
@@ -41,7 +41,7 @@
             const target = new URLSearchParams(url.hash.slice(1)).get("moveTo");
             if (target) scene.walkToMoveTarget(target);
             // Already in the meeting's map, which has no area to walk to: just get the agenda out of the way.
-            else isCalendarVisibleStore.set(false);
+            else chatVisibilityStore.set(false);
         } else {
             scene.onMapExit(url).catch((e) => console.error(e));
         }

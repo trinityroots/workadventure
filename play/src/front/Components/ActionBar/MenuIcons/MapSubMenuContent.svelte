@@ -17,7 +17,7 @@
     import { mapEditorModeStore, mapExplorationModeStore } from "../../../Stores/MapEditorStore";
     import { gameManager } from "../../../Phaser/Game/GameManager";
     import { isTodoListVisibleStore } from "../../../Stores/TodoListStore";
-    import { isCalendarVisibleStore } from "../../../Stores/CalendarStore";
+    import { closeCalendarSidebar } from "../../Calendar/sidebar";
     import { chatVisibilityStore } from "../../../Stores/ChatStore";
     import ActionBarButton from "../ActionBarButton.svelte";
     import { EditorToolName } from "../../../Phaser/Game/MapEditor/MapEditorModeManager";
@@ -59,7 +59,7 @@
             gameManager.getCurrentGameScene().getMapEditorModeManager()?.equipTool(EditorToolName.EntityEditor);
         }
         isTodoListVisibleStore.set(false);
-        isCalendarVisibleStore.set(false);
+        closeCalendarSidebar();
         closeMapMenu();
     }
 
@@ -74,7 +74,7 @@
 
         analyticsClient.trackAdminEvent("map_explorer.top_button_clicked");
         isTodoListVisibleStore.set(false);
-        isCalendarVisibleStore.set(false);
+        closeCalendarSidebar();
         closeMapMenu();
     }
 

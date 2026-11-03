@@ -78,7 +78,10 @@ export async function refreshCalendar(): Promise<void> {
             isActivatedStore.set(false);
             return;
         }
-        if (!response.ok) return;
+        if (!response.ok) {
+            console.warn("Could not load the calendar: HTTP", response.status);
+            return;
+        }
         const data = (await response.json()) as { items?: AdminCalendarEvent[] };
         const events = (data.items || []).filter((item) => item.status !== "cancelled").map(toCalendarEvent);
         calendarEventsStore.set(new Map(events.map((event) => [event.id, event])));

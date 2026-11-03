@@ -1,15 +1,12 @@
 <script lang="ts">
     import ActionBarButton from "../ActionBarButton.svelte";
     import { IconCalendar, IconCalendarFilled } from "../../Icons";
-    import { isCalendarVisibleStore } from "../../../Stores/CalendarStore";
-    import { menuVisiblilityStore } from "../../../Stores/MenuStore";
+    import { closeCalendarSidebar, isCalendarSidebarOpen, openCalendarSidebar } from "../../Calendar/sidebar";
     import LL from "../../../../i18n/i18n-svelte";
 
     function toggleCalendar() {
-        if (!$isCalendarVisibleStore) {
-            menuVisiblilityStore.set(false);
-        }
-        isCalendarVisibleStore.set(!$isCalendarVisibleStore);
+        if (isCalendarSidebarOpen()) closeCalendarSidebar();
+        else openCalendarSidebar();
     }
 </script>
 

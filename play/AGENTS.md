@@ -47,6 +47,9 @@ Do not edit generated `src/i18n/i18n-*.ts` files directly.
 ## Frontend conventions
 
 - New and migrated Svelte components use Svelte 5 runes (`$props`, `$state`, `$derived`, `$effect`).
+- Panels the action bar opens (agenda, tasks, chat, users) are tabs of the chat sidebar:
+  `navChat.switchToCustomComponent(...)` plus `chatVisibilityStore.set(true)` — never a second
+  absolutely-positioned drawer, which would duplicate the close control and sit open beside the users list.
 - Match the translation import style and UI patterns of neighboring components.
 - Event listeners and subscriptions must have explicit cleanup. ESLint checks listener removal and ignored subscriptions.
 - For Phaser or media behavior, test actual runtime state rather than relying only on rendered DOM state.

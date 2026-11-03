@@ -16,7 +16,6 @@
     import { coWebsites, windowSize } from "../Stores/CoWebsiteStore";
     import { proximityMeetingStore } from "../Stores/MyMediaStore";
     import { notificationPlayingStore } from "../Stores/NotificationStore";
-    import { isCalendarVisibleStore } from "../Stores/CalendarStore";
     import { isActivatedStore as todoListIsActivatedStore, isTodoListVisibleStore } from "../Stores/TodoListStore";
     import { popupStore } from "../Stores/PopupStore";
     import {
@@ -78,7 +77,6 @@
     import RaisedHandsDock from "./Video/RaisedHandsDock.svelte";
     import ExplorerMenu from "./ActionsMenu/ExplorerMenu.svelte";
     import RecordingsListModal from "./PopUp/Recording/RecordingsListModal.svelte";
-    import Calendar from "./Calendar/Calendar.svelte";
     import MeetingStartToast from "./Calendar/MeetingStartToast.svelte";
     import TodoList from "./TodoList/TodoList.svelte";
     import ProximityNotificationContainer from "./ProximityNotification/ProximityNotificationContainer.svelte";
@@ -336,10 +334,8 @@
 
     <!-- Rendered here rather than beside #main-layout: its notifications and toasts must show above these
          panels, and they cannot leave its stacking context (z-10). From md up, the panel sits in the room
-         marginRight makes for it (sidePanelWidthStore), left of the map editor's (--side-panel-end). -->
-    {#if $isCalendarVisibleStore}
-        <Calendar />
-    {/if}
+         marginRight makes for it (sidePanelWidthStore), left of the map editor's (--side-panel-end). The
+         agenda is not here: it is a tab of the chat sidebar. -->
     {#if $todoListIsActivatedStore && $isTodoListVisibleStore}
         <TodoList />
     {/if}

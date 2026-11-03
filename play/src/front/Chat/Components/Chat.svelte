@@ -26,7 +26,11 @@
 <div class="flex flex-col h-full">
     <div id="chatModal" class="absolute to-50%"></div>
     <div class="flex flex-col gap-2 !flex-1 min-h-0">
-        {#if !$chatConnectionStore}
+        {#if $navChat.key === "externalModule"}
+            <!-- An external panel (the agenda) needs no chat connection, so it goes first. -->
+            {@const NavChat = $navChat.component}
+            <NavChat {...rest} {...$navChat.props} />
+        {:else if !$chatConnectionStore}
             <ChatLoader label={$LL.chat.connecting()} />
         {:else if $navChat.key === "users"}
             {#await userProviderMergerPromise}
@@ -40,9 +44,6 @@
             {#key $navChat}
                 <CreateRoomView kind={$navChat.kind} parentID={$navChat.parentID} parentName={$navChat.parentName} />
             {/key}
-        {:else if $navChat.key === "externalModule"}
-            {@const NavChat = $navChat.component}
-            <NavChat {...rest} {...$navChat.props} />
         {:else}
             <RoomList {sideBarWidth} />
         {/if}
