@@ -32,13 +32,8 @@
     {/if}
 
     <div class="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2.5 px-1 py-2">
-        <span
-            class="flex flex-col self-start rounded-md bg-white/10 px-2 py-1 text-center tabular-nums leading-tight {next
-                ? 'text-light-blue'
-                : ''}"
-        >
-            <span class="text-sm font-bold">{formatTime(event.start)}</span>
-            <span class="text-xxs opacity-70">{formatTime(event.end)}</span>
+        <span class="rounded-md bg-white/10 px-2 py-1 text-sm font-bold tabular-nums {next ? 'text-light-blue' : ''}">
+            {formatTime(event.start)}
         </span>
         <div class="flex min-w-0 flex-col gap-0.5">
             <span class="flex min-w-0 items-center gap-1.5">
