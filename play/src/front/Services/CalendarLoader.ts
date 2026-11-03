@@ -8,7 +8,7 @@ const RETRY_MS = 5_000;
 const MAX_RETRIES = 12;
 
 /** Google Calendar event as returned by the admin's /api/calendar/events. */
-interface AdminCalendarEvent {
+export interface AdminCalendarEvent {
     id: string;
     status?: string;
     summary?: string;
@@ -29,14 +29,13 @@ function isWorkAdventureUrl(url: string): boolean {
     }
 }
 
-function toCalendarEvent(item: AdminCalendarEvent): CalendarEventInterface {
+export function toCalendarEvent(item: AdminCalendarEvent): CalendarEventInterface {
     const startValue = item.start.dateTime || item.start.date;
     const endValue = item.end.dateTime || item.end.date;
     const videoUrl = item.conferenceData?.entryPoints?.find((entry) => entry.entryPointType === "video")?.uri;
-    // A meeting-room event points at the map area itself instead of a video call.
+    // A meeting-room event points at the map area itself; it wins over any video call also attached.
     const roomUrl = item.location && isWorkAdventureUrl(item.location) ? item.location : undefined;
-    const joinUrl = videoUrl || roomUrl || item.htmlLink;
-    const isWorkAdventure = Boolean(joinUrl && isWorkAdventureUrl(joinUrl));
+    const joinUrl = roomUrl || videoUrl || item.htmlLink;
 
     return {
         id: item.id,
@@ -45,7 +44,7 @@ function toCalendarEvent(item: AdminCalendarEvent): CalendarEventInterface {
         start: new Date(startValue || Date.now()),
         end: new Date(endValue || Date.now()),
         allDay: Boolean(item.start.date),
-        resource: joinUrl ? { onlineMeeting: { joinUrl, isWorkAdventure } } : undefined,
+        resource: joinUrl ? { onlineMeeting: { joinUrl, isWorkAdventure: Boolean(roomUrl) } } : undefined,
     };
 }
 
