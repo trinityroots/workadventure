@@ -4,13 +4,13 @@
     import LL from "../../../i18n/i18n-svelte";
 
     import Button from "../UI/Button.svelte";
-    import { IconCalendar } from "../Icons";
     import { userIsConnected } from "../../Stores/MenuStore";
     import { analyticsClient } from "../../Administration/AnalyticsClient";
     import { externalSvelteComponentService } from "../../Stores/Utils/externalSvelteComponentService";
     import ExternalComponents from "../ExternalModules/ExternalComponents.svelte";
     import { refreshCalendar } from "../../Services/CalendarLoader";
     import { buildAgenda, formatDayName, startOfDay } from "./agenda";
+    import type { AgendaItem } from "./agenda";
     import CalendarEventRow from "./CalendarEventRow.svelte";
     import CalendarOverlapGroup from "./CalendarOverlapGroup.svelte";
     import CalendarMonthGrid from "./CalendarMonthGrid.svelte";
@@ -43,6 +43,11 @@
         refreshCalendar().catch(() => undefined);
     }
 
+    /** The first meeting of the day that has not finished yet: it carries the accent. */
+    function firstUpcomingIndex(items: AgendaItem[], at: Date): number {
+        return items.findIndex((item) => (item.kind === "overlap" ? item.events[0] : item.event).end > at);
+    }
+
     function goToLoginPage() {
         analyticsClient.trackAdminEvent("auth.login_clicked");
         window.location.href = "/login";
@@ -51,16 +56,13 @@
 
 <div class="flex h-full min-h-0 flex-col gap-3 p-3 select-text">
     <header class="flex items-center justify-between gap-2">
-        <div class="flex min-w-0 items-center gap-2">
-            <IconCalendar class="h-5 w-5 shrink-0" />
-            <div class="flex min-w-0 flex-col">
-                <h3 class="m-0 truncate text-base normal-case leading-tight">
-                    {$LL.externalModule.calendar.title()}
-                </h3>
-                <span class="truncate text-xs text-contrast-200">
-                    {now.toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long" })}
-                </span>
-            </div>
+        <div class="flex min-w-0 flex-col">
+            <h3 class="m-0 truncate text-base normal-case leading-tight">
+                {$LL.externalModule.calendar.title()}
+            </h3>
+            <span class="truncate text-xs text-contrast-200">
+                {now.toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long" })}
+            </span>
         </div>
         <div class="flex shrink-0 items-center gap-1">
             <Button size="xs" variant="light" appearance="border" class="m-0" onclick={goToday}>Today</Button>
@@ -75,6 +77,8 @@
             </button>
         </div>
     </header>
+
+    <div class="h-px bg-white/10" aria-hidden="true"></div>
 
     {#if !$userIsConnected && get(externalSvelteComponentService.getComponentsByZone("calendarButton")).size == 0}
         <Button variant="secondary" onclick={goToLoginPage}>{$LL.menu.profile.login()}</Button>
@@ -118,11 +122,16 @@
                     </div>
 
                     <!-- Finished meetings stay in the list, muted; the ones in progress show how far along they are. -->
-                    {#each day.items as item (item.kind === "overlap" ? `overlap-${item.events[0].id}` : item.event.id)}
+                    {#each day.items as item, index (item.kind === "overlap" ? `overlap-${item.events[0].id}` : item.event.id)}
                         {#if item.kind === "overlap"}
                             <CalendarOverlapGroup start={item.start} end={item.end} events={item.events} {now} />
                         {:else}
-                            <CalendarEventRow event={item.event} long={item.kind === "long"} {now} />
+                            <CalendarEventRow
+                                event={item.event}
+                                long={item.kind === "long"}
+                                next={index === firstUpcomingIndex(day.items, now)}
+                                {now}
+                            />
                         {/if}
                     {/each}
                 </section>

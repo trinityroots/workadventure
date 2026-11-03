@@ -26,8 +26,6 @@
         fill-rule="evenodd"
         aria-hidden="true"
     >
-        <path
-            d="M7 2h2v3h6V2h2v3h1a3 3 0 0 1 3 3v11a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V8a3 3 0 0 1 3-3h1V2Zm0 10v5h10v-5H7Z"
-        />
+        <path d="M7 2h2v2h6V2h2v2h1a3 3 0 0 1 3 3v3H3V7a3 3 0 0 1 3-3h1V2ZM3 12h18v7a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3v-7Z" />
     </svg>
 </ActionBarButton>

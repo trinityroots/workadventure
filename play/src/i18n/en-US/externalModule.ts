@@ -107,7 +107,7 @@ const externalModule: BaseTranslation = {
             "You are already connected, please click on the button to logout and reconnect.",
     },
     calendar: {
-        title: "Your upcoming meetings",
+        title: "Calendar",
         joinMeeting: "Click here to join the meeting",
         joinMeetingInWorkAdventure: "Click here to join the meeting in WorkAdventure",
         allDay: "All day",

@@ -1,8 +1,8 @@
 <script lang="ts">
     import type { CalendarEventInterface } from "@workadventure/shared-utils";
     import { SvelteDate, SvelteMap } from "svelte/reactivity";
-    import Button from "../UI/Button.svelte";
     import { startOfDay } from "./agenda";
+    import { IconChevronLeft, IconChevronRight } from "@wa-icons";
 
     interface Props {
         events: CalendarEventInterface[];
@@ -54,12 +54,26 @@
 </script>
 
 <div class="flex flex-col gap-1.5">
-    <div class="flex items-center justify-between gap-2">
-        <Button variant="light" appearance="border" size="xs" class="m-0" onclick={() => shiftMonth(-1)}>‹</Button>
-        <h4 class="m-0 text-sm font-semibold">
+    <div class="flex items-center justify-center gap-1.5">
+        <button
+            type="button"
+            aria-label="Previous month"
+            class="hover:bg-white/10 flex h-7 w-7 items-center justify-center rounded-full !text-white"
+            onclick={() => shiftMonth(-1)}
+        >
+            <IconChevronLeft class="h-4 w-4" />
+        </button>
+        <h4 class="m-0 min-w-40 text-center text-sm font-semibold">
             {month.toLocaleDateString(undefined, { month: "long", year: "numeric" })}
         </h4>
-        <Button variant="light" appearance="border" size="xs" class="m-0" onclick={() => shiftMonth(1)}>›</Button>
+        <button
+            type="button"
+            aria-label="Next month"
+            class="hover:bg-white/10 flex h-7 w-7 items-center justify-center rounded-full !text-white"
+            onclick={() => shiftMonth(1)}
+        >
+            <IconChevronRight class="h-4 w-4" />
+        </button>
     </div>
 
     <div class="grid grid-cols-7 gap-0.5 text-center text-xxs uppercase text-contrast-200">
@@ -88,7 +102,7 @@
                 {#if day.count > 0}
                     <span class="flex gap-0.5" aria-hidden="true">
                         {#each [0, 1, 2].slice(0, Math.min(day.count, 3)) as dot (dot)}
-                            <span class="h-1 w-1 rounded-full {day.isSelected ? 'bg-white' : 'bg-secondary'}"></span>
+                            <span class="h-1 w-1 rounded-full {day.isSelected ? 'bg-white' : 'bg-light-blue'}"></span>
                         {/each}
                     </span>
                 {/if}

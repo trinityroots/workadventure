@@ -9,10 +9,12 @@
         event: CalendarEventInterface;
         /** A long event, running alongside the meetings rather than competing with them. */
         long?: boolean;
+        /** The day's next meeting: it carries the accent. */
+        next?: boolean;
         now: Date;
     }
 
-    let { event, long = false, now }: Props = $props();
+    let { event, long = false, next = false, now }: Props = $props();
 
     let expanded = $state(false);
     let inProgress = $derived(event.start <= now && now < event.end);
@@ -35,7 +37,7 @@
     {/if}
 
     <div class="grid grid-cols-[3rem_minmax(0,1fr)_auto_auto] items-center gap-2.5 p-2.5">
-        <div class="flex flex-col tabular-nums leading-tight">
+        <div class="flex flex-col tabular-nums leading-tight {next ? 'text-light-blue' : ''}">
             <span class="text-sm font-bold">{formatTime(event.start)}</span>
             <span class="text-xs text-contrast-200">{formatTime(event.end)}</span>
         </div>
@@ -50,13 +52,13 @@
                 {#if long}
                     <IconStack2 class="h-4 w-4 shrink-0 text-contrast-200" aria-hidden="true" />
                 {/if}
-                <span class="truncate">{event.title}</span>
+                <span class="truncate text-[15px] font-semibold {ended ? 'line-through' : ''}">{event.title}</span>
             </span>
             <span class="text-xs text-contrast-200">
                 {#if inProgress}
                     <span class="font-bold text-danger-600">{$LL.externalModule.calendar.inProgress()}</span>&nbsp;·
                 {/if}
-                {formatDuration(event)}{#if event.resource?.onlineMeeting?.isWorkAdventure}&nbsp;· WorkAdventure{/if}
+                {formatDuration(event)}{#if place}&nbsp;· {place}{/if}
             </span>
         </button>
         <CalendarJoinButton {event} />
