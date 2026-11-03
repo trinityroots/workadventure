@@ -23,6 +23,7 @@
     import ChatMenuItem from "./MenuIcons/ChatMenuItem.svelte";
     import UserListMenuItem from "./MenuIcons/UserListMenuItem.svelte";
     import AdditionalMenuItems from "./MenuIcons/AdditionalMenuItems.svelte";
+    import CalendarMenuItem from "./MenuIcons/CalendarMenuItem.svelte";
     import ResponsiveActionBar from "./ResponsiveActionBar.svelte";
     import ProfileMenu from "./MenuIcons/ProfileMenu.svelte";
     import VisibilityChecker from "./VisibilityChecker.svelte";
@@ -61,6 +62,7 @@
                             <CloseChatMenuItem />
                         {/if}
                         <AdditionalMenuItems menu="left" />
+                        <CalendarMenuItem />
                     </div>
                 </div>
             {/snippet}

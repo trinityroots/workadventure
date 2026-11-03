@@ -45,6 +45,7 @@
     import type { WorkAdventureComponent } from "../../types/component";
     import { LL } from "../../i18n/i18n-svelte";
     import { sidePanelWidthStore } from "../Stores/SidePanelStore";
+    import { startCalendarLoader } from "../Services/CalendarLoader";
     import { mapEditorSideBarWidthStore } from "./MapEditor/MapEditorSideBarWidthStore";
     import { calendarRemindersStore, startCalendarReminders } from "./Calendar/CalendarReminder";
     import ActionBar from "./ActionBar/ActionBar.svelte";
@@ -180,6 +181,7 @@
         document.addEventListener("focusin", handleFocusInEvent);
         document.addEventListener("focusout", handleFocusOutEvent);
         stopCalendarReminders = startCalendarReminders();
+        startCalendarLoader();
     });
 
     onDestroy(() => {

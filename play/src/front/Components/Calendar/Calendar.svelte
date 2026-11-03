@@ -8,17 +8,17 @@
     import calendarPng from "../images/applications/calendar.png";
     import ButtonClose from "../Input/ButtonClose.svelte";
     import Button from "../UI/Button.svelte";
-    import Badge from "../UI/Badge.svelte";
     import { userIsConnected } from "../../Stores/MenuStore";
     import { analyticsClient } from "../../Administration/AnalyticsClient";
     import { blocker } from "../../Utils/screenBlocker";
     import { externalSvelteComponentService } from "../../Stores/Utils/externalSvelteComponentService";
     import ExternalComponents from "../ExternalModules/ExternalComponents.svelte";
-    import { buildAgenda, formatDayName, meetingsInProgress, nextMeeting, overlapsWith } from "./agenda";
+    import { buildAgenda, formatDayName, meetingsInProgress, nextMeeting, overlapsWith, startOfDay } from "./agenda";
     import CalendarNextMeeting from "./CalendarNextMeeting.svelte";
     import CalendarMeetingsInProgress from "./CalendarMeetingsInProgress.svelte";
     import CalendarEventRow from "./CalendarEventRow.svelte";
     import CalendarOverlapGroup from "./CalendarOverlapGroup.svelte";
+    import CalendarMonthGrid from "./CalendarMonthGrid.svelte";
 
     // "in 5 minutes", the now line and the next meeting all go stale: refresh them twice a minute.
     let now = $state(new Date());
@@ -27,10 +27,15 @@
         return () => clearInterval(interval);
     });
 
-    let days = $derived(buildAgenda($calendarEventsStore.values(), now));
+    // The month grid picks the day whose agenda is listed underneath.
+    let selectedDay = $state(startOfDay(new Date()));
+    let days = $derived(
+        buildAgenda($calendarEventsStore.values(), selectedDay).filter(
+            (day) => startOfDay(day.date).getTime() === selectedDay.getTime(),
+        ),
+    );
     let next = $derived(nextMeeting($calendarEventsStore.values(), now));
     let inProgress = $derived(meetingsInProgress($calendarEventsStore.values(), now));
-
     let sections: HTMLElement[] = $state([]);
 
     function closeCalendar() {
@@ -86,24 +91,13 @@
             <CalendarNextMeeting event={next} overlaps={overlapsWith(next, $calendarEventsStore.values())} {now} />
         {/if}
 
-        {#if days.length > 0}
-            <nav aria-label={$LL.externalModule.calendar.days()} class="days flex shrink-0 gap-1.5 overflow-x-auto">
-                {#each days as day, index (day.date.getTime())}
-                    <Button
-                        variant="light"
-                        appearance="border"
-                        size="xs"
-                        class="m-0 shrink-0"
-                        onclick={() => sections[index]?.scrollIntoView({ behavior: "smooth", block: "start" })}
-                    >
-                        {day.date.toLocaleDateString(undefined, { weekday: "short", day: "numeric" })}
-                        {#snippet notification()}
-                            <Badge variant="secondary" size="xs">{day.count}</Badge>
-                        {/snippet}
-                    </Button>
-                {/each}
-            </nav>
+        <CalendarMonthGrid
+            events={[...$calendarEventsStore.values()]}
+            selected={selectedDay}
+            onselect={(date) => (selectedDay = startOfDay(date))}
+        />
 
+        {#if days.length > 0}
             <div class="-mx-1 min-h-0 overflow-y-auto px-1">
                 {#each days as day, dayIndex (day.date.getTime())}
                     <section bind:this={sections[dayIndex]} class="flex flex-col gap-2 pb-3">
@@ -161,15 +155,6 @@
             display: flex;
             flex-direction: column;
             gap: 12px;
-        }
-
-        /* A week of day chips scrolls sideways, without a scrollbar: the chip cut at the edge shows there is more. */
-        .days {
-            scrollbar-width: none;
-
-            &::-webkit-scrollbar {
-                display: none;
-            }
         }
     }
 </style>
