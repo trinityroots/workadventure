@@ -29,18 +29,18 @@
         <div class="absolute bottom-0 left-0 h-0.5 bg-danger-600/60" style="width: {elapsedPercent}%"></div>
     {/if}
 
-    <div class="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2.5 px-1 py-2">
-        <span class="rounded-md bg-white/10 px-2 py-1 text-sm font-bold tabular-nums">
+    <div class="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 px-1 py-1.5">
+        <span class="rounded-md bg-white/10 px-1.5 py-0.5 text-xs font-bold tabular-nums">
             {formatTime(event.start)}
         </span>
-        <div class="flex min-w-0 flex-col gap-0.5">
+        <div class="flex min-w-0 flex-col">
             <span class="flex min-w-0 items-center gap-1.5">
                 {#if long}
-                    <IconStack2 class="h-4 w-4 shrink-0 text-contrast-200" aria-hidden="true" />
+                    <IconStack2 class="h-3.5 w-3.5 shrink-0 text-contrast-200" aria-hidden="true" />
                 {/if}
-                <span class="truncate text-base font-bold {ended ? 'line-through' : ''}">{event.title}</span>
+                <span class="truncate text-[13px] font-bold {ended ? 'line-through' : ''}">{event.title}</span>
             </span>
-            <span class="text-xs text-contrast-200">
+            <span class="text-xxs text-contrast-200">
                 {#if inProgress}
                     <span class="font-bold text-danger-600">{$LL.externalModule.calendar.inProgress()}</span>&nbsp;·
                 {/if}

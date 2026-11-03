@@ -48,13 +48,13 @@
     }
 </script>
 
-<div class="flex h-full min-h-0 flex-col gap-3 p-3 select-text">
+<div class="flex h-full min-h-0 flex-col gap-2 p-2 select-text">
     <header class="flex items-center justify-between gap-2">
         <div class="flex min-w-0 flex-col">
-            <h3 class="m-0 truncate text-base normal-case leading-tight">
+            <h3 class="m-0 truncate text-sm normal-case leading-tight">
                 {$LL.externalModule.calendar.title()}
             </h3>
-            <span class="truncate text-xs text-contrast-200">
+            <span class="truncate text-xxs text-contrast-200">
                 {now.toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long" })}
             </span>
         </div>
@@ -64,7 +64,7 @@
                 type="button"
                 aria-label="Refresh calendar"
                 data-testid="refreshCalendarButton"
-                class="hover:bg-white/10 flex aspect-square h-8 w-8 items-center justify-center rounded !text-white"
+                class="hover:bg-white/10 flex aspect-square h-7 w-7 items-center justify-center rounded !text-white"
                 onclick={refresh}
             >
                 <IconRefresh font-size="16" />
@@ -94,16 +94,16 @@
     {#if days.length > 0}
         <div class="-mx-1 min-h-0 flex-1 overflow-y-auto px-1">
             {#each days as day, dayIndex (day.date.getTime())}
-                <section bind:this={sections[dayIndex]} class="flex flex-col gap-2 pb-3">
-                    <div class="flex flex-col gap-1.5 border-0 border-b border-solid border-white/10 py-2">
+                <section bind:this={sections[dayIndex]} class="flex flex-col gap-1 pb-2">
+                    <div class="flex flex-col gap-1 border-0 border-b border-solid border-white/10 py-1">
                         <div class="flex items-baseline justify-between gap-2">
-                            <h4 class="m-0 font-title text-lg font-medium normal-case">
+                            <h4 class="m-0 font-title text-sm font-medium normal-case">
                                 {formatDayName(day.date, now)}
-                                <span class="font-main text-sm font-normal text-contrast-200">
+                                <span class="font-main text-xxs font-normal text-contrast-200">
                                     {day.date.toLocaleDateString(undefined, { day: "numeric", month: "long" })}
                                 </span>
                             </h4>
-                            <span class="whitespace-nowrap text-sm text-contrast-200">
+                            <span class="whitespace-nowrap text-xxs text-contrast-200">
                                 {$LL.externalModule.calendar.meetingCount({ count: day.count })}
                             </span>
                         </div>

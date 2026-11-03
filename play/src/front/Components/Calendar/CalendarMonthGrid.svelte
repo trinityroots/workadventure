@@ -58,18 +58,18 @@
         <button
             type="button"
             aria-label="Previous month"
-            class="hover:bg-white/10 flex h-7 w-7 items-center justify-center rounded-full !text-white"
+            class="hover:bg-white/10 flex h-6 w-6 items-center justify-center rounded-full !text-white"
             onclick={() => shiftMonth(-1)}
         >
             <IconChevronLeft class="h-4 w-4" />
         </button>
-        <h4 class="m-0 min-w-40 text-center text-sm font-semibold">
+        <h4 class="m-0 min-w-40 text-center text-xs font-semibold">
             {month.toLocaleDateString(undefined, { month: "long", year: "numeric" })}
         </h4>
         <button
             type="button"
             aria-label="Next month"
-            class="hover:bg-white/10 flex h-7 w-7 items-center justify-center rounded-full !text-white"
+            class="hover:bg-white/10 flex h-6 w-6 items-center justify-center rounded-full !text-white"
             onclick={() => shiftMonth(1)}
         >
             <IconChevronRight class="h-4 w-4" />
@@ -89,7 +89,7 @@
                 aria-current={day.isToday ? "date" : undefined}
                 aria-pressed={day.isSelected}
                 aria-label={day.date.toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long" })}
-                class="relative flex h-10 flex-col items-center justify-center gap-0.5 rounded-lg text-sm transition-colors
+                class="relative flex h-9 flex-col items-center justify-center gap-0.5 rounded-lg text-xs transition-colors
                     {day.isSelected
                     ? 'bg-secondary font-bold text-white'
                     : day.isToday
