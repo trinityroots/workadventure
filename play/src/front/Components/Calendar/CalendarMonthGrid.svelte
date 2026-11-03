@@ -1,6 +1,5 @@
 <script lang="ts">
     import type { CalendarEventInterface } from "@workadventure/shared-utils";
-    import { untrack } from "svelte";
     import { SvelteDate, SvelteMap } from "svelte/reactivity";
     import Button from "../UI/Button.svelte";
     import { startOfDay } from "./agenda";
@@ -8,18 +7,12 @@
     interface Props {
         events: CalendarEventInterface[];
         selected: Date;
+        month: Date;
+        onmonth: (month: Date) => void;
         onselect: (date: Date) => void;
     }
 
-    let { events, selected, onselect }: Props = $props();
-
-    // Seeded once from the incoming day: after that the grid navigates on its own.
-    let cursor = new SvelteDate(
-        untrack(() => selected.getFullYear()),
-        untrack(() => selected.getMonth()),
-        1,
-    );
-    let today = new SvelteDate(startOfDay(new Date()));
+    let { events, selected, month, onmonth, onselect }: Props = $props();
 
     let counts = $derived.by(() => {
         const map = new SvelteMap<number, number>();
@@ -32,9 +25,10 @@
 
     // Six weeks of seven days keeps every month the same height, so the agenda below never jumps.
     let weeks = $derived.by(() => {
-        const first = new SvelteDate(cursor.getFullYear(), cursor.getMonth(), 1);
+        const first = new SvelteDate(month.getFullYear(), month.getMonth(), 1);
         const start = new SvelteDate(first);
         start.setDate(first.getDate() - ((first.getDay() + 6) % 7));
+        const todayKey = startOfDay(new SvelteDate()).getTime();
 
         const days: { date: SvelteDate; inMonth: boolean; count: number; isToday: boolean; isSelected: boolean }[] = [];
         for (let index = 0; index < 42; index++) {
@@ -43,9 +37,9 @@
             const key = startOfDay(date).getTime();
             days.push({
                 date,
-                inMonth: date.getMonth() === cursor.getMonth(),
+                inMonth: date.getMonth() === month.getMonth(),
                 count: counts.get(key) ?? 0,
-                isToday: key === today.getTime(),
+                isToday: key === todayKey,
                 isSelected: key === startOfDay(selected).getTime(),
             });
         }
@@ -55,14 +49,7 @@
     const weekdays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
     function shiftMonth(delta: number) {
-        cursor.setFullYear(cursor.getFullYear(), cursor.getMonth() + delta, 1);
-    }
-
-    function goToday() {
-        const now = new SvelteDate();
-        today.setTime(startOfDay(now).getTime());
-        cursor.setFullYear(now.getFullYear(), now.getMonth(), 1);
-        onselect(now);
+        onmonth(new SvelteDate(month.getFullYear(), month.getMonth() + delta, 1));
     }
 </script>
 
@@ -70,12 +57,9 @@
     <div class="flex items-center justify-between gap-2">
         <Button variant="light" appearance="border" size="xs" class="m-0" onclick={() => shiftMonth(-1)}>‹</Button>
         <h4 class="m-0 text-sm font-semibold">
-            {cursor.toLocaleDateString(undefined, { month: "long", year: "numeric" })}
+            {month.toLocaleDateString(undefined, { month: "long", year: "numeric" })}
         </h4>
-        <div class="flex items-center gap-1">
-            <Button variant="light" appearance="border" size="xs" class="m-0" onclick={goToday}>Today</Button>
-            <Button variant="light" appearance="border" size="xs" class="m-0" onclick={() => shiftMonth(1)}>›</Button>
-        </div>
+        <Button variant="light" appearance="border" size="xs" class="m-0" onclick={() => shiftMonth(1)}>›</Button>
     </div>
 
     <div class="grid grid-cols-7 gap-0.5 text-center text-xxs uppercase text-contrast-200">

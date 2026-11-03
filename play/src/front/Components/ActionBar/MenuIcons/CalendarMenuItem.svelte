@@ -1,6 +1,6 @@
 <script lang="ts">
     import ActionBarButton from "../ActionBarButton.svelte";
-    import { IconCalendar } from "../../Icons";
+    import { IconCalendar, IconCalendarFilled } from "../../Icons";
     import { isActivatedStore, isCalendarVisibleStore } from "../../../Stores/CalendarStore";
     import { menuVisiblilityStore } from "../../../Stores/MenuStore";
     import LL from "../../../../i18n/i18n-svelte";
@@ -21,5 +21,7 @@
     state={$isActivatedStore ? "normal" : "disabled"}
     disabledHelp={false}
 >
-    <IconCalendar />
+    <!-- Outline by default, solid while hovered: same read as the chat and users buttons. -->
+    <IconCalendar class="h-6 w-6 group-hover/btn-calendar:hidden" />
+    <IconCalendarFilled class="hidden h-6 w-6 group-hover/btn-calendar:block" />
 </ActionBarButton>
