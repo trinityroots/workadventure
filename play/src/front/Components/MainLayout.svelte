@@ -79,6 +79,7 @@
     import ExplorerMenu from "./ActionsMenu/ExplorerMenu.svelte";
     import RecordingsListModal from "./PopUp/Recording/RecordingsListModal.svelte";
     import Calendar from "./Calendar/Calendar.svelte";
+    import MeetingStartToast from "./Calendar/MeetingStartToast.svelte";
     import TodoList from "./TodoList/TodoList.svelte";
     import ProximityNotificationContainer from "./ProximityNotification/ProximityNotificationContainer.svelte";
     import MeetingInvitationPopup from "./MeetingInvitation/MeetingInvitationPopup.svelte";
@@ -403,14 +404,16 @@
                 <LimitRoomModal />
             {/if}
 
-            <!-- Toast stack, below the action bar, with the host-side raised-hands dock stacked under it so
-                 nothing covers anything else's buttons (the dock self-gates on visibleRaisedHandSectionsStore). -->
+            <!-- Toast stack, below the action bar, with the meeting-start toast and the host-side raised-hands
+                 dock stacked under it so nothing covers anything else's buttons (the dock self-gates on
+                 visibleRaisedHandSectionsStore). -->
             <div class="absolute top-0 right-2 z-[999] flex flex-col gap-2 items-end">
                 {#each [...$toastStore.entries()] as toastEntry (toastEntry[0])}
                     {@const toast = toastEntry[1]}
                     {@const ToastComponent = toast.component}
                     <ToastComponent {...toast.props} />
                 {/each}
+                <MeetingStartToast />
                 <RaisedHandsDock />
             </div>
 

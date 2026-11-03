@@ -20,11 +20,23 @@ interface AdminCalendarEvent {
     conferenceData?: { entryPoints?: { uri?: string; entryPointType?: string }[] };
 }
 
+/** A link back to this play instance: the event takes place in a meeting room of this world. */
+function isWorkAdventureUrl(url: string): boolean {
+    try {
+        return new URL(url).origin === window.location.origin;
+    } catch {
+        return false;
+    }
+}
+
 function toCalendarEvent(item: AdminCalendarEvent): CalendarEventInterface {
     const startValue = item.start.dateTime || item.start.date;
     const endValue = item.end.dateTime || item.end.date;
-    const joinUrl =
-        item.conferenceData?.entryPoints?.find((entry) => entry.entryPointType === "video")?.uri || item.htmlLink;
+    const videoUrl = item.conferenceData?.entryPoints?.find((entry) => entry.entryPointType === "video")?.uri;
+    // A meeting-room event points at the map area itself instead of a video call.
+    const roomUrl = item.location && isWorkAdventureUrl(item.location) ? item.location : undefined;
+    const joinUrl = videoUrl || roomUrl || item.htmlLink;
+    const isWorkAdventure = Boolean(joinUrl && isWorkAdventureUrl(joinUrl));
 
     return {
         id: item.id,
@@ -33,7 +45,7 @@ function toCalendarEvent(item: AdminCalendarEvent): CalendarEventInterface {
         start: new Date(startValue || Date.now()),
         end: new Date(endValue || Date.now()),
         allDay: Boolean(item.start.date),
-        resource: joinUrl ? { onlineMeeting: { joinUrl } } : undefined,
+        resource: joinUrl ? { onlineMeeting: { joinUrl, isWorkAdventure } } : undefined,
     };
 }
 
