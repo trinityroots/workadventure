@@ -1,13 +1,7 @@
 import type { CalendarEventInterface } from "@workadventure/shared-utils";
 import { describe, expect, it } from "vitest";
 
-import {
-    buildAgenda,
-    meetingPlace,
-    meetingsInProgress,
-    nextMeeting,
-    overlapsWith,
-} from "../../../../src/front/Components/Calendar/agenda";
+import { buildAgenda, meetingPlace, overlapsWith } from "../../../../src/front/Components/Calendar/agenda";
 
 // Local times on purpose: the agenda groups by the user's local day.
 const NOW = new Date(2026, 9, 12, 17, 5);
@@ -88,46 +82,6 @@ describe("buildAgenda", () => {
         expect(ids(day.allDay)).toEqual(["offsite"]);
         expect(day.items.map((item) => item.kind)).toEqual(["long", "event"]);
         expect(day.count).toBe(3);
-    });
-});
-
-describe("nextMeeting", () => {
-    it("prefers the meeting in progress", () => {
-        const next = nextMeeting([event("later", "18:00", "18:30"), event("running", "17:00", "17:30")], NOW);
-        expect(next?.id).toBe("running");
-    });
-
-    it("skips finished, all-day and long events", () => {
-        const next = nextMeeting(
-            [
-                event("done", "16:00", "17:00"),
-                event("offsite", "00:00", "00:00+1", { allDay: true }),
-                event("hackathon", "17:00", "21:00"),
-                event("a", "18:00", "18:30"),
-            ],
-            NOW,
-        );
-        expect(next?.id).toBe("a");
-    });
-
-    it("finds nothing when the agenda is empty", () => {
-        expect(nextMeeting([], NOW)).toBeUndefined();
-    });
-});
-
-describe("meetingsInProgress", () => {
-    it("lists every meeting running now, but neither long nor finished nor upcoming ones", () => {
-        const running = meetingsInProgress(
-            [
-                event("b", "17:00", "17:30"),
-                event("a", "16:45", "17:15"),
-                event("done", "16:00", "17:00"),
-                event("later", "17:30", "18:00"),
-                event("hackathon", "16:00", "21:00"),
-            ],
-            NOW,
-        );
-        expect(ids(running)).toEqual(["a", "b"]);
     });
 });
 

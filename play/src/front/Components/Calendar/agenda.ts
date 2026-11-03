@@ -81,18 +81,6 @@ export function buildAgenda(events: Iterable<CalendarEventInterface>, now: Date)
     });
 }
 
-/** The meeting in progress, else the next one to start. All-day and long events would hold the spot all day. */
-export function nextMeeting(events: Iterable<CalendarEventInterface>, now: Date): CalendarEventInterface | undefined {
-    return [...events].filter((event) => !event.allDay && !isLong(event) && event.end > now).sort(byStart)[0];
-}
-
-/** The meetings running right now, long and all-day events aside. */
-export function meetingsInProgress(events: Iterable<CalendarEventInterface>, now: Date): CalendarEventInterface[] {
-    return [...events]
-        .filter((event) => !event.allDay && !isLong(event) && event.start <= now && now < event.end)
-        .sort(byStart);
-}
-
 /** The other meetings happening during this one. */
 export function overlapsWith(
     meeting: CalendarEventInterface,
@@ -125,21 +113,6 @@ export function formatDayName(day: Date, now: Date): string {
             ? new Intl.RelativeTimeFormat(undefined, { numeric: "auto" }).format(daysAway, "day")
             : day.toLocaleDateString(undefined, { weekday: "long" });
     return name.charAt(0).toLocaleUpperCase() + name.slice(1);
-}
-
-/** "in 5 minutes", "in 2 hours"… */
-export function formatTimeUntil(date: Date, now: Date): string {
-    const minutes = Math.max(1, Math.round((date.getTime() - now.getTime()) / 60_000));
-    const format = new Intl.RelativeTimeFormat(undefined, { numeric: "auto" });
-    if (minutes < 60) return format.format(minutes, "minute");
-    if (minutes < 24 * 60) return format.format(Math.round(minutes / 60), "hour");
-    return format.format(Math.round(minutes / (24 * 60)), "day");
-}
-
-/** "4 min ago"… short: it shares a line with the meeting's place. */
-export function formatTimeAgo(date: Date, now: Date): string {
-    const minutes = Math.max(1, Math.round((now.getTime() - date.getTime()) / 60_000));
-    return new Intl.RelativeTimeFormat(undefined, { numeric: "auto", style: "short" }).format(-minutes, "minute");
 }
 
 /** Where the meeting happens, the way people name it: WorkAdventure, Google Meet, Microsoft Teams… or the link's host. */

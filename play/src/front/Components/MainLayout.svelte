@@ -16,7 +16,7 @@
     import { coWebsites, windowSize } from "../Stores/CoWebsiteStore";
     import { proximityMeetingStore } from "../Stores/MyMediaStore";
     import { notificationPlayingStore } from "../Stores/NotificationStore";
-    import { isActivatedStore as calendarIsActivatedStore, isCalendarVisibleStore } from "../Stores/CalendarStore";
+    import { isCalendarVisibleStore } from "../Stores/CalendarStore";
     import { isActivatedStore as todoListIsActivatedStore, isTodoListVisibleStore } from "../Stores/TodoListStore";
     import { popupStore } from "../Stores/PopupStore";
     import {
@@ -47,7 +47,6 @@
     import { sidePanelWidthStore } from "../Stores/SidePanelStore";
     import { startCalendarLoader } from "../Services/CalendarLoader";
     import { mapEditorSideBarWidthStore } from "./MapEditor/MapEditorSideBarWidthStore";
-    import { calendarRemindersStore, startCalendarReminders } from "./Calendar/CalendarReminder";
     import ActionBar from "./ActionBar/ActionBar.svelte";
     import ActionBarButton from "./ActionBar/ActionBarButton.svelte";
 
@@ -80,7 +79,6 @@
     import ExplorerMenu from "./ActionsMenu/ExplorerMenu.svelte";
     import RecordingsListModal from "./PopUp/Recording/RecordingsListModal.svelte";
     import Calendar from "./Calendar/Calendar.svelte";
-    import CalendarReminders from "./Calendar/CalendarReminders.svelte";
     import TodoList from "./TodoList/TodoList.svelte";
     import ProximityNotificationContainer from "./ProximityNotification/ProximityNotificationContainer.svelte";
     import MeetingInvitationPopup from "./MeetingInvitation/MeetingInvitationPopup.svelte";
@@ -175,12 +173,9 @@
         );
     }
 
-    let stopCalendarReminders: (() => void) | undefined;
-
     onMount(() => {
         document.addEventListener("focusin", handleFocusInEvent);
         document.addEventListener("focusout", handleFocusOutEvent);
-        stopCalendarReminders = startCalendarReminders();
         startCalendarLoader();
     });
 
@@ -191,7 +186,6 @@
         if (participantListAutoHideTimer) {
             clearTimeout(participantListAutoHideTimer);
         }
-        stopCalendarReminders?.();
     });
 
     let marginLeft = $derived($chatVisibilityStore ? $chatSidebarWidthStore : 0);
@@ -342,7 +336,7 @@
     <!-- Rendered here rather than beside #main-layout: its notifications and toasts must show above these
          panels, and they cannot leave its stacking context (z-10). From md up, the panel sits in the room
          marginRight makes for it (sidePanelWidthStore), left of the map editor's (--side-panel-end). -->
-    {#if $calendarIsActivatedStore && $isCalendarVisibleStore}
+    {#if $isCalendarVisibleStore}
         <Calendar />
     {/if}
     {#if $todoListIsActivatedStore && $isTodoListVisibleStore}
@@ -409,19 +403,14 @@
                 <LimitRoomModal />
             {/if}
 
-            <!-- Toast stack, below the action bar, with the meeting reminders and the host-side raised-hands dock
-                 stacked under it so nothing covers anything else's buttons (the dock self-gates on
-                 visibleRaisedHandSectionsStore). Opening the agenda settles the reminders: it lists the same meetings. -->
+            <!-- Toast stack, below the action bar, with the host-side raised-hands dock stacked under it so
+                 nothing covers anything else's buttons (the dock self-gates on visibleRaisedHandSectionsStore). -->
             <div class="absolute top-0 right-2 z-[999] flex flex-col gap-2 items-end">
                 {#each [...$toastStore.entries()] as toastEntry (toastEntry[0])}
                     {@const toast = toastEntry[1]}
                     {@const ToastComponent = toast.component}
                     <ToastComponent {...toast.props} />
                 {/each}
-                <!-- Only with a reminder: an empty block would still push the dock down. -->
-                {#if $calendarIsActivatedStore && !$isCalendarVisibleStore && $calendarRemindersStore.length > 0}
-                    <CalendarReminders />
-                {/if}
                 <RaisedHandsDock />
             </div>
 
