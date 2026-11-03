@@ -27,7 +27,7 @@
     let weeks = $derived.by(() => {
         const first = new SvelteDate(month.getFullYear(), month.getMonth(), 1);
         const start = new SvelteDate(first);
-        start.setDate(first.getDate() - ((first.getDay() + 6) % 7));
+        start.setDate(first.getDate() - first.getDay());
         const todayKey = startOfDay(new SvelteDate()).getTime();
 
         const days: { date: SvelteDate; inMonth: boolean; count: number; isToday: boolean; isSelected: boolean }[] = [];
@@ -46,7 +46,7 @@
         return days;
     });
 
-    const weekdays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+    const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
     function shiftMonth(delta: number) {
         onmonth(new SvelteDate(month.getFullYear(), month.getMonth() + delta, 1));
@@ -93,7 +93,7 @@
                     {day.isSelected
                     ? 'bg-secondary font-bold text-white'
                     : day.isToday
-                      ? 'font-bold text-secondary ring-2 ring-inset ring-secondary'
+                      ? 'font-bold text-white ring-2 ring-inset ring-secondary'
                       : 'text-whitesmoke hover:bg-white/10'}
                     {day.inMonth ? '' : 'opacity-35'}"
                 onclick={() => onselect(day.date)}
