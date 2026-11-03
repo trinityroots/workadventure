@@ -72,21 +72,25 @@
         {#each weeks as day (day.date.getTime())}
             <button
                 type="button"
-                class="relative flex h-8 items-center justify-center rounded-sm text-sm transition-colors
+                aria-current={day.isToday ? "date" : undefined}
+                aria-pressed={day.isSelected}
+                aria-label={day.date.toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long" })}
+                class="relative flex h-10 flex-col items-center justify-center gap-0.5 rounded-lg text-sm transition-colors
                     {day.isSelected
-                    ? 'bg-secondary text-white'
+                    ? 'bg-secondary font-bold text-white'
                     : day.isToday
-                      ? 'font-bold text-secondary'
-                      : 'text-whitesmoke'}
-                    {day.inMonth ? '' : 'opacity-35'}
-                    {day.isSelected ? '' : 'hover:bg-white/10'}"
+                      ? 'font-bold text-secondary ring-2 ring-inset ring-secondary'
+                      : 'text-whitesmoke hover:bg-white/10'}
+                    {day.inMonth ? '' : 'opacity-35'}"
                 onclick={() => onselect(day.date)}
             >
-                {day.date.getDate()}
+                <span>{day.date.getDate()}</span>
                 {#if day.count > 0}
-                    <span
-                        class="absolute bottom-0.5 h-1 w-1 rounded-full {day.isSelected ? 'bg-white' : 'bg-secondary'}"
-                    ></span>
+                    <span class="flex gap-0.5" aria-hidden="true">
+                        {#each [0, 1, 2].slice(0, Math.min(day.count, 3)) as dot (dot)}
+                            <span class="h-1 w-1 rounded-full {day.isSelected ? 'bg-white' : 'bg-secondary'}"></span>
+                        {/each}
+                    </span>
                 {/if}
             </button>
         {/each}

@@ -58,11 +58,12 @@
                             {#if !isSmallScreen && showUserListButton}
                                 <UserListMenuItem state={showUserListButton ? "normal" : "disabled"} />
                             {/if}
+                            <!-- Like the chat and users items, the agenda hides behind the close X while the drawer is open. -->
+                            <CalendarMenuItem />
                         {:else}
                             <CloseChatMenuItem />
                         {/if}
                         <AdditionalMenuItems menu="left" />
-                        <CalendarMenuItem />
                     </div>
                 </div>
             {/snippet}

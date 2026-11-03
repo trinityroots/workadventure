@@ -53,8 +53,15 @@ function sessionToken(): string | undefined {
 }
 
 /** Pulls the signed-in player's calendar from the admin and feeds the shared store. */
+let warnedAboutConfig = false;
 export async function refreshCalendar(): Promise<void> {
-    if (!ADMIN_URL) return;
+    if (!ADMIN_URL) {
+        if (!warnedAboutConfig) {
+            warnedAboutConfig = true;
+            console.warn("Calendar: ADMIN_URL is not configured, the agenda stays empty");
+        }
+        return;
+    }
     const token = sessionToken();
     if (!token) return;
 
