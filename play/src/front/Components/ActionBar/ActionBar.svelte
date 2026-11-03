@@ -22,6 +22,7 @@
     import ScreenSharingMenuItem from "./MenuIcons/ScreenSharingMenuItem.svelte";
     import ChatMenuItem from "./MenuIcons/ChatMenuItem.svelte";
     import UserListMenuItem from "./MenuIcons/UserListMenuItem.svelte";
+    import AdditionalMenuItems from "./MenuIcons/AdditionalMenuItems.svelte";
     import ResponsiveActionBar from "./ResponsiveActionBar.svelte";
     import ProfileMenu from "./MenuIcons/ProfileMenu.svelte";
     import VisibilityChecker from "./VisibilityChecker.svelte";
@@ -59,6 +60,7 @@
                         {:else}
                             <CloseChatMenuItem />
                         {/if}
+                        <AdditionalMenuItems menu="left" />
                     </div>
                 </div>
             {/snippet}

@@ -5,17 +5,17 @@ import { gameManager } from "../Phaser/Game/GameManager";
 import type { CustomButtonActionBarDescriptor } from "./MenuStore";
 
 type AdditionalMenuItem = CustomButtonActionBarDescriptor & {
-    location: "top" | "appsMenu" | "buildMenu" | "profileMenu";
+    location: "left" | "top" | "appsMenu" | "buildMenu" | "profileMenu";
 };
 
 const additionalMenuItemStores = writable<Map<string, AdditionalMenuItem>>(new Map());
 
 const derivedStores: {
-    [location in "top" | "appsMenu" | "buildMenu" | "profileMenu"]?: Readable<Map<string, AdditionalMenuItem>>;
+    [location in "left" | "top" | "appsMenu" | "buildMenu" | "profileMenu"]?: Readable<Map<string, AdditionalMenuItem>>;
 } = {};
 
 export function getAdditionalMenuItemStore(
-    location: "top" | "appsMenu" | "buildMenu" | "profileMenu",
+    location: "left" | "top" | "appsMenu" | "buildMenu" | "profileMenu",
 ): Readable<Map<string, AdditionalMenuItem>> {
     return (derivedStores[location] ??= derived(additionalMenuItemStores, ($items) => {
         const filteredItems = new Map<string, AdditionalMenuItem>();

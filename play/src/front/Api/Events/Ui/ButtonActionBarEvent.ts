@@ -8,7 +8,7 @@ export const isAddActionBarButtonEvent = z.object({
     textColor: z.string().optional(),
     imageSrc: z.string().optional(),
     isGradient: z.boolean().optional(),
-    location: z.enum(["top", "appsMenu", "buildMenu", "profileMenu"]).optional(),
+    location: z.enum(["left", "top", "appsMenu", "buildMenu", "profileMenu"]).optional(),
 });
 
 export type AddButtonActionBarEvent = z.infer<typeof isAddActionBarButtonEvent>;

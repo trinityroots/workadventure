@@ -3,7 +3,7 @@
     import CustomActionBarButton from "./CustomActionBarButton.svelte";
 
     interface Props {
-        menu: "appsMenu" | "buildMenu" | "profileMenu";
+        menu: "left" | "appsMenu" | "buildMenu" | "profileMenu";
     }
 
     let { menu }: Props = $props();
