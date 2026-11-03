@@ -10,7 +10,6 @@
     import ExternalComponents from "../ExternalModules/ExternalComponents.svelte";
     import { refreshCalendar } from "../../Services/CalendarLoader";
     import { buildAgenda, formatDayName, startOfDay } from "./agenda";
-    import type { AgendaItem } from "./agenda";
     import CalendarEventRow from "./CalendarEventRow.svelte";
     import CalendarOverlapGroup from "./CalendarOverlapGroup.svelte";
     import CalendarMonthGrid from "./CalendarMonthGrid.svelte";
@@ -41,11 +40,6 @@
 
     function refresh() {
         refreshCalendar().catch(() => undefined);
-    }
-
-    /** The first meeting of the day that has not finished yet: it carries the accent. */
-    function firstUpcomingIndex(items: AgendaItem[], at: Date): number {
-        return items.findIndex((item) => (item.kind === "overlap" ? item.events[0] : item.event).end > at);
     }
 
     function goToLoginPage() {
@@ -123,16 +117,11 @@
 
                     <!-- Finished meetings stay in the list, muted; the ones in progress show how far along they are. -->
                     <div class="flex flex-col">
-                        {#each day.items as item, index (item.kind === "overlap" ? `overlap-${item.events[0].id}` : item.event.id)}
+                        {#each day.items as item (item.kind === "overlap" ? `overlap-${item.events[0].id}` : item.event.id)}
                             {#if item.kind === "overlap"}
                                 <CalendarOverlapGroup start={item.start} end={item.end} events={item.events} {now} />
                             {:else}
-                                <CalendarEventRow
-                                    event={item.event}
-                                    long={item.kind === "long"}
-                                    next={index === firstUpcomingIndex(day.items, now)}
-                                    {now}
-                                />
+                                <CalendarEventRow event={item.event} long={item.kind === "long"} {now} />
                             {/if}
                         {/each}
                     </div>

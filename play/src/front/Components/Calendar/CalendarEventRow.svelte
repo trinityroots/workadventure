@@ -9,12 +9,10 @@
         event: CalendarEventInterface;
         /** A long event, running alongside the meetings rather than competing with them. */
         long?: boolean;
-        /** The day's next meeting: it carries the accent. */
-        next?: boolean;
         now: Date;
     }
 
-    let { event, long = false, next = false, now }: Props = $props();
+    let { event, long = false, now }: Props = $props();
 
     let inProgress = $derived(event.start <= now && now < event.end);
     // Past meetings stay in the list (they are part of the day's record), just dimmed.
@@ -32,7 +30,7 @@
     {/if}
 
     <div class="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2.5 px-1 py-2">
-        <span class="rounded-md bg-white/10 px-2 py-1 text-sm font-bold tabular-nums {next ? 'text-light-blue' : ''}">
+        <span class="rounded-md bg-white/10 px-2 py-1 text-sm font-bold tabular-nums">
             {formatTime(event.start)}
         </span>
         <div class="flex min-w-0 flex-col gap-0.5">

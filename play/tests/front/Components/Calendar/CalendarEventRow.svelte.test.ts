@@ -16,7 +16,7 @@ vi.mock("../../../../src/i18n/i18n-svelte", () => {
 
 const NOW = new Date(2026, 9, 12, 10, 0);
 
-function row(props: Partial<{ event: CalendarEventInterface; next: boolean; now: Date }> = {}) {
+function row(props: Partial<{ event: CalendarEventInterface; now: Date }> = {}) {
     const event: CalendarEventInterface = {
         id: "standup",
         title: "Standup",
@@ -56,14 +56,6 @@ describe("CalendarEventRow", () => {
 
         expect(target.querySelector("span.truncate")?.className).toContain("line-through");
         expect(target.querySelector(".opacity-60")).not.toBeNull();
-
-        await unmount(component);
-    });
-
-    it("accents the next meeting's time", async () => {
-        const { target, component } = row({ next: true });
-
-        expect(target.querySelector(".text-light-blue")).not.toBeNull();
 
         await unmount(component);
     });
