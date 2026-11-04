@@ -20,6 +20,7 @@ import { followRoleStore, followStateStore, followUsersStore } from "../../Store
 import { localUserStore } from "../../Connection/LocalUserStore";
 import { isKeyFromInteractiveElement } from "../../Utils/isKeyFromInteractiveElement";
 import { waScaleManager } from "../Services/WaScaleManager";
+import { attackNearestMonster } from "../../Services/monsterStream";
 import { iframeListener } from "../../Api/IframeListener";
 import { MapDragPointerCapture } from "./MapDragPointerCapture";
 import { MapDragGesture } from "./MapDragGesture";
@@ -388,6 +389,10 @@ export class GameSceneUserInputHandler implements UserInputHandlerInterface {
             case "KeyU":
                 this.handleKeyU();
                 break;
+            case "KeyX": {
+                if (!isKeyFromInteractiveElement(event)) attackNearestMonster();
+                break;
+            }
             case "KeyD": {
                 // Handle Cmd (Mac) / Ctrl (Windows & Linux) + D for "walk my desk"
                 if (event.metaKey || event.ctrlKey) {

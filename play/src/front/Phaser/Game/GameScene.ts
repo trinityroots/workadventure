@@ -135,6 +135,7 @@ import { StringUtils } from "../../Utils/StringUtils";
 import { PHASER_COLOR_DESIGN_SYSTEM_SECONDARY } from "../../Utils/DesignSystemPhaserColors";
 
 import { SuperLoaderPlugin } from "../Services/SuperLoaderPlugin";
+import { startMonsterStream, stopMonsterStream } from "../../Services/monsterStream";
 import { embedScreenLayoutStore } from "../../Stores/EmbedScreenLayoutStore";
 import { highlightedEmbedScreen } from "../../Stores/HighlightedEmbedScreenStore";
 import type { AddPlayerEvent } from "../../Api/Events/AddPlayerEvent";
@@ -364,6 +365,7 @@ export class GameScene extends DirtyScene {
     private entityPermissions: EntityPermissions | undefined;
     private entityPermissionsDeferred: Deferred<EntityPermissions> = new Deferred();
     private gameMapFrontWrapper!: GameMapFrontWrapper;
+    private monsterManager: MonsterManager | undefined;
     private actionableItems: Map<number, ActionableItem> = new Map<number, ActionableItem>();
     private isReconnecting: boolean | undefined = undefined;
     private playerName!: string;
@@ -1221,6 +1223,8 @@ export class GameScene extends DirtyScene {
         coWebsiteManager.cleanup();
 
         iframeListener.cleanup();
+        stopMonsterStream();
+        this.monsterManager = undefined;
         uiWebsiteManager.closeAll();
         followUsersStore.stopFollowing();
 
@@ -2124,6 +2128,15 @@ export class GameScene extends DirtyScene {
                 );
 
                 this.createCurrentPlayer(startPosition);
+
+                const mapUrl = this.mapUrlFile ?? this.wamUrlFile;
+                if (mapUrl) {
+                    startMonsterStream({
+                        mapUrl,
+                        position: () => ({ x: this.CurrentPlayer.x, y: this.CurrentPlayer.y }),
+                        onCommand: (command) => this.monsterManager?.handle(command),
+                    });
+                }
 
                 this.activatablesManager = new ActivatablesManager(this.CurrentPlayer);
                 this.cameraManager.startFollowPlayer(this.CurrentPlayer, 0);
@@ -3516,9 +3529,9 @@ ${escapedMessage}
                 this.markDirty();
             }),
         );
-        const monsterManager = new MonsterManager(this);
+        this.monsterManager = new MonsterManager(this);
         this.iframeSubscriptionList.push(
-            iframeListener.monsterStream.subscribe((command) => monsterManager.handle(command)),
+            iframeListener.monsterStream.subscribe((command) => this.monsterManager?.handle(command)),
         );
         iframeListener.registerAnswerer("enablePlayersTracking", (enablePlayersTrackingEvent, source) => {
             if (source === null) {
