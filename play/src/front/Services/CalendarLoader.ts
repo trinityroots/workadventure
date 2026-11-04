@@ -1,7 +1,6 @@
 import type { CalendarEventInterface } from "@workadventure/shared-utils";
-import { ADMIN_URL } from "../Enum/EnvironmentVariable";
 import { calendarEventsStore, isActivatedStore } from "../Stores/CalendarStore";
-import { gameManager } from "../Phaser/Game/GameManager";
+import { AdminHttpError, AdminUnavailableError, adminFetch, sessionToken } from "./adminFetch";
 
 const REFRESH_MS = 5 * 60 * 1000;
 const RETRY_MS = 5_000;
@@ -48,52 +47,32 @@ export function toCalendarEvent(item: AdminCalendarEvent): CalendarEventInterfac
     };
 }
 
-function sessionToken(): string | undefined {
-    return gameManager.getCurrentGameScene().connection?.userRoomToken;
-}
-
 /** Pulls the signed-in player's calendar from the admin and feeds the shared store. */
-let warnedAboutConfig = false;
 export async function refreshCalendar(): Promise<void> {
-    if (!ADMIN_URL) {
-        if (!warnedAboutConfig) {
-            warnedAboutConfig = true;
-            console.warn("Calendar: ADMIN_URL is not configured, the agenda stays empty");
-        }
-        return;
-    }
-    const token = sessionToken();
-    if (!token) return;
-
     const now = new Date();
     const from = new Date(now.getFullYear(), now.getMonth(), 1);
     from.setDate(from.getDate() - 7);
     const to = new Date(now.getFullYear(), now.getMonth() + 1, 8);
 
     try {
-        const response = await fetch(
-            `${ADMIN_URL}/api/calendar/events?${new URLSearchParams({
+        const data = await adminFetch<{ items?: AdminCalendarEvent[] }>(
+            `/api/calendar/events?${new URLSearchParams({
                 timeMin: from.toISOString(),
                 timeMax: to.toISOString(),
                 maxResults: "250",
             })}`,
-            { headers: { Authorization: `Bearer ${token}` } },
         );
-        // 409 means the player has not connected Google yet: keep the panel out of the way.
-        if (response.status === 409) {
-            calendarEventsStore.set(new Map());
-            isActivatedStore.set(false);
-            return;
-        }
-        if (!response.ok) {
-            console.warn("Could not load the calendar: HTTP", response.status);
-            return;
-        }
-        const data = (await response.json()) as { items?: AdminCalendarEvent[] };
         const events = (data.items || []).filter((item) => item.status !== "cancelled").map(toCalendarEvent);
         calendarEventsStore.set(new Map(events.map((event) => [event.id, event])));
         isActivatedStore.set(true);
     } catch (error) {
+        // 409 means the player has not connected Google yet: keep the panel out of the way.
+        if (error instanceof AdminHttpError && error.status === 409) {
+            calendarEventsStore.set(new Map());
+            isActivatedStore.set(false);
+            return;
+        }
+        if (error instanceof AdminUnavailableError) return;
         console.warn("Could not load the calendar", error);
     }
 }

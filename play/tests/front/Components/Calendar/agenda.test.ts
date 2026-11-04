@@ -1,7 +1,7 @@
 import type { CalendarEventInterface } from "@workadventure/shared-utils";
 import { describe, expect, it } from "vitest";
 
-import { buildAgenda, meetingPlace, overlapsWith } from "../../../../src/front/Components/Calendar/agenda";
+import { buildAgenda, meetingPlace } from "../../../../src/front/Components/Calendar/agenda";
 
 // Local times on purpose: the agenda groups by the user's local day.
 const NOW = new Date(2026, 9, 12, 17, 5);
@@ -110,19 +110,5 @@ describe("meetingPlace", () => {
     it("has nothing to say without a link", () => {
         expect(at(undefined)).toBeUndefined();
         expect(at("not a url")).toBeUndefined();
-    });
-});
-
-describe("overlapsWith", () => {
-    it("lists the meetings happening at the same time, but not long or touching ones", () => {
-        const meeting = event("a", "18:00", "18:30");
-        const others = overlapsWith(meeting, [
-            meeting,
-            event("c", "18:15", "19:15"),
-            event("b", "17:30", "18:05"),
-            event("touching", "18:30", "19:00"),
-            event("hackathon", "17:45", "21:45"),
-        ]);
-        expect(ids(others)).toEqual(["b", "c"]);
     });
 });

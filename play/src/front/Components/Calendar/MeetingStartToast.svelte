@@ -7,17 +7,11 @@
     import { formatTime, meetingPlace } from "./agenda";
     import CalendarJoinButton from "./CalendarJoinButton.svelte";
     import { meetingStartToast } from "./MeetingStartToast";
+    import { now } from "./useNow";
     import { IconCalendar, IconX } from "@wa-icons";
 
-    // "Starting now" goes stale: refresh it twice a minute.
-    let now = $state(new Date());
-    $effect(() => {
-        const interval = setInterval(() => (now = new Date()), 30_000);
-        return () => clearInterval(interval);
-    });
-
     const dismissed = new SvelteSet<string>();
-    let event = $derived(meetingStartToast($calendarEventsStore.values(), now, dismissed));
+    let event = $derived(meetingStartToast($calendarEventsStore.values(), $now, dismissed));
 
     function dismiss() {
         if (event) dismissed.add(event.id);
@@ -25,7 +19,7 @@
 </script>
 
 {#if event}
-    {@const started = event.start <= now}
+    {@const started = event.start <= $now}
     <section
         aria-label={$LL.externalModule.calendar.reminder()}
         class="pointer-events-auto flex w-96 max-w-[calc(100vw-1rem)] flex-col gap-3.5 rounded-lg border border-solid border-white/10 bg-contrast/90 p-4 text-white shadow-dark backdrop-blur"

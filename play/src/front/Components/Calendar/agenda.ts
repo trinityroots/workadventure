@@ -4,7 +4,7 @@ import type { CalendarEventInterface } from "@workadventure/shared-utils";
  * An event at least this long (a hackathon, an afternoon workshop) runs alongside the meetings rather than
  * competing with them: it is shown apart, and never counted as "the next meeting".
  */
-export const LONG_EVENT_MS = 3 * 60 * 60 * 1000;
+const LONG_EVENT_MS = 3 * 60 * 60 * 1000;
 
 export type AgendaItem =
     | { kind: "event"; start: Date; event: CalendarEventInterface }
@@ -21,10 +21,10 @@ export interface AgendaDay {
     count: number;
 }
 
-export const byStart = (a: CalendarEventInterface, b: CalendarEventInterface) =>
+const byStart = (a: CalendarEventInterface, b: CalendarEventInterface) =>
     a.start.getTime() - b.start.getTime() || a.end.getTime() - b.end.getTime();
 
-export const isLong = (event: CalendarEventInterface) => event.end.getTime() - event.start.getTime() >= LONG_EVENT_MS;
+const isLong = (event: CalendarEventInterface) => event.end.getTime() - event.start.getTime() >= LONG_EVENT_MS;
 
 export function startOfDay(date: Date): Date {
     const day = new Date(date);
@@ -80,23 +80,6 @@ export function buildAgenda(events: Iterable<CalendarEventInterface>, now: Date)
             count: dayEvents.length,
         };
     });
-}
-
-/** The other meetings happening during this one. */
-export function overlapsWith(
-    meeting: CalendarEventInterface,
-    events: Iterable<CalendarEventInterface>,
-): CalendarEventInterface[] {
-    return [...events]
-        .filter(
-            (event) =>
-                event.id !== meeting.id &&
-                !event.allDay &&
-                !isLong(event) &&
-                event.start < meeting.end &&
-                meeting.start < event.end,
-        )
-        .sort(byStart);
 }
 
 // undefined locale everywhere: follow the browser's own date/time settings.
