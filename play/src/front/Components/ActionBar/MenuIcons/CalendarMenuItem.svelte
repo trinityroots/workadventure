@@ -17,8 +17,9 @@
     dataTestId="calendar-button"
     disabledHelp={false}
 >
-    <!-- Outline by default, a solid silhouette while hovered: same read as the chat and users buttons. -->
-    <IconCalendar class="text-white [stroke-width:1.5] h-6 w-6 group-hover/btn-calendar:hidden" />
+    <!-- Outline by default, a solid silhouette while hovered: same read as the chat and users buttons.
+         The path carries its own stroke-width="2", so the rule has to target the path, not the svg. -->
+    <IconCalendar class="text-white [&>path]:[stroke-width:1.5] h-6 w-6 group-hover/btn-calendar:hidden" />
     <svg
         class="hidden h-6 w-6 text-white group-hover/btn-calendar:block"
         viewBox="0 0 24 24"
