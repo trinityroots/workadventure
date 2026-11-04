@@ -222,22 +222,42 @@ export class MonsterManager {
         if (existing && this.scene.textures.exists(existing)) {
             return Promise.resolve(existing);
         }
+        if (!this.scene.scene.isActive()) {
+            return Promise.resolve("");
+        }
 
         const textureKey = `monster-${this.textureKeys.size}-${Date.now()}`;
         return new Promise<string>((resolve) => {
+            const finish = (key: string) => {
+                this.scene.load.off(Phaser.Loader.Events.COMPLETE, onComplete);
+                this.scene.load.off(Phaser.Loader.Events.FILE_LOAD_ERROR, onError);
+                this.scene.events.removeListener("shutdown", onShutdown);
+                resolve(key);
+            };
+            const fail = () => {
+                console.warn(`Could not load monster spritesheet ${textureUrl}`);
+                finish("");
+            };
+            const onComplete = () => {
+                if (this.scene.textures.exists(textureKey)) {
+                    this.textureKeys.set(textureUrl, textureKey);
+                    finish(textureKey);
+                } else {
+                    fail();
+                }
+            };
+            const onError = (file: Phaser.Loader.File) => {
+                if (file.key === textureKey) fail();
+            };
+            const onShutdown = () => finish("");
+
             this.scene.load.spritesheet(textureKey, textureUrl, {
                 frameWidth: FRAME_SIZE,
                 frameHeight: FRAME_SIZE,
             });
-            this.scene.load.once(Phaser.Loader.Events.COMPLETE, () => {
-                if (this.scene.textures.exists(textureKey)) {
-                    this.textureKeys.set(textureUrl, textureKey);
-                    resolve(textureKey);
-                } else {
-                    console.warn(`Could not load monster spritesheet ${textureUrl}`);
-                    resolve("");
-                }
-            });
+            this.scene.load.on(Phaser.Loader.Events.COMPLETE, onComplete);
+            this.scene.load.on(Phaser.Loader.Events.FILE_LOAD_ERROR, onError);
+            this.scene.events.once("shutdown", onShutdown);
             if (!this.scene.load.isLoading()) {
                 this.scene.load.start();
             }
