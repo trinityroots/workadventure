@@ -51,7 +51,7 @@
 <div class="flex h-full min-h-0 flex-col gap-2 p-2 select-text">
     <header class="flex items-center justify-between gap-2">
         <div class="flex min-w-0 flex-col">
-            <h3 class="m-0 truncate font-main text-md font-bold normal-case leading-6">
+            <h3 class="m-0 truncate font-main text-base font-bold normal-case leading-6">
                 {$LL.externalModule.calendar.title()}
             </h3>
             <span class="truncate text-xs text-contrast-200">
