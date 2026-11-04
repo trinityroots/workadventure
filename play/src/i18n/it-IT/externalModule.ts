@@ -131,6 +131,7 @@ const externalModule: DeepPartial<Translation["externalModule"]> = {
         noLink: "Nessun link alla riunione",
     },
     inventory: {
+        bag: "Borsa",
         title: "Inventario",
         itemCount: "{count} oggetti",
         empty: "Niente bottino: abbatti un mostro e torna.",

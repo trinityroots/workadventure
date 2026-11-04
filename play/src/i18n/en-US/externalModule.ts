@@ -131,6 +131,7 @@ const externalModule: BaseTranslation = {
         noLink: "No meeting link",
     },
     inventory: {
+        bag: "Bag",
         title: "Inventory",
         itemCount: "{count:number} item{{s}}",
         empty: "No loot yet — beat a monster and come back.",

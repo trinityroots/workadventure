@@ -130,6 +130,7 @@ const externalModule: BaseTranslation = {
         noLink: "Sem link de reunião",
     },
     inventory: {
+        bag: "Bolsa",
         title: "Inventário",
         itemCount: "{count} itens",
         empty: "Ainda sem saque: derrote um monstro e volte.",

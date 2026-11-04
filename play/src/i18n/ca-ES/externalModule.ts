@@ -133,6 +133,7 @@ const externalModule: DeepPartial<Translation["externalModule"]> = {
         noLink: "Sense enllaç de reunió",
     },
     inventory: {
+        bag: "Bossa",
         title: "Inventari",
         itemCount: "{count} elements",
         empty: "Encara no hi ha botí: derrota un monstre i torna-hi.",

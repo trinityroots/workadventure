@@ -130,6 +130,7 @@ const externalModule: DeepPartial<Translation["externalModule"]> = {
         noLink: "Žeden wótkaz na ześělenje",
     },
     inventory: {
+        bag: "Tórška",
         title: "Tórjownica",
         itemCount: "{count} wěcy",
         empty: "Hišće wobytk njeje: pobi zwěr a so wroć.",
