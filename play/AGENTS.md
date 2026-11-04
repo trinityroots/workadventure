@@ -42,6 +42,8 @@ npm run typesafe-i18n
 npm run i18n:check
 ```
 
+A new key must be added to **every** locale under `src/i18n/<locale>/`, or `i18n:check` fails.
+
 Do not edit generated `src/i18n/i18n-*.ts` files directly.
 
 ## Frontend conventions
