@@ -1,8 +1,7 @@
 <script lang="ts">
     import { onDestroy } from "svelte";
     import { chatInputFocusStore } from "../../Stores/ChatStore";
-    let searchActive = $state(false);
-    import { chatSearchBarValue, navChat, joignableRoom } from "../Stores/ChatStore";
+    import { chatSearchBarValue, chatSearchFocusRequest, navChat, joignableRoom } from "../Stores/ChatStore";
     import LoadingSmall from "../images/loading-small.svelte";
     import LL from "../../../i18n/i18n-svelte";
     import { gameManager } from "../../Phaser/Game/GameManager";
@@ -23,17 +22,21 @@
     const chatStatusStore = chat.connectionStatus;
     let typingTimer: ReturnType<typeof setTimeout>;
     let searchLoader = $state(false);
+    let searchInput: HTMLInputElement | undefined = $state();
     const DONE_TYPING_INTERVAL = 2000;
 
     // ChatSidebar floats its own close button over this header as soon as a room is selected, so the
     // menu must drop its close there or the two stack up.
     let isInSpecificDiscussion = $derived($selectedRoomStore !== undefined);
+    let showSearch = $derived($chatStatusStore !== "OFFLINE" && !isInSpecificDiscussion);
 
-    function handleToggleSearch() {
-        searchActive = !searchActive;
-
-        if (!searchActive) clearSearch();
-    }
+    // Cmd/Ctrl+K asks for the search field: focus it as soon as it is in the DOM.
+    $effect(() => {
+        if ($chatSearchFocusRequest && searchInput) {
+            searchInput.focus();
+            chatSearchFocusRequest.set(false);
+        }
+    });
 
     function clearSearch() {
         clearTimeout(typingTimer);
@@ -94,68 +97,71 @@
     });
 </script>
 
-<div class=" relative p-2 flex items-center w-full z-40">
-    <div class={searchActive ? "hidden" : ""}>
-        {#if showNavBar}
-            {#if $navChat.key === "chat" && showUserListButton}
-                <button
-                    class="userList p-3 hover:bg-white/10 rounded aspect-square w-12 h-12 !text-white"
-                    onclick={() => navChat.switchToUserList()}
-                >
-                    <IconUsers font-size="20" />
-                </button>
-            {:else if showChatButton}
-                <button
-                    class="p-3 hover:bg-white/10 rounded aspect-square w-12 h-12 !text-white"
-                    onclick={() => navChat.switchToChat()}
-                >
-                    <IconMessageCircle2 font-size="20" />
-                </button>
-            {/if}
-        {/if}
-    </div>
-    <div class="flex flex-col items-center justify-center grow">
-        <div class="text-md font-bold h-5 {searchActive ? 'hidden' : ''}">
-            {#if $navChat.key === "chat"}
-                {$LL.chat.chat()}
-            {:else}
-                {$LL.chat.users()}
+<div class="flex w-full flex-col">
+    <div class="relative z-40 flex w-full items-center p-2">
+        <div>
+            {#if showNavBar}
+                {#if $navChat.key === "chat" && showUserListButton}
+                    <button
+                        class="userList p-3 hover:bg-white/10 rounded aspect-square w-12 h-12 !text-white"
+                        onclick={() => navChat.switchToUserList()}
+                    >
+                        <IconUsers font-size="20" />
+                    </button>
+                {:else if showChatButton}
+                    <button
+                        class="p-3 hover:bg-white/10 rounded aspect-square w-12 h-12 !text-white"
+                        onclick={() => navChat.switchToChat()}
+                    >
+                        <IconMessageCircle2 font-size="20" />
+                    </button>
+                {/if}
             {/if}
         </div>
-        {#if gameScene.room.isChatOnlineListEnabled}
-            <OnlineUsersCount {searchActive} />
-        {/if}
+        <div class="flex flex-col items-center justify-center grow">
+            <div class="text-md font-bold h-5">
+                {#if $navChat.key === "chat"}
+                    {$LL.chat.chat()}
+                {:else}
+                    {$LL.chat.users()}
+                {/if}
+            </div>
+            {#if gameScene.room.isChatOnlineListEnabled}
+                <OnlineUsersCount />
+            {/if}
+        </div>
+        <div class="relative">
+            <ChatActionMenu
+                hasCloseChat={$hideActionBarStoreBecauseOfChatBar && !isInSpecificDiscussion}
+                hasSearch={$chatStatusStore !== "OFFLINE" && !isInSpecificDiscussion}
+                matrixChatConnection={hasMatrixChatCapabilities(chat) ? chat : undefined}
+            />
+        </div>
     </div>
-    <div class="relative">
-        <ChatActionMenu
-            {searchActive}
-            hasCloseChat={$hideActionBarStoreBecauseOfChatBar && !isInSpecificDiscussion}
-            hasSearch={$chatStatusStore !== "OFFLINE" && !isInSpecificDiscussion}
-            matrixChatConnection={hasMatrixChatCapabilities(chat) ? chat : undefined}
-            onToggleSearch={handleToggleSearch}
-        />
-    </div>
-    <!-- searchbar -->
-    {#if searchActive && $chatStatusStore !== "OFFLINE"}
+    <!-- The search field sits in the header permanently; Cmd/Ctrl+K focuses it. -->
+    {#if showSearch}
         {#await userProviderMergerPromise}
             <div></div>
         {:then userProviderMerger}
-            <div class="absolute w-full h-full z-40 right-0 top-0 bg-contrast/30">
-                <input
-                    autocomplete="new-password"
-                    class="block text-white placeholder:text-white/50 w-full placeholder:text-sm border-none pl-6 pr-20 bg-transparent py-3 text-base h-full"
-                    placeholder={$navChat.key === "users" ? $LL.chat.searchUser() : $LL.chat.searchChat()}
-                    onkeydown={handleKeyDown}
-                    onkeyup={() => handleKeyUp(userProviderMerger)}
-                    bind:value={$chatSearchBarValue}
-                    onfocusin={focusChatInput}
-                    onfocusout={unfocusChatInput}
-                />
-                {#if searchLoader}
-                    <div class="absolute right-4 top-1/2 transform -translate-y-1/2">
-                        <LoadingSmall />
-                    </div>
-                {/if}
+            <div class="px-2 pb-2">
+                <div class="relative">
+                    <input
+                        bind:this={searchInput}
+                        autocomplete="new-password"
+                        class="block text-white placeholder:text-white/50 w-full placeholder:text-sm border-none pl-3 pr-8 bg-contrast/30 rounded py-2 text-sm"
+                        placeholder={$navChat.key === "users" ? $LL.chat.searchUser() : $LL.chat.searchChat()}
+                        onkeydown={handleKeyDown}
+                        onkeyup={() => handleKeyUp(userProviderMerger)}
+                        bind:value={$chatSearchBarValue}
+                        onfocusin={focusChatInput}
+                        onfocusout={unfocusChatInput}
+                    />
+                    {#if searchLoader}
+                        <div class="absolute right-2 top-1/2 -translate-y-1/2">
+                            <LoadingSmall />
+                        </div>
+                    {/if}
+                </div>
             </div>
         {/await}
     {/if}

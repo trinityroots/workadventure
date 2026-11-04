@@ -49,6 +49,7 @@ describe("CalendarEventRow", () => {
             event: {
                 id: "past",
                 title: "Retro",
+                description: "",
                 start: new Date(2026, 9, 12, 8, 0),
                 end: new Date(2026, 9, 12, 8, 30),
             },

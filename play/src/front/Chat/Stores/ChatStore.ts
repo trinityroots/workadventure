@@ -67,6 +67,8 @@ export const navChat = createNavChatStore();
 
 export const shownRoomListStore = writable<string[]>([]);
 export const chatSearchBarValue = writable<string>("");
+/** Set when Cmd/Ctrl+K asks the always-visible header search to take focus. */
+export const chatSearchFocusRequest = writable(false);
 
 /** Matrix room IDs the user chose to hide from suggested / joinable lists (persisted in localStorage). */
 export const ignoredSuggestedRoomIdsStore = writable<Set<string>>(localUserStore.getIgnoredSuggestedRoomIds());

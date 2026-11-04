@@ -37,7 +37,7 @@
     import { toastStore } from "../Stores/ToastStoreSingleton";
     import { meetingInvitationRequestStore } from "../Stores/MeetingInvitationStore";
     import { gameManager } from "../Phaser/Game/GameManager";
-    import { navChat } from "../Chat/Stores/ChatStore";
+    import { navChat, chatSearchFocusRequest } from "../Chat/Stores/ChatStore";
     import { selectedRoomStore } from "../Chat/Stores/SelectRoomStore";
     import { chatNotificationStore } from "../Stores/ProximityNotificationStore";
     import { analyticsClient } from "../Administration/AnalyticsClient";
@@ -46,6 +46,7 @@
     import { sidePanelWidthStore } from "../Stores/SidePanelStore";
     import { startCalendarLoader } from "../Services/CalendarLoader";
     import { mapEditorSideBarWidthStore } from "./MapEditor/MapEditorSideBarWidthStore";
+    import { isSearchShortcut } from "./searchShortcut";
     import ActionBar from "./ActionBar/ActionBar.svelte";
     import ActionBarButton from "./ActionBar/ActionBarButton.svelte";
 
@@ -237,10 +238,22 @@
         chatVisibilityStore.set(true);
     }
 
+    /** Cmd/Ctrl+K: jump to the user list and focus its always-visible search field. */
+    function onFocusSearchShortcut(event: KeyboardEvent) {
+        if (!isSearchShortcut(event)) return;
+        event.preventDefault();
+        selectedRoomStore.set(undefined);
+        navChat.switchToUserList();
+        chatVisibilityStore.set(true);
+        chatSearchFocusRequest.set(true);
+    }
+
     function exitHighlightFullscreen() {
         highlightFullScreen.set(false);
     }
 </script>
+
+<svelte:window onkeydown={onFocusSearchShortcut} />
 
 <!-- Components ordered by z-index -->
 <div
