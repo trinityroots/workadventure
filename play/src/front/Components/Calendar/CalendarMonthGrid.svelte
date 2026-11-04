@@ -1,6 +1,7 @@
 <script lang="ts">
     import type { CalendarEventInterface } from "@workadventure/shared-utils";
     import { SvelteDate, SvelteMap } from "svelte/reactivity";
+    import LL from "../../../i18n/i18n-svelte";
     import { startOfDay } from "./agenda";
     import { IconChevronLeft, IconChevronRight } from "@wa-icons";
 
@@ -46,7 +47,7 @@
         return days;
     });
 
-    const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    const weekdays = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"] as const;
 
     function shiftMonth(delta: number) {
         onmonth(new SvelteDate(month.getFullYear(), month.getMonth() + delta, 1));
@@ -57,7 +58,7 @@
     <div class="flex items-center justify-center gap-1.5">
         <button
             type="button"
-            aria-label="Previous month"
+            aria-label={$LL.externalModule.calendar.previousMonth()}
             class="hover:bg-white/10 flex h-6 w-6 items-center justify-center rounded-full !text-white"
             onclick={() => shiftMonth(-1)}
         >
@@ -68,7 +69,7 @@
         </h4>
         <button
             type="button"
-            aria-label="Next month"
+            aria-label={$LL.externalModule.calendar.nextMonth()}
             class="hover:bg-white/10 flex h-6 w-6 items-center justify-center rounded-full !text-white"
             onclick={() => shiftMonth(1)}
         >
@@ -78,7 +79,7 @@
 
     <div class="grid grid-cols-7 gap-0.5 text-center text-xs uppercase text-contrast-200">
         {#each weekdays as weekday (weekday)}
-            <span>{weekday}</span>
+            <span>{$LL.externalModule.calendar.weekdays[weekday]()}</span>
         {/each}
     </div>
 
@@ -86,6 +87,7 @@
         {#each weeks as day (day.date.getTime())}
             <button
                 type="button"
+                disabled={!day.inMonth}
                 aria-current={day.isToday ? "date" : undefined}
                 aria-pressed={day.isSelected}
                 aria-label={day.date.toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long" })}

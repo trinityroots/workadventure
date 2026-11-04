@@ -19,6 +19,7 @@ vi.mock("../../../../src/i18n/i18n-svelte", () => {
                 itemCount: ({ count }: { count: number }) => `${count} items`,
                 empty: () => "No loot yet",
                 bag: () => "Bag",
+                refresh: () => "Refresh inventory",
             },
         },
     };

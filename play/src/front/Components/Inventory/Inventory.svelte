@@ -6,6 +6,7 @@
     import { IconRefresh, IconUser } from "@wa-icons";
 
     $effect(() => {
+        // An effect must not reject; the loaders log their own failures.
         refreshInventory().catch(() => undefined);
         loadEquipment().catch(() => undefined);
     });
@@ -47,10 +48,10 @@
         </div>
         <button
             type="button"
-            aria-label="Refresh inventory"
+            aria-label={$LL.externalModule.inventory.refresh()}
             data-testid="refreshInventoryButton"
             class="hover:bg-white/10 flex aspect-square h-7 w-7 items-center justify-center rounded !text-white"
-            onclick={() => refreshInventory().catch(() => undefined)}
+            onclick={() => refreshInventory()}
         >
             <IconRefresh font-size="16" />
         </button>
@@ -58,28 +59,30 @@
 
     <div class="h-px bg-white/10" aria-hidden="true"></div>
 
+    {#snippet slotChip({ slot, icon }: { slot: EquipSlot; icon: string })}
+        {@const wornKey = equipped[slot]}
+        {#if wornKey}
+            <button
+                type="button"
+                title={itemDef(wornKey).name}
+                aria-label={itemDef(wornKey).name}
+                data-testid="slot-{slot}"
+                class="flex h-11 w-11 items-center justify-center rounded-md border border-light-blue/60 bg-white/5 hover:border-danger-600/70"
+                onclick={() => onSlotClick(slot)}
+            >
+                <img src={iconUrl(itemDef(wornKey).icon)} alt="" class="h-7 w-7 [image-rendering:pixelated]" />
+            </button>
+        {:else}
+            <div class="flex h-11 w-11 items-center justify-center rounded-md border border-dashed border-white/25">
+                <img src={iconUrl(icon)} alt="" class="h-7 w-7 opacity-25 [image-rendering:pixelated]" />
+            </div>
+        {/if}
+    {/snippet}
+
     <div class="flex items-center justify-center gap-3 py-1">
         <div class="flex flex-col gap-1.5">
-            {#each EQUIP_SLOTS.slice(0, 3) as { slot, icon } (slot)}
-                {@const wornKey = equipped[slot]}
-                {#if wornKey}
-                    <button
-                        type="button"
-                        title={itemDef(wornKey).name}
-                        aria-label={itemDef(wornKey).name}
-                        data-testid="slot-{slot}"
-                        class="flex h-11 w-11 items-center justify-center rounded-md border border-light-blue/60 bg-white/5 hover:border-danger-600/70"
-                        onclick={() => onSlotClick(slot)}
-                    >
-                        <img src={iconUrl(itemDef(wornKey).icon)} alt="" class="h-7 w-7 [image-rendering:pixelated]" />
-                    </button>
-                {:else}
-                    <div
-                        class="flex h-11 w-11 items-center justify-center rounded-md border border-dashed border-white/25"
-                    >
-                        <img src={iconUrl(icon)} alt="" class="h-7 w-7 opacity-25 [image-rendering:pixelated]" />
-                    </div>
-                {/if}
+            {#each EQUIP_SLOTS.slice(0, 3) as entry (entry.slot)}
+                {@render slotChip(entry)}
             {/each}
         </div>
 
@@ -88,26 +91,8 @@
         </div>
 
         <div class="flex flex-col gap-1.5">
-            {#each EQUIP_SLOTS.slice(3) as { slot, icon } (slot)}
-                {@const wornKey = equipped[slot]}
-                {#if wornKey}
-                    <button
-                        type="button"
-                        title={itemDef(wornKey).name}
-                        aria-label={itemDef(wornKey).name}
-                        data-testid="slot-{slot}"
-                        class="flex h-11 w-11 items-center justify-center rounded-md border border-light-blue/60 bg-white/5 hover:border-danger-600/70"
-                        onclick={() => onSlotClick(slot)}
-                    >
-                        <img src={iconUrl(itemDef(wornKey).icon)} alt="" class="h-7 w-7 [image-rendering:pixelated]" />
-                    </button>
-                {:else}
-                    <div
-                        class="flex h-11 w-11 items-center justify-center rounded-md border border-dashed border-white/25"
-                    >
-                        <img src={iconUrl(icon)} alt="" class="h-7 w-7 opacity-25 [image-rendering:pixelated]" />
-                    </div>
-                {/if}
+            {#each EQUIP_SLOTS.slice(3) as entry (entry.slot)}
+                {@render slotChip(entry)}
             {/each}
         </div>
     </div>
