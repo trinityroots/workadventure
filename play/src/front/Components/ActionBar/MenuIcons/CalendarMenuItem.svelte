@@ -18,7 +18,7 @@
     disabledHelp={false}
 >
     <!-- Outline by default, a solid silhouette while hovered: same read as the chat and users buttons. -->
-    <IconCalendar class="text-white h-6 w-6 group-hover/btn-calendar:hidden" />
+    <IconCalendar class="text-white [stroke-width:1.5] h-6 w-6 group-hover/btn-calendar:hidden" />
     <svg
         class="hidden h-6 w-6 text-white group-hover/btn-calendar:block"
         viewBox="0 0 24 24"
