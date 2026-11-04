@@ -72,6 +72,7 @@ export { default as IconRefresh } from "~icons/tabler/refresh";
 export { default as IconRepeat } from "~icons/tabler/repeat";
 export { default as IconNotes } from "~icons/tabler/notes";
 export { default as IconCalendar } from "~icons/tabler/calendar";
+export { default as IconBackpack } from "~icons/tabler/backpack";
 export { default as IconTeams } from "~icons/tabler/brand-teams";
 export { default as IconMusic } from "~icons/tabler/music";
 export { default as IconUserCircle } from "~icons/tabler/user-circle";

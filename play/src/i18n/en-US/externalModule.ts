@@ -130,6 +130,11 @@ const externalModule: BaseTranslation = {
         startedAgo: "Started {ago}",
         noLink: "No meeting link",
     },
+    inventory: {
+        title: "Inventory",
+        itemCount: "{count:number} item{{s}}",
+        empty: "No loot yet — beat a monster and come back.",
+    },
     todoList: {
         title: "To Do",
         forToday: "For today",

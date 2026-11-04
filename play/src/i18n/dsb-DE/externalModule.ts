@@ -129,6 +129,11 @@ const externalModule: DeepPartial<Translation["externalModule"]> = {
         startedAgo: "Zachopiło se {ago}",
         noLink: "Žeden wótkaz na ześělenje",
     },
+    inventory: {
+        title: "Tórjownica",
+        itemCount: "{count} wěcy",
+        empty: "Hišće wobytk njeje: pobi zwěr a so wroć.",
+    },
     todoList: {
         title: "Tuchylu cyniś",
         forToday: "Za źinsa",

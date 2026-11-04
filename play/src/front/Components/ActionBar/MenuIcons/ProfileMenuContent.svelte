@@ -35,7 +35,8 @@
     import Companion from "../../Companion/Companion.svelte";
     import ExternalComponents from "../../ExternalModules/ExternalComponents.svelte";
     import CamSettingsIcon from "../../Icons/CamSettingsIcon.svelte";
-    import { IconBug, IconFileDownload, IconHelpCircle, IconLogout } from "../../Icons";
+    import { IconBackpack, IconBug, IconFileDownload, IconHelpCircle, IconLogout } from "../../Icons";
+    import { openInventorySidebar } from "../../Inventory/sidebar";
     import ProfilIcon from "../../Icons/ProfilIcon.svelte";
     import SettingsIcon from "../../Icons/SettingsIcon.svelte";
     import Woka from "../../Woka/WokaFromUserId.svelte";
@@ -186,6 +187,16 @@
             }}
         >
             <Companion userId={-1} placeholderSrc="../static/images/default-companion.png" width="26px" height="26px" />
+        </ActionBarButton>
+        <ActionBarButton
+            label={$LL.externalModule.inventory.title()}
+            dataTestId="inventory-menu-item"
+            onclick={() => {
+                openedMenuStore.close("profileMenu");
+                openInventorySidebar();
+            }}
+        >
+            <IconBackpack class="h-5 w-5" />
         </ActionBarButton>
 
         <HeaderMenuItem label={$LL.menu.sub.settings()} />

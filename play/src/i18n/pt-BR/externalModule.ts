@@ -129,6 +129,11 @@ const externalModule: BaseTranslation = {
         startedAgo: "Começou {ago}",
         noLink: "Sem link de reunião",
     },
+    inventory: {
+        title: "Inventário",
+        itemCount: "{count} itens",
+        empty: "Ainda sem saque: derrote um monstro e volte.",
+    },
     todoList: {
         title: "A fazer",
         forToday: "Para hoje",

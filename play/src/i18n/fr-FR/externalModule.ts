@@ -135,6 +135,11 @@ const externalModule: DeepPartial<Translation["externalModule"]> = {
         startedAgo: "A commencé {ago}",
         noLink: "Pas de lien de réunion",
     },
+    inventory: {
+        title: "Inventaire",
+        itemCount: "{count} objets",
+        empty: "Pas encore de butin: bats un monstre et reviens.",
+    },
     todoList: {
         title: "À faire",
         forToday: "Pour aujourd'hui",

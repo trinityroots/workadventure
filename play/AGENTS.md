@@ -50,6 +50,7 @@ Do not edit generated `src/i18n/i18n-*.ts` files directly.
 - Panels the action bar opens (agenda, tasks, chat, users) are tabs of the chat sidebar:
   `navChat.switchToCustomComponent(...)` plus `chatVisibilityStore.set(true)` — never a second
   absolutely-positioned drawer, which would duplicate the close control and sit open beside the users list.
+  The profile menu's Inventory entry (`Components/Inventory/sidebar.ts`) follows the same pattern.
 - The chat drawer's search field is always visible in its header; Cmd/Ctrl+K opens the user list
   and focuses it (`Components/searchShortcut.ts` decides the keystroke, `chatSearchFocusRequest`
   asks the header to take focus). The map script no longer registers its own search button.

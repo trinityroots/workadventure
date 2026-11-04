@@ -127,6 +127,11 @@ const externalModule: DeepPartial<Translation["externalModule"]> = {
         startedAgo: "بدأ {ago}",
         noLink: "لا يوجد رابط للاجتماع",
     },
+    inventory: {
+        title: "الحقيبة",
+        itemCount: "{count} عنصر",
+        empty: "لا غنائم بعد — اهزم وحشًا ثم عد.",
+    },
     todoList: {
         title: "المهام",
         forToday: "لليوم",
