@@ -32,9 +32,9 @@ export const SECRET_KEY = env.SECRET_KEY;
 export const API_URL = env.API_URL;
 export const ADMIN_API_URL = env.ADMIN_API_URL;
 export const ADMIN_API_RETRY_DELAY = parseInt(process.env.ADMIN_API_RETRY_DELAY || "500");
-export const ADMIN_URL = env.ADMIN_URL;
-export const ADMIN_BO_URL = env.ADMIN_BO_URL || env.ADMIN_URL;
-export const AUTOLOGIN_URL = env.AUTOLOGIN_URL ?? env.ADMIN_URL + "/workadventure/login";
+export const CORE_URL = env.CORE_URL;
+export const ADMIN_BO_URL = env.ADMIN_BO_URL || env.CORE_URL;
+export const AUTOLOGIN_URL = env.AUTOLOGIN_URL ?? env.CORE_URL + "/workadventure/login";
 export const ADMIN_API_TOKEN = env.ADMIN_API_TOKEN;
 export const MAP_STORAGE_API_TOKEN = env.MAP_STORAGE_API_TOKEN;
 export const ADMIN_SOCKETS_TOKEN = env.ADMIN_SOCKETS_TOKEN;
@@ -67,7 +67,7 @@ export const OPID_CLIENT_REDIRECT_LOGOUT_URL = PUSHER_URL_WITHOUT_TRAILING_SLASH
 export const OPID_PROFILE_SCREEN_PROVIDER =
     env.OPENID_PROFILE_SCREEN_PROVIDER ||
     env.OPID_PROFILE_SCREEN_PROVIDER ||
-    (ADMIN_URL ? ADMIN_URL + "/profile" : undefined);
+    (CORE_URL ? CORE_URL + "/profile" : undefined);
 
 const isUsingDeprecatedOpenIdVariables =
     env.OPID_CLIENT_ID ||
@@ -197,7 +197,7 @@ export const FRONT_ENVIRONMENT_VARIABLES: FrontConfigurationInterface = {
     DEBUG_MODE: env.DEBUG_MODE,
     PUSHER_URL,
     FRONT_URL,
-    ADMIN_URL,
+    CORE_URL,
     UPLOADER_URL: env.UPLOADER_URL,
     ICON_URL: env.ICON_URL,
     SKIP_RENDER_OPTIMIZATIONS: env.SKIP_RENDER_OPTIMIZATIONS,

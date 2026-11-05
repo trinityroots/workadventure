@@ -9,7 +9,7 @@ export const SECRET_KEY = "test-secret-key";
 export const API_URL = "http://api.test";
 export const ADMIN_API_URL: string | undefined = undefined;
 export const ADMIN_API_RETRY_DELAY = 500;
-export const ADMIN_URL: string | undefined = undefined;
+export const CORE_URL: string | undefined = undefined;
 export const ADMIN_BO_URL: string | undefined = undefined;
 export const AUTOLOGIN_URL = "http://admin.test/workadventure/login";
 export const ADMIN_API_TOKEN: string | undefined = undefined;
@@ -118,7 +118,7 @@ export const FRONT_ENVIRONMENT_VARIABLES: FrontConfigurationInterface = {
     DEBUG_MODE: false,
     PUSHER_URL,
     FRONT_URL,
-    ADMIN_URL,
+    CORE_URL,
     UPLOADER_URL: "http://uploader.test",
     ICON_URL: "http://icon.test",
     SKIP_RENDER_OPTIMIZATIONS: false,

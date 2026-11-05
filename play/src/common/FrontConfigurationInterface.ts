@@ -4,7 +4,7 @@ export interface FrontConfigurationInterface {
     DEBUG_MODE: boolean;
     PUSHER_URL: string;
     FRONT_URL: string;
-    ADMIN_URL: string | undefined;
+    CORE_URL: string | undefined;
     UPLOADER_URL: string;
     ICON_URL: string;
     SKIP_RENDER_OPTIMIZATIONS: boolean;

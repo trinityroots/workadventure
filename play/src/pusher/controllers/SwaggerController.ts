@@ -3,7 +3,7 @@ import path from "path";
 import swaggerJsdoc from "swagger-jsdoc";
 import { load as cheerioLoad } from "cheerio";
 import Debug from "debug";
-import { ADMIN_URL } from "../enums/EnvironmentVariable";
+import { CORE_URL } from "../enums/EnvironmentVariable";
 import SwaggerGenerator from "../services/SwaggerGenerator";
 import { BaseHttpController } from "./BaseHttpController";
 
@@ -59,8 +59,8 @@ export class SwaggerController extends BaseHttpController {
                 },
                 apis: ["./src/pusher/services/*.ts"],
             };
-            if (ADMIN_URL && options.swaggerDefinition) {
-                options.swaggerDefinition.host = "pusher." + ADMIN_URL.replace("//", "");
+            if (CORE_URL && options.swaggerDefinition) {
+                options.swaggerDefinition.host = "pusher." + CORE_URL.replace("//", "");
             }
             res.json(swaggerJsdoc(options));
         });

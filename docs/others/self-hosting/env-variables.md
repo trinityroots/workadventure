@@ -13,7 +13,7 @@ Environment variables for the Play service (frontend and pusher).
 | `SECRET_KEY` | Yes | Secret key used to encode JWT tokens. Set this to a random unguessable string. |
 | `API_URL` | Yes | URL of the back server API |
 | `ADMIN_API_URL` | No | The URL to the admin API. If in the same network, you can use a local name here. |
-| `ADMIN_URL` | No | The URL to the admin. This should be a publicly accessible URL. |
+| `CORE_URL` | No | The URL to the admin. This should be a publicly accessible URL. |
 | `ADMIN_BO_URL` | No | The URL to the admin dashboard. Will be used to redirect the user to the admin dashboard. You can put it a URL that will automatically connect the user. |
 | `ADMIN_API_TOKEN` | No | Authentication token for the admin API |
 | `AUTOLOGIN_URL` | No | The URL to be used to automatically log someone given a token. |

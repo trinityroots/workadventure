@@ -1,13 +1,13 @@
 <script lang="ts">
     import { fly } from "svelte/transition";
     import { userIsAdminStore, limitMapStore, bannerStore } from "../../Stores/GameStore";
-    import { ADMIN_URL } from "../../Enum/EnvironmentVariable";
+    import { CORE_URL } from "../../Enum/EnvironmentVariable";
     import { LL } from "../../../i18n/i18n-svelte";
     import { warningBannerStore } from "../../Stores/MenuStore";
 
     /* eslint-disable svelte/no-at-html-tags */
 
-    const registerLink = ADMIN_URL + "/second-step-register";
+    const registerLink = CORE_URL + "/second-step-register";
 
     function closeBanner() {
         warningBannerStore.set(false);
@@ -55,7 +55,7 @@
             </div>
         {:else if $userIsAdminStore}
             <h2>{$LL.warning.title()}</h2>
-            <p>{@html $LL.warning.content({ upgradeLink: ADMIN_URL + "/pricing" })}</p>
+            <p>{@html $LL.warning.content({ upgradeLink: CORE_URL + "/pricing" })}</p>
         {:else if $limitMapStore}
             <p>
                 This map is available for 2 days. You can register your domain <a href={registerLink}>here</a>!
@@ -63,7 +63,7 @@
         {:else}
             <h2>{$LL.warning.title()}</h2>
             <p>
-                {@html $LL.warning.content({ upgradeLink: ADMIN_URL + "/pricing" })}
+                {@html $LL.warning.content({ upgradeLink: CORE_URL + "/pricing" })}
             </p>
         {/if}
     </div>

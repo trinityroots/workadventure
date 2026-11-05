@@ -20,7 +20,7 @@ export const EnvironmentVariables = z.object({
     ADMIN_API_URL: AbsoluteOrRelativeUrl.optional().describe(
         "The URL to the admin API. If in the same network, you can use a local name here.",
     ),
-    ADMIN_URL: AbsoluteOrRelativeUrl.optional().describe(
+    CORE_URL: AbsoluteOrRelativeUrl.optional().describe(
         "The URL to the admin. This should be a publicly accessible URL.",
     ),
     ADMIN_BO_URL: AbsoluteOrRelativeUrl.optional().describe(

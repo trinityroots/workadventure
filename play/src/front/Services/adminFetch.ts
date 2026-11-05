@@ -1,4 +1,4 @@
-import { ADMIN_URL } from "../Enum/EnvironmentVariable";
+import { CORE_URL } from "../Enum/EnvironmentVariable";
 import { gameManager } from "../Phaser/Game/GameManager";
 
 /** No request was sent: the admin is not configured, or the player has not joined yet. */
@@ -33,12 +33,12 @@ export function sessionToken(): string | undefined {
 
 /** Calls the admin API as the signed-in player and parses its JSON answer. */
 export async function adminFetch<T>(path: string, init: RequestInit = {}): Promise<T> {
-    if (!ADMIN_URL) {
+    if (!CORE_URL) {
         if (!warnedAboutConfig) {
             warnedAboutConfig = true;
-            console.warn("ADMIN_URL is not configured, admin data stays empty");
+            console.warn("CORE_URL is not configured, admin data stays empty");
         }
-        throw new AdminUnavailableError("ADMIN_URL is not configured");
+        throw new AdminUnavailableError("CORE_URL is not configured");
     }
     const token = sessionToken();
     if (!token) {
@@ -47,7 +47,7 @@ export async function adminFetch<T>(path: string, init: RequestInit = {}): Promi
 
     const headers = new Headers(init.headers);
     headers.set("Authorization", `Bearer ${token}`);
-    const response = await fetch(`${ADMIN_URL}${path}`, { ...init, headers });
+    const response = await fetch(`${CORE_URL}${path}`, { ...init, headers });
     if (!response.ok) {
         throw new AdminHttpError(`${path} failed with status ${response.status}`, response.status);
     }

@@ -23,7 +23,7 @@ import {
     ADMIN_API_TOKEN,
     ADMIN_API_URL,
     OPID_PROFILE_SCREEN_PROVIDER,
-    ADMIN_URL,
+    CORE_URL,
 } from "../enums/EnvironmentVariable";
 import { IceServer as IceServerSchema } from "./IceServer";
 import type { AdminInterface } from "./AdminInterface";
@@ -1067,7 +1067,7 @@ class AdminApi implements AdminInterface {
      */
     updateChatId(userIdentifier: string, chatId: string, roomUrl: string): Promise<void> {
         return axios.put(
-            `${ADMIN_URL}/api/members/${userIdentifier}/chatId`,
+            `${CORE_URL}/api/members/${userIdentifier}/chatId`,
             {
                 chatId,
                 userIdentifier,
@@ -1111,7 +1111,7 @@ class AdminApi implements AdminInterface {
      */
     async refreshOauthToken(token: string, provider?: string, userIdentifier?: string): Promise<OauthRefreshToken> {
         const response = await axios.post(
-            `${ADMIN_URL}/api/oauth/refreshtoken`,
+            `${CORE_URL}/api/oauth/refreshtoken`,
             {
                 accessToken: token,
                 provider: provider,
@@ -1174,7 +1174,7 @@ class AdminApi implements AdminInterface {
             return iceServersService.generateIceServers(userId.toString());
         }
 
-        const response = await axios.get(`${ADMIN_URL}/api/ice-servers`, {
+        const response = await axios.get(`${CORE_URL}/api/ice-servers`, {
             headers: { Authorization: `${ADMIN_API_TOKEN}` },
             params: {
                 roomUrl,

@@ -48,7 +48,7 @@ import { lazyLoadPlayerCompanionTexture } from "../Companion/CompanionTexturesLo
 import { iframeListener } from "../../Api/IframeListener";
 import { coWebsiteManager, coWebsites } from "../../Stores/CoWebsiteStore";
 import {
-    ADMIN_URL,
+    CORE_URL,
     DEBUG_MODE,
     ENABLE_CHAT_DISCONNECTED_LIST,
     ENABLE_MAP_EDITOR,
@@ -2684,7 +2684,7 @@ export class GameScene extends DirtyScene {
                         openCoWebSite: openCoWebSiteWithoutSource,
                         closeCoWebsite,
                         getOauthRefreshToken: connection.getOauthRefreshToken.bind(this.connection),
-                        adminUrl: ADMIN_URL,
+                        adminUrl: CORE_URL,
                         externalSvelteComponent: externalSvelteComponentService,
                         spaceRegistry: this._spaceRegistry,
                         logoutCallback: () => {

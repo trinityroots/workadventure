@@ -1,5 +1,5 @@
 import type { MonsterCommand } from "../Api/Events/MonsterEvent";
-import { ADMIN_URL } from "../Enum/EnvironmentVariable";
+import { CORE_URL } from "../Enum/EnvironmentVariable";
 import { sessionToken } from "./adminFetch";
 
 /** A live monster as the game service reports it. */
@@ -186,7 +186,7 @@ async function connectStream(stream: ActiveStream): Promise<void> {
         return;
     }
     try {
-        const response = await fetch(`${ADMIN_URL}/api/monsters/stream`, {
+        const response = await fetch(`${CORE_URL}/api/monsters/stream`, {
             headers: { Authorization: `Bearer ${token}` },
             signal: stream.controller.signal,
         });
@@ -213,7 +213,7 @@ export function startMonsterStream(options: MonsterStreamOptions): void {
         pendingRetry = undefined;
     }
     stopMonsterStream();
-    if (!ADMIN_URL) return;
+    if (!CORE_URL) return;
     const token = sessionToken();
     if (!token) {
         if (tokenAttempts >= TOKEN_RETRY_LIMIT) {
@@ -267,7 +267,7 @@ export function attackNearestMonster(): void {
     if (!target || !token) return;
     stream.lastAttack = now;
 
-    fetch(`${ADMIN_URL}/api/monsters/${encodeURIComponent(target.id)}/attack`, {
+    fetch(`${CORE_URL}/api/monsters/${encodeURIComponent(target.id)}/attack`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
     })

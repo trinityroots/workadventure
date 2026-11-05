@@ -1,10 +1,10 @@
 <script lang="ts">
     import { fly } from "svelte/transition";
-    import { ADMIN_URL } from "../../Enum/EnvironmentVariable";
+    import { CORE_URL } from "../../Enum/EnvironmentVariable";
     import Button from "../UI/Button.svelte";
 
     function register() {
-        window.open(`${ADMIN_URL}/second-step-register`, "_self");
+        window.open(`${CORE_URL}/second-step-register`, "_self");
     }
 </script>
 

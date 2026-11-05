@@ -33,7 +33,7 @@ import { analyticsClient } from "../../../Administration/AnalyticsClient";
 import { scriptUtils } from "../../../Api/ScriptUtils";
 import { localUserStore } from "../../../Connection/LocalUserStore";
 import { Room } from "../../../Connection/Room";
-import { ADMIN_URL, JITSI_PRIVATE_MODE, JITSI_URL } from "../../../Enum/EnvironmentVariable";
+import { CORE_URL, JITSI_PRIVATE_MODE, JITSI_URL } from "../../../Enum/EnvironmentVariable";
 import {
     audioManagerFileStore,
     audioManagerVisibilityStore,
@@ -1203,7 +1203,7 @@ export class AreasPropertiesListener {
     private displayPersonalAreaOwnerVisitCard(ownerId: string, areaData: AreaData, area?: Area) {
         const connection = this.scene.connection;
         if (connection && this.isPersonalAreaOwnerAway(ownerId, areaData)) {
-            if (ADMIN_URL) {
+            if (CORE_URL) {
                 connection
                     .queryMember(ownerId)
                     .then((member: Member) => {
