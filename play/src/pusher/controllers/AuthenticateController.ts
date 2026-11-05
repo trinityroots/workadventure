@@ -184,6 +184,14 @@ export class AuthenticateController extends BaseHttpController {
             debug(
                 `AuthenticateController => [${req.method}] ${req.originalUrl} — IP: ${IPAddress} — Time: ${Date.now()}`,
             );
+            // The session JWT arrives in the Authorization header; MeRequest
+            // still requires it in the query, so fold the header in before validating.
+            if (!req.query.token) {
+                const authHeader = req.header("authorization") ?? "";
+                if (authHeader.startsWith("Bearer ")) {
+                    (req.query as Record<string, unknown>).token = authHeader.slice(7);
+                }
+            }
             const query = validateQuery(req, res, MeRequest);
             if (query === undefined) {
                 return;

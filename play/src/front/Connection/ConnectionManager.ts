@@ -554,15 +554,17 @@ class ConnectionManager {
 
         // TODO: the call to "/me" could be completely removed and the request data could come from the FrontController
         // For this to work, the authToken should be stored in a cookie instead of localStorage.
+        // The session JWT travels in the Authorization header — never in the URL,
+        // where it would land in browser history and access logs.
         const data = await axiosToPusher
             .get("me", {
                 params: {
-                    token,
                     playUri,
                     localStorageCharacterTextureIds: localUserStore.getCharacterTextures() ?? undefined,
                     localStorageCompanionTextureId: localUserStore.getCompanionTextureId() ?? undefined,
                     chatID: localUserStore.getChatId() ?? undefined,
                 },
+                headers: { Authorization: `Bearer ${token}` },
             })
             .then((res) => {
                 return res.data;
