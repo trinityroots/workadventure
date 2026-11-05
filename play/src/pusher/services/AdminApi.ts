@@ -593,10 +593,6 @@ class AdminApi implements AdminInterface {
         return `${OPID_PROFILE_SCREEN_PROVIDER}?accessToken=${accessToken}&playUri=${playUri}`;
     }
 
-    async logoutOauth(token: string): Promise<void> {
-        await axios.get(ADMIN_API_URL + `/oauth/logout?token=${token}`);
-    }
-
     async banUserByUuid(
         uuidToBan: string,
         playUri: string,

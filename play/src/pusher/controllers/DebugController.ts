@@ -14,7 +14,7 @@ export class DebugController extends BaseHttpController {
                 res.status(401).send("No token configured!");
                 return;
             }
-            if (req.query.token !== ADMIN_API_TOKEN) {
+            if (req.header("authorization") !== ADMIN_API_TOKEN) {
                 res.status(401).send("Invalid token sent!");
                 return;
             }

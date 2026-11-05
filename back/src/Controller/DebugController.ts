@@ -11,8 +11,7 @@ const validateTokenMiddleware = (req: Request, res: Response, next: NextFunction
         return;
     }
 
-    const query = req.query;
-    if (query.token !== ADMIN_API_TOKEN) {
+    if (req.header("authorization") !== ADMIN_API_TOKEN) {
         res.status(401).send("Invalid token sent!");
         return;
     }
@@ -124,7 +123,7 @@ export class DebugController {
      * Force the application into a loop that stalls the event loop.
      *
      * From within the container, trigger with:
-     *   curl -X POST "http://localhost:8080/debug/stall-event-loop?token=<ADMIN_API_TOKEN>&ms=90000"
+     *   curl -X POST -H "Authorization: <ADMIN_API_TOKEN>" "http://localhost:8080/debug/stall-event-loop?ms=90000"
      */
     private stallEventLoop() {
         this.app.post("/debug/stall-event-loop", validateTokenMiddleware, (req: Request, res: Response): void => {
@@ -149,7 +148,7 @@ export class DebugController {
      * Force the application into several loops that stall the event loop.
      *
      * From within the container, trigger with:
-     *  curl -X PUT "http://<back-pod>:8080/debug/lag/start?token=<ADMIN_API_TOKEN>&everyMs=2000&blockMs=1500"
+     *  curl -X PUT -H "Authorization: <ADMIN_API_TOKEN>" "http://<back-pod>:8080/debug/lag/start?everyMs=2000&blockMs=1500"
      */
     private startLagLoop() {
         this.app.put("/debug/lag/start", validateTokenMiddleware, (req: Request, res: Response): void => {

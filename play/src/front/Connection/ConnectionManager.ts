@@ -112,7 +112,7 @@ class ConnectionManager {
      * Logout
      */
     public logout() {
-        // save the current token to use it in the redirect logout url
+        // save the current token to authenticate the logout call itself
         const tokenTmp = localUserStore.getAuthToken();
         //remove token in localstorage
         localUserStore.setAuthToken(null);
@@ -125,10 +125,9 @@ class ConnectionManager {
             window.location.assign("/login");
             return;
         }
-        // redirect to logout url
-        const redirectUrl = new URL(`${this._currentRoom.opidLogoutRedirectUrl}`, window.location.href);
-        redirectUrl.searchParams.append("playUri", this._currentRoom.key);
-        redirectUrl.searchParams.append("token", tokenTmp ?? "");
+        const playUri = this._currentRoom.key;
+        const logoutUrl = new URL(`${this._currentRoom.opidLogoutRedirectUrl}`, window.location.href);
+        logoutUrl.searchParams.append("playUri", playUri);
 
         gameManager
             .logout()
@@ -136,7 +135,25 @@ class ConnectionManager {
                 console.error(e);
                 Sentry.captureException(e);
             })
-            .finally(() => window.location.assign(redirectUrl));
+            .finally(async () => {
+                // The session JWT goes in the Authorization header, never the URL;
+                // the server answers with the location to navigate to.
+                if (tokenTmp) {
+                    try {
+                        const response = await fetch(logoutUrl.toString(), {
+                            headers: { Authorization: `Bearer ${tokenTmp}` },
+                        });
+                        if (response.ok) {
+                            const { location } = (await response.json()) as { location: string };
+                            window.location.assign(location);
+                            return;
+                        }
+                    } catch (e) {
+                        console.error(e);
+                    }
+                }
+                window.location.assign(playUri);
+            });
     }
 
     /**
@@ -161,19 +178,15 @@ class ConnectionManager {
         let nextScene: "selectCharacterScene" | "selectCompanionScene" | "gameScene" = "gameScene";
 
         const urlParams = new URLSearchParams(window.location.search);
-        let token = urlParams.get("token");
-        // get token injected by post method from pusher
-        if (token == undefined) {
-            const input = HtmlUtils.getElementByIdOrFail<HTMLInputElement>("authToken");
-            if (input.value != undefined && input.value != "") token = input.value;
-        }
+        // The session JWT never travels in the URL — it arrives either through
+        // the hidden input the pusher injects on POST or already in localStorage.
+        let token: string | null = null;
+        const input = HtmlUtils.getElementByIdOrFail<HTMLInputElement>("authToken");
+        if (input.value != undefined && input.value != "") token = input.value;
 
         if (token != undefined) {
             this.authToken = token;
             localUserStore.setAuthToken(token);
-
-            //clean token of url
-            urlParams.delete("token");
         }
 
         let matrixLoginToken = urlParams.get("matrixLoginToken");

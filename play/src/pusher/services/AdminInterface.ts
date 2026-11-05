@@ -85,11 +85,6 @@ export interface AdminInterface {
     getProfileUrl(accessToken: string, playUri: string): string;
 
     /**
-     * @param token
-     */
-    logoutOauth(token: string): Promise<void>;
-
-    /**
      * @param ipAddress the IP the user connects from, to ban it too; undefined to ban their account only
      */
     banUserByUuid(

@@ -395,10 +395,6 @@ class LocalAdmin implements AdminInterface {
         return `/profile?accessToken=${accessToken}&playUri=${playUri}`;
     }
 
-    async logoutOauth(token: string): Promise<void> {
-        return Promise.reject(new Error("No admin backoffice set!"));
-    }
-
     banUserByUuid(
         uuidToBan: string,
         playUri: string,

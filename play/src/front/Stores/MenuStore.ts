@@ -267,11 +267,17 @@ export function handleOpenMenuEvent(key: string) {
     menuVisiblilityStore.set(true);
 }
 
-export function getProfileUrl() {
-    return new URL(
-        `profile-callback?token=${localUserStore.getAuthToken()}&playUri=${connectionManager.currentRoom?.key}`,
-        ABSOLUTE_PUSHER_URL,
-    ).toString();
+export async function resolveProfileUrl(): Promise<string> {
+    // The session JWT goes in the Authorization header; the endpoint answers
+    // with the profile provider URL the iframe should load.
+    const endpoint = new URL("profile-callback", ABSOLUTE_PUSHER_URL);
+    endpoint.searchParams.set("playUri", connectionManager.currentRoom?.key ?? "");
+    const response = await fetch(endpoint.toString(), {
+        headers: { Authorization: `Bearer ${localUserStore.getAuthToken()}` },
+    });
+    if (!response.ok) return "";
+    const { url } = (await response.json()) as { url: string };
+    return url;
 }
 
 export interface CustomButtonActionBarDescriptor {

@@ -48,6 +48,10 @@ Do not edit generated `src/i18n/i18n-*.ts` files directly.
 
 ## Frontend conventions
 
+- The session JWT never travels in a URL: browser calls send `Authorization: Bearer`,
+  pusher handlers (`/me`, `/logout`, `/profile-callback`) accept only that header and
+  answer 401 without it, and post-login handoffs write `localStorage.authToken` through
+  `redirectToRoom.html`/`redirectToMatrix.html` instead of appending `?token=`.
 - New and migrated Svelte components use Svelte 5 runes (`$props`, `$state`, `$derived`, `$effect`).
 - Panels the action bar opens (agenda, tasks, chat, users) are tabs of the chat sidebar:
   `navChat.switchToCustomComponent(...)` plus `chatVisibilityStore.set(true)` — never a second
