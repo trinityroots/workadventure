@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
 import {
+    monsterEventSnapshot,
     monsterSnapshotCommands,
     nearestWithin,
     type MonsterSnapshot,
@@ -68,6 +69,22 @@ describe("monsterSnapshotCommands", () => {
         expect(monsterSnapshotCommands(previous(monster("a"), monster("b")), [monster("b")], TEXTURE_URL)).toEqual([
             { op: "remove", id: "a" },
         ]);
+    });
+});
+
+describe("monsterEventSnapshot", () => {
+    it("parses the snapshot carried by a data block", () => {
+        expect(monsterEventSnapshot('event: monsters\ndata: [{"id":"a","x":1,"y":2}]')).toEqual([
+            { id: "a", x: 1, y: 2 },
+        ]);
+    });
+
+    it("ignores heartbeat blocks", () => {
+        expect(monsterEventSnapshot(": ping")).toBeUndefined();
+    });
+
+    it("ignores malformed payloads instead of throwing", () => {
+        expect(monsterEventSnapshot("data: not-json")).toBeUndefined();
     });
 });
 

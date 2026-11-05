@@ -93,14 +93,13 @@ export interface MonsterStreamOptions {
 }
 
 interface ActiveStream extends MonsterStreamOptions {
-    source: EventSource;
+    controller: AbortController;
     textureUrl: string;
     known: Map<string, MonsterSnapshot>;
     snapshot: MonsterSnapshot[];
     lastAttack: number;
     warned: boolean;
-    handleMessage: (event: Event) => void;
-    handleError: () => void;
+    retry?: ReturnType<typeof setTimeout>;
 }
 
 let active: ActiveStream | undefined;
@@ -112,6 +111,100 @@ let tokenAttempts = 0;
 // token instead of giving up, or monsters never appear for the whole session.
 const TOKEN_RETRY_MS = 500;
 const TOKEN_RETRY_LIMIT = 40;
+const RECONNECT_MS = 3000;
+
+/** The snapshot carried by one `data:` block of the stream, if it carries one. */
+export function monsterEventSnapshot(block: string): MonsterSnapshot[] | undefined {
+    const data = block
+        .split("\n")
+        .filter((line) => line.startsWith("data:"))
+        .map((line) => line.slice(5).trim())
+        .join("");
+    if (!data) return undefined;
+    try {
+        return JSON.parse(data) as MonsterSnapshot[];
+    } catch {
+        return undefined;
+    }
+}
+
+async function readMonsterStream(
+    body: ReadableStream<Uint8Array>,
+    onSnapshot: (snapshot: MonsterSnapshot[]) => void,
+): Promise<void> {
+    const reader = body.getReader();
+    const decoder = new TextDecoder();
+    try {
+        await pumpMonsterStream(reader, decoder, onSnapshot, "");
+    } finally {
+        reader.releaseLock();
+    }
+}
+
+async function pumpMonsterStream(
+    reader: ReadableStreamDefaultReader<Uint8Array>,
+    decoder: TextDecoder,
+    onSnapshot: (snapshot: MonsterSnapshot[]) => void,
+    buffer: string,
+): Promise<void> {
+    const { value, done } = await reader.read();
+    if (done) return;
+    buffer += decoder.decode(value, { stream: true });
+    let boundary = buffer.indexOf("\n\n");
+    while (boundary !== -1) {
+        const snapshot = monsterEventSnapshot(buffer.slice(0, boundary));
+        buffer = buffer.slice(boundary + 2);
+        if (snapshot) onSnapshot(snapshot);
+        boundary = buffer.indexOf("\n\n");
+    }
+    return pumpMonsterStream(reader, decoder, onSnapshot, buffer);
+}
+
+function scheduleReconnect(stream: ActiveStream): void {
+    if (stream.controller.signal.aborted) return;
+    stream.retry = setTimeout(() => {
+        connectStream(stream).catch(() => undefined);
+    }, RECONNECT_MS);
+}
+
+function clearDisconnected(stream: ActiveStream): void {
+    stream.warned = false;
+}
+
+function warnDisconnected(stream: ActiveStream, error: unknown): void {
+    if (stream.warned) return;
+    stream.warned = true;
+    console.warn("Monster stream disconnected, reconnecting", error);
+}
+
+// EventSource cannot send headers, and the core service authenticates the
+// stream with Bearer only — so the stream is read as a plain fetch body.
+async function connectStream(stream: ActiveStream): Promise<void> {
+    const token = sessionToken();
+    if (!token) {
+        scheduleReconnect(stream);
+        return;
+    }
+    try {
+        const response = await fetch(`${ADMIN_URL}/api/monsters/stream`, {
+            headers: { Authorization: `Bearer ${token}` },
+            signal: stream.controller.signal,
+        });
+        if (!response.ok || !response.body) throw new Error(`HTTP ${response.status}`);
+        clearDisconnected(stream);
+        await readMonsterStream(response.body, (snapshot) => {
+            for (const command of monsterSnapshotCommands(stream.known, snapshot, stream.textureUrl)) {
+                stream.onCommand(command);
+            }
+            stream.known = new Map(snapshot.map((monster) => [monster.id, monster]));
+            stream.snapshot = snapshot;
+        });
+    } catch (error) {
+        if (stream.controller.signal.aborted) return;
+        warnDisconnected(stream, error);
+    }
+    scheduleReconnect(stream);
+}
 
 /** Subscribes the signed-in player to the admin's monster feed for the rest of the session. */
 export function startMonsterStream(options: MonsterStreamOptions): void {
@@ -137,37 +230,17 @@ export function startMonsterStream(options: MonsterStreamOptions): void {
     }
     tokenAttempts = 0;
 
-    const handleMessage = (event: Event) => {
-        if (!(event instanceof MessageEvent)) return;
-        const snapshot = JSON.parse(event.data) as MonsterSnapshot[];
-        for (const command of monsterSnapshotCommands(stream.known, snapshot, stream.textureUrl)) {
-            stream.onCommand(command);
-        }
-        stream.known = new Map(snapshot.map((monster) => [monster.id, monster]));
-        stream.snapshot = snapshot;
-    };
-    const handleError = () => {
-        // EventSource reconnects on its own: warn once instead of on every retry.
-        if (stream.warned) return;
-        stream.warned = true;
-        console.warn("Monster stream disconnected, waiting for the browser to reconnect");
-    };
-
     const stream: ActiveStream = {
         ...options,
-        source: new EventSource(`${ADMIN_URL}/api/monsters/stream?token=${encodeURIComponent(token)}`),
+        controller: new AbortController(),
         textureUrl: new URL(TEXTURE_PATH, options.mapUrl).toString(),
         known: new Map(),
         snapshot: [],
         lastAttack: 0,
         warned: false,
-        handleMessage,
-        handleError,
     };
     active = stream;
-
-    stream.source.addEventListener("monsters", stream.handleMessage);
-    stream.source.addEventListener("error", stream.handleError);
+    connectStream(stream).catch(() => undefined);
 }
 
 export function stopMonsterStream(): void {
@@ -177,9 +250,8 @@ export function stopMonsterStream(): void {
     }
     const stream = active;
     if (!stream) return;
-    stream.source.removeEventListener("monsters", stream.handleMessage);
-    stream.source.removeEventListener("error", stream.handleError);
-    stream.source.close();
+    if (stream.retry) clearTimeout(stream.retry);
+    stream.controller.abort();
     active = undefined;
 }
 
