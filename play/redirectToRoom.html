@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script>
+        // The authToken can be bigger than the cookie limit max size, so the
+        // session JWT travels through localStorage instead of a query string.
+        window.localStorage.setItem("authToken", "{{authToken}}");
+        window.location.href = "{{{playUri}}}";
+    </script>
+</head>
+<body>
+</body>
+</html>

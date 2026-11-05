@@ -23,6 +23,7 @@ const debug = Debug("pusher:requests");
 export class AuthenticateController extends BaseHttpController {
     private readonly redirectToMatrixFile: string;
     private readonly redirectToPlayFile: string;
+    private readonly redirectToRoomFile: string;
     constructor(app: Application) {
         super(app);
 
@@ -57,6 +58,20 @@ export class AuthenticateController extends BaseHttpController {
 
         // Pre-parse the file for speed (and validation)
         Mustache.parse(this.redirectToPlayFile);
+
+        let redirectToRoomPath: string;
+        if (fs.existsSync("dist/public/redirectToRoom.html")) {
+            redirectToRoomPath = "dist/public/redirectToRoom.html";
+        } else if (fs.existsSync("redirectToRoom.html")) {
+            redirectToRoomPath = "redirectToRoom.html";
+        } else {
+            throw new Error("Could not find redirectToRoom.html file");
+        }
+
+        this.redirectToRoomFile = fs.readFileSync(redirectToRoomPath, "utf8");
+
+        // Pre-parse the file for speed (and validation)
+        Mustache.parse(this.redirectToRoomFile);
     }
 
     routes(): void {
@@ -184,18 +199,17 @@ export class AuthenticateController extends BaseHttpController {
             debug(
                 `AuthenticateController => [${req.method}] ${req.originalUrl} — IP: ${IPAddress} — Time: ${Date.now()}`,
             );
-            // Express 5 re-parses req.query on every access, so a header token
-            // cannot be folded into it — validate the rest and read the token apart.
+            // Express 5 re-parses req.query on every access, and the session JWT
+            // must never travel in a URL — the Authorization header is the only
+            // accepted carrier.
             const query = validateQuery(req, res, MeRequest.omit({ token: true }));
             if (query === undefined) {
                 return;
             }
             const authHeader = req.header("authorization") ?? "";
-            const token = authHeader.startsWith("Bearer ")
-                ? authHeader.slice(7)
-                : ((req.query.token as string | undefined) ?? "");
+            const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : "";
             if (!token) {
-                res.status(400).json(["Parameter token: Required"]);
+                res.status(401).json(["Missing Authorization header"]);
                 return;
             }
             const { playUri, localStorageCompanionTextureId, chatID } = query;
@@ -381,8 +395,13 @@ export class AuthenticateController extends BaseHttpController {
             }
 
             res.clearCookie("playUri");
-            // FIXME: possibly redirect to Admin instead.
-            res.redirect(playUri + "?token=" + encodeURIComponent(authToken));
+            // The session JWT goes through localStorage — a query string would
+            // put it in browser history and server logs.
+            const html = Mustache.render(this.redirectToRoomFile, {
+                authToken,
+                playUri,
+            });
+            res.type("html").send(html);
             return;
         });
     }
@@ -504,14 +523,19 @@ export class AuthenticateController extends BaseHttpController {
                 req,
                 res,
                 z.object({
-                    token: z.string(),
                     playUri: z.string(),
                 }),
             );
             if (query === undefined) {
                 return;
             }
-            const { token, playUri } = query;
+            const { playUri } = query;
+            const authHeader = req.header("authorization") ?? "";
+            const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : "";
+            if (!token) {
+                res.status(401).json(["Missing Authorization header"]);
+                return;
+            }
             const authTokenData: AuthTokenData = await jwtTokenManager.verifyJWTToken(token, false);
             if (authTokenData.accessToken == undefined) {
                 throw Error("Token cannot be checked on OpenID connect provider");
@@ -519,10 +543,9 @@ export class AuthenticateController extends BaseHttpController {
             await openIDClient.checkTokenAuth(authTokenData.accessToken);
 
             const accessToken = authTokenData.accessToken;
-            //get login profile
-            res.status(302);
-            res.setHeader("Location", adminService.getProfileUrl(accessToken, playUri));
-            res.send("");
+            // The client fetches this URL with the session JWT in a header and
+            // points its profile iframe at the returned address.
+            res.json({ url: adminService.getProfileUrl(accessToken, playUri) });
             return;
         });
     }
@@ -577,11 +600,17 @@ export class AuthenticateController extends BaseHttpController {
                 res,
                 z.object({
                     playUri: z.string(),
-                    token: z.string(),
                     redirect: z.string().optional(),
                 }),
             );
             if (query === undefined) {
+                return;
+            }
+
+            const authHeader = req.header("authorization") ?? "";
+            const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : "";
+            if (!token) {
+                res.status(401).json(["Missing Authorization header"]);
                 return;
             }
 
@@ -593,7 +622,7 @@ export class AuthenticateController extends BaseHttpController {
                 return;
             }
 
-            const authTokenData: AuthTokenData = await jwtTokenManager.verifyJWTToken(query.token, false);
+            const authTokenData: AuthTokenData = await jwtTokenManager.verifyJWTToken(token, false);
             if (authTokenData.accessToken == undefined) {
                 throw Error("Cannot log out, no access token found.");
             }
@@ -606,7 +635,7 @@ export class AuthenticateController extends BaseHttpController {
             // if the world is with authentication mandatory, the user will be redirected to the login screen
             // if the world is anonymous or with authentication optional, the user will be connected to the world
             if (!query.redirect) {
-                res.redirect(query.playUri);
+                res.json({ location: query.playUri });
                 return;
             }
 
@@ -615,7 +644,7 @@ export class AuthenticateController extends BaseHttpController {
                 httpOnly: true, // dont let browser javascript access cookie ever
                 secure: req.secure, // only use cookie over https
             });
-            res.redirect(query.redirect);
+            res.json({ location: query.redirect });
         });
     }
 }

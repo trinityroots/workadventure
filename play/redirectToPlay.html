@@ -2,14 +2,9 @@
 <html lang="en">
 <head>
     <script>
-        // The authToken can be bigger than the cookie limit max size so we need to use localStorage to store it.
-        const token = window.localStorage.getItem("authToken");
-
-        const playUrl = new URL("{{{playUri}}}");
-        playUrl.searchParams.append("token", token);
-
-
-        window.location.href = playUrl.toString();
+        // The session JWT already lives in localStorage (set by
+        // redirectToMatrix.html) — never append it to the room URL.
+        window.location.href = "{{{playUri}}}";
     </script>
 </head>
 <body>

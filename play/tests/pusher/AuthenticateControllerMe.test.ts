@@ -1,5 +1,5 @@
 // @vitest-environment node
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Application, Request, Response } from "express";
 
 vi.mock("../../src/pusher/enums/EnvironmentVariable", async () => ({
@@ -17,6 +17,10 @@ const { AuthenticateController } = await import("../../src/pusher/controllers/Au
 const { jwtTokenManager } = await import("../../src/pusher/services/JWTTokenManager");
 
 describe("/me", () => {
+    beforeEach(() => {
+        vi.clearAllMocks();
+    });
+
     function registerRoutes() {
         const routes = new Map<string, (req: Request, res: Response) => Promise<void>>();
         const app = {
@@ -26,6 +30,10 @@ describe("/me", () => {
         };
         new AuthenticateController(app as unknown as Application);
         return routes;
+    }
+
+    function bearerHeader(token: string) {
+        return (name: string) => (name === "authorization" ? `Bearer ${token}` : undefined);
     }
 
     it("renews the access token before asking the admin, and drops the tags the provider no longer grants", async () => {
@@ -52,8 +60,8 @@ describe("/me", () => {
         const json = vi.fn();
         await routes.get("/me")?.(
             {
-                query: { token: staleToken, playUri: "http://play.test/_/global/map.json" },
-                header: () => undefined,
+                query: { playUri: "http://play.test/_/global/map.json" },
+                header: bearerHeader(staleToken),
             } as never,
             { json, status: vi.fn(), send: vi.fn() } as never,
         );
@@ -70,7 +78,7 @@ describe("/me", () => {
         expect(renewed.tags).toEqual(["member"]);
     });
 
-    it("takes the session JWT from the Authorization header when the query has no token", async () => {
+    it("takes the session JWT from the Authorization header", async () => {
         const routes = registerRoutes();
 
         const token = await jwtTokenManager.createAuthToken(
@@ -96,14 +104,42 @@ describe("/me", () => {
         await routes.get("/me")?.(
             {
                 query: { playUri: "http://play.test/_/global/map.json" },
-                header: (name: string) => (name === "authorization" ? `Bearer ${token}` : undefined),
+                header: bearerHeader(token),
             } as never,
             { json, status, send: vi.fn() } as never,
         );
 
-        expect(status).not.toHaveBeenCalledWith(400);
+        expect(status).not.toHaveBeenCalledWith(401);
         expect(json.mock.calls[0][0].authToken).toBe(token);
         expect(fetchMemberDataByUuid).toHaveBeenCalled();
+    });
+
+    it("rejects a token sent in the query string", async () => {
+        const routes = registerRoutes();
+
+        const token = await jwtTokenManager.createAuthToken(
+            "john@example.com",
+            "access",
+            "John",
+            "en-US",
+            undefined,
+            undefined,
+            undefined,
+        );
+
+        const json = vi.fn();
+        const status = vi.fn(() => ({ json }));
+        await routes.get("/me")?.(
+            {
+                query: { token, playUri: "http://play.test/_/global/map.json" },
+                header: () => undefined,
+            } as never,
+            { json, status, send: vi.fn() } as never,
+        );
+
+        expect(status).toHaveBeenCalledWith(401);
+        expect(json).toHaveBeenCalledWith(["Missing Authorization header"]);
+        expect(fetchMemberDataByUuid).not.toHaveBeenCalled();
     });
 
     it("rejects a request with neither a header nor a query token", async () => {
@@ -119,7 +155,7 @@ describe("/me", () => {
             { json, status, send: vi.fn() } as never,
         );
 
-        expect(status).toHaveBeenCalledWith(400);
-        expect(json).toHaveBeenCalledWith(["Parameter token: Required"]);
+        expect(status).toHaveBeenCalledWith(401);
+        expect(json).toHaveBeenCalledWith(["Missing Authorization header"]);
     });
 });
