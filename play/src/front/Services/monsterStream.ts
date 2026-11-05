@@ -104,13 +104,38 @@ interface ActiveStream extends MonsterStreamOptions {
 }
 
 let active: ActiveStream | undefined;
+let pendingRetry: ReturnType<typeof setTimeout> | undefined;
+let tokenAttempts = 0;
+
+// The room connection only carries userRoomToken once the join completes, and
+// startMonsterStream runs right after the player is created — so wait for the
+// token instead of giving up, or monsters never appear for the whole session.
+const TOKEN_RETRY_MS = 500;
+const TOKEN_RETRY_LIMIT = 40;
 
 /** Subscribes the signed-in player to the admin's monster feed for the rest of the session. */
 export function startMonsterStream(options: MonsterStreamOptions): void {
+    if (pendingRetry) {
+        clearTimeout(pendingRetry);
+        pendingRetry = undefined;
+    }
     stopMonsterStream();
     if (!ADMIN_URL) return;
     const token = sessionToken();
-    if (!token) return;
+    if (!token) {
+        if (tokenAttempts >= TOKEN_RETRY_LIMIT) {
+            tokenAttempts = 0;
+            console.warn("Monster stream: no session token after waiting, monsters stay hidden");
+            return;
+        }
+        tokenAttempts += 1;
+        pendingRetry = setTimeout(() => {
+            pendingRetry = undefined;
+            startMonsterStream(options);
+        }, TOKEN_RETRY_MS);
+        return;
+    }
+    tokenAttempts = 0;
 
     const handleMessage = (event: Event) => {
         if (!(event instanceof MessageEvent)) return;
@@ -146,6 +171,10 @@ export function startMonsterStream(options: MonsterStreamOptions): void {
 }
 
 export function stopMonsterStream(): void {
+    if (pendingRetry) {
+        clearTimeout(pendingRetry);
+        pendingRetry = undefined;
+    }
     const stream = active;
     if (!stream) return;
     stream.source.removeEventListener("monsters", stream.handleMessage);
