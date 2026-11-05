@@ -184,19 +184,21 @@ export class AuthenticateController extends BaseHttpController {
             debug(
                 `AuthenticateController => [${req.method}] ${req.originalUrl} — IP: ${IPAddress} — Time: ${Date.now()}`,
             );
-            // The session JWT arrives in the Authorization header; MeRequest
-            // still requires it in the query, so fold the header in before validating.
-            if (!req.query.token) {
-                const authHeader = req.header("authorization") ?? "";
-                if (authHeader.startsWith("Bearer ")) {
-                    (req.query as Record<string, unknown>).token = authHeader.slice(7);
-                }
-            }
-            const query = validateQuery(req, res, MeRequest);
+            // Express 5 re-parses req.query on every access, so a header token
+            // cannot be folded into it — validate the rest and read the token apart.
+            const query = validateQuery(req, res, MeRequest.omit({ token: true }));
             if (query === undefined) {
                 return;
             }
-            const { token, playUri, localStorageCompanionTextureId, chatID } = query;
+            const authHeader = req.header("authorization") ?? "";
+            const token = authHeader.startsWith("Bearer ")
+                ? authHeader.slice(7)
+                : ((req.query.token as string | undefined) ?? "");
+            if (!token) {
+                res.status(400).json(["Parameter token: Required"]);
+                return;
+            }
+            const { playUri, localStorageCompanionTextureId, chatID } = query;
             let localStorageCharacterTextureIds = query["localStorageCharacterTextureIds[]"];
             if (typeof localStorageCharacterTextureIds === "string") {
                 localStorageCharacterTextureIds = [localStorageCharacterTextureIds];
