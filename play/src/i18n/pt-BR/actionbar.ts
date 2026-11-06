@@ -95,6 +95,10 @@ const actionbar: BaseTranslation = {
             title: "Enviar mensagem de texto",
             desc: "Compartilhe suas ideias ou inicie uma discussão, diretamente por escrito. Simples, claro, eficaz.",
         },
+        calendar: {
+            title: "Mostrar o calendário",
+            desc: "Veja suas próximas reuniões e entre nelas sem sair do escritório.",
+        },
         users: {
             title: "Exibir lista de usuários",
             desc: "Veja quem está lá, acesse seus cartões de visita, envie uma mensagem ou caminhe até eles com um clique!",

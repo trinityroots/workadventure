@@ -91,6 +91,10 @@ const actionbar: DeepPartial<Translation["actionbar"]> = {
             title: "Enviar mensaje de texto",
             desc: "Comparte tus ideas o inicia una discusión, directamente por escrito. Simple, claro, efectivo.",
         },
+        calendar: {
+            title: "Mostrar el calendario",
+            desc: "Consulta tus próximas reuniones y únete a ellas sin salir de la oficina.",
+        },
         users: {
             title: "Mostrar lista de usuarios",
             desc: "¡Ve quién está ahí, accede a su tarjeta de visita, envíales un mensaje o acércate a ellos con un clic!",

@@ -91,6 +91,10 @@ const actionbar: DeepPartial<Translation["actionbar"]> = {
             title: "Tekstowu powěsć pósłać",
             desc: "Dźělće swoje ideje abo započńće diskusiju, direktnje pisanje. Jednore, jasne, efektiwne.",
         },
+        calendar: {
+            title: "Kalender zwobraznić",
+            desc: "Pohľadaj so přichodne sčerěnja a přistupuj k nim, bjez toho zo woteńješ kancelar.",
+        },
         users: {
             title: "Lisćinu wužiwarjow pokazać",
             desc: "Hlejće, štó je tu, přistupujće k jich wizitce, pósćelće jim powěsć abo kńeće k nim z jednym klikom!",

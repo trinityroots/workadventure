@@ -1,21 +1,41 @@
 <script lang="ts">
+    import { get } from "svelte/store";
     import ActionBarButton from "../ActionBarButton.svelte";
     import { IconCalendar } from "../../Icons";
     import { closeCalendarSidebar, isCalendarSidebarOpen, openCalendarSidebar } from "../../Calendar/sidebar";
+    import { inputFormFocusStore } from "../../../Stores/UserInputStore";
     import LL from "../../../../i18n/i18n-svelte";
 
     function toggleCalendar() {
         if (isCalendarSidebarOpen()) closeCalendarSidebar();
         else openCalendarSidebar();
     }
+
+    // The tooltip advertises L, so the key has to actually toggle the agenda.
+    function onKeydown(event: KeyboardEvent) {
+        if (event.key !== "l" || event.metaKey || event.ctrlKey || event.altKey || event.shiftKey) return;
+        if (get(inputFormFocusStore)) return;
+        const target = event.target;
+        if (
+            target instanceof HTMLElement &&
+            (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable)
+        )
+            return;
+        event.preventDefault();
+        toggleCalendar();
+    }
 </script>
+
+<svelte:window onkeydown={onKeydown} />
 
 <ActionBarButton
     onclick={toggleCalendar}
     classList="group/btn-calendar"
-    tooltipTitle={$LL.externalModule.calendar.title()}
+    tooltipTitle={$LL.actionbar.help.calendar.title()}
+    desc={$LL.actionbar.help.calendar.desc()}
     dataTestId="calendar-button"
     disabledHelp={false}
+    tooltipShortcuts={["l"]}
 >
     <!-- Outline by default, a solid silhouette while hovered: same read as the chat and users buttons.
          The path carries its own stroke-width="2", so the rule has to target the path, not the svg. -->

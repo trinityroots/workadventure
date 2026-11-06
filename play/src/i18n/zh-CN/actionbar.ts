@@ -89,6 +89,10 @@ const actionbar: DeepPartial<Translation["actionbar"]> = {
             title: "发送文本消息",
             desc: "直接以书面形式分享您的想法或开始讨论。简单、清晰、有效。",
         },
+        calendar: {
+            title: "显示日历",
+            desc: "查看即将召开的会议，无需离开办公室即可直接加入。",
+        },
         users: {
             title: "显示用户列表",
             desc: "看看谁在那里，访问他们的名片，给他们发消息，或者一键走到他们面前！",

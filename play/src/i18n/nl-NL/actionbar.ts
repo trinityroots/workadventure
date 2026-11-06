@@ -91,6 +91,10 @@ const actionbar: DeepPartial<Translation["actionbar"]> = {
             title: "Tekstbericht verzenden",
             desc: "Deel je ideeën of start een discussie, direct schriftelijk. Eenvoudig, duidelijk, effectief.",
         },
+        calendar: {
+            title: "Agenda weergeven",
+            desc: "Bekijk je aankomende vergaderingen en stap er meteen in zonder kantoor te verlaten.",
+        },
         users: {
             title: "Gebruikerslijst weergeven",
             desc: "Zie wie er is, ga naar hun visitekaartje, stuur ze een bericht of loop naar ze toe met één klik!",

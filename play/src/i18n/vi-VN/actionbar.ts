@@ -90,6 +90,10 @@ const actionbar: DeepPartial<Translation["actionbar"]> = {
             title: "Gửi tin nhắn văn bản",
             desc: "Chia sẻ ý tưởng hoặc bắt đầu một cuộc thảo luận, trực tiếp bằng văn bản. Đơn giản, rõ ràng, hiệu quả.",
         },
+        calendar: {
+            title: "Hiển thị lịch",
+            desc: "Xem các cuộc họp sắp tới và tham gia ngay mà không rời khỏi văn phòng.",
+        },
         users: {
             title: "Hiện danh sách người dùng",
             desc: "Xem ai đang có mặt, xem danh thiếp của họ, gửi tin nhắn cho họ, hoặc đi tới chỗ họ chỉ với một cú bấm!",
