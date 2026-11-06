@@ -67,7 +67,8 @@ Do not edit generated `src/i18n/i18n-*.ts` files directly.
   `?calendar=connected`, which `consumeCalendarConnectedParam()` (CalendarLoader) strips before the
   first refresh. The panel's Connect button shows whenever `isActivatedStore` is false.
 - Mic auto-mute: `startMicAutoMute()` (MainLayout onMount) mutes an idle microphone when the window
-  loses focus; `isInActiveConversationStore` gates it so a running conversation keeps its mic.
+  loses focus or the tab hides (`focusStore` + `visibilityStore`, same machinery as PrivacyShutdown);
+  `isInActiveConversationStore` gates it so a running conversation keeps its mic.
 - Match the translation import style and UI patterns of neighboring components.
 - Event listeners and subscriptions must have explicit cleanup. ESLint checks listener removal and ignored subscriptions.
 - For Phaser or media behavior, test actual runtime state rather than relying only on rendered DOM state.

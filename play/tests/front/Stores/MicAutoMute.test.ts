@@ -33,7 +33,7 @@ vi.mock("../../../src/front/Stores/StreamableCollectionStore", () => ({
     isInActiveConversationStore: conversationState,
 }));
 
-import { onWindowFocusChange } from "../../../src/front/Stores/MicAutoMute";
+import { onVisibility, onWindowFocusChange } from "../../../src/front/Stores/MicAutoMute";
 
 describe("mic auto-mute on blur", () => {
     beforeEach(() => {
@@ -67,6 +67,18 @@ describe("mic auto-mute on blur", () => {
         micState.set(false);
 
         onWindowFocusChange(false);
+
+        expect(disableMicrophone).not.toHaveBeenCalled();
+    });
+
+    it("mutes when the tab is hidden even though the window keeps focus", () => {
+        onVisibility(false);
+
+        expect(disableMicrophone).toHaveBeenCalledTimes(1);
+    });
+
+    it("keeps the microphone when the tab becomes visible again", () => {
+        onVisibility(true);
 
         expect(disableMicrophone).not.toHaveBeenCalled();
     });
