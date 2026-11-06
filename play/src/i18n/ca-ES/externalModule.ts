@@ -122,6 +122,7 @@ const externalModule: DeepPartial<Translation["externalModule"]> = {
         overlapping: "{count} reunions se solapen",
         meetingCount: "{count} {{reunió|reunions}}",
         noMeetings: "Cap reunió en els propers 7 dies",
+        connect: "Connecta el calendari de Google",
         days: "Dies",
         meetingsInProgress: "{count} reunions en curs",
         inProgressCount: "{count} en curs",

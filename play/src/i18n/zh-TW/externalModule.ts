@@ -115,6 +115,7 @@ const externalModule: DeepPartial<Translation["externalModule"]> = {
         overlapping: "{count} 場會議時間重疊",
         meetingCount: "{count} 場會議",
         noMeetings: "未來 7 天沒有會議",
+        connect: "連接 Google 日曆",
         days: "日期",
         meetingsInProgress: "{count} 場會議進行中",
         inProgressCount: "{count} 場進行中",

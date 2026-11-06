@@ -1,5 +1,6 @@
 import type { CalendarEventInterface } from "@workadventure/shared-utils";
 import { calendarEventsStore, isActivatedStore } from "../Stores/CalendarStore";
+import { CORE_URL } from "../Enum/EnvironmentVariable";
 import { AdminHttpError, AdminUnavailableError, adminFetch, sessionToken } from "./adminFetch";
 
 const REFRESH_MS = 5 * 60 * 1000;
@@ -77,12 +78,27 @@ export async function refreshCalendar(): Promise<void> {
     }
 }
 
+/** Starts the Google connect flow on core and returns to this origin flagged as connected. */
+export function calendarConnectUrl(): string {
+    return `${CORE_URL}/auth/google?return=${encodeURIComponent(window.location.origin)}`;
+}
+
+/** Drops the calendar=connected flag the connect flow appends when it redirects back. */
+export function consumeCalendarConnectedParam(): void {
+    const url = new URL(window.location.href);
+    if (url.searchParams.get("calendar") !== "connected") return;
+    url.searchParams.delete("calendar");
+    history.replaceState(history.state, "", url);
+}
+
 let started = false;
 
 /** Keeps the calendar fresh for the whole session; retries while the player is still joining. */
 export function startCalendarLoader(): void {
     if (started) return;
     started = true;
+
+    consumeCalendarConnectedParam();
 
     let retries = 0;
 

@@ -119,6 +119,7 @@ const externalModule: BaseTranslation = {
         overlapping: "{count} reuniões se sobrepõem",
         meetingCount: "{count} {{reunião|reuniões}}",
         noMeetings: "Nenhuma reunião nos próximos 7 dias",
+        connect: "Conectar o Google Agenda",
         days: "Dias",
         meetingsInProgress: "{count} reuniões em andamento",
         inProgressCount: "{count} em andamento",

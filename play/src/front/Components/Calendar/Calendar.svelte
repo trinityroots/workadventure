@@ -1,6 +1,6 @@
 <script lang="ts">
     import { get } from "svelte/store";
-    import { calendarEventsStore } from "../../Stores/CalendarStore";
+    import { calendarEventsStore, isActivatedStore } from "../../Stores/CalendarStore";
     import LL from "../../../i18n/i18n-svelte";
 
     import Button from "../UI/Button.svelte";
@@ -8,7 +8,7 @@
     import { analyticsClient } from "../../Administration/AnalyticsClient";
     import { externalSvelteComponentService } from "../../Stores/Utils/externalSvelteComponentService";
     import ExternalComponents from "../ExternalModules/ExternalComponents.svelte";
-    import { refreshCalendar } from "../../Services/CalendarLoader";
+    import { calendarConnectUrl, refreshCalendar } from "../../Services/CalendarLoader";
     import { buildAgenda, formatDayName, startOfDay } from "./agenda";
     import CalendarEventRow from "./CalendarEventRow.svelte";
     import CalendarOverlapGroup from "./CalendarOverlapGroup.svelte";
@@ -39,6 +39,11 @@
     function goToLoginPage() {
         analyticsClient.trackAdminEvent("auth.login_clicked");
         window.location.href = "/login";
+    }
+
+    function connectCalendar() {
+        analyticsClient.trackAdminEvent("auth.login_clicked");
+        window.location.href = calendarConnectUrl();
     }
 </script>
 
@@ -72,6 +77,9 @@
 
     {#if !$userIsConnected && get(externalSvelteComponentService.getComponentsByZone("calendarButton")).size == 0}
         <Button variant="secondary" onclick={goToLoginPage}>{$LL.menu.profile.login()}</Button>
+    {/if}
+    {#if $userIsConnected && !$isActivatedStore}
+        <Button variant="secondary" onclick={connectCalendar}>{$LL.externalModule.calendar.connect()}</Button>
     {/if}
     {#if get(externalSvelteComponentService.getComponentsByZone("calendarButton")).size > 0}
         <div class="flex flex-col items-center justify-center">

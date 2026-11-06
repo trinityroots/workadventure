@@ -63,6 +63,9 @@ Do not edit generated `src/i18n/i18n-*.ts` files directly.
 - Calendar meeting-room events keep the room URL in the Google Calendar event *location* with a bare
   area name in the hash (`…/~/trinityroots/office.wam#Lounge`). `CalendarJoinButton.goThere` walks the
   player to that area in place; `#moveTo=<area>` is the in-app link form.
+- The calendar connect flow is `CORE_URL/auth/google?return=<play origin>`; core redirects back with
+  `?calendar=connected`, which `consumeCalendarConnectedParam()` (CalendarLoader) strips before the
+  first refresh. The panel's Connect button shows whenever `isActivatedStore` is false.
 - Match the translation import style and UI patterns of neighboring components.
 - Event listeners and subscriptions must have explicit cleanup. ESLint checks listener removal and ignored subscriptions.
 - For Phaser or media behavior, test actual runtime state rather than relying only on rendered DOM state.

@@ -119,6 +119,7 @@ const externalModule: DeepPartial<Translation["externalModule"]> = {
         overlapping: "{count} ześělenja se pśekšyjuju",
         meetingCount: "Ześělenja: {count}",
         noMeetings: "Žedne ześělenja w pśiducych 7 dnjach",
+        connect: "Google kalender zwězać",
         days: "Dny",
         meetingsInProgress: "Běžece ześělenja: {count}",
         inProgressCount: "Běžy: {count}",

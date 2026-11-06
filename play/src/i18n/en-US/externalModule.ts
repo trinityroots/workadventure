@@ -120,6 +120,7 @@ const externalModule: BaseTranslation = {
         overlapping: "{count:number} meetings overlap",
         meetingCount: "{count:number} meeting{{s}}",
         noMeetings: "No meetings in the next 7 days",
+        connect: "Connect Google Calendar",
         days: "Days",
         meetingsInProgress: "{count:number} meetings in progress",
         inProgressCount: "{count:number} in progress",
