@@ -526,6 +526,7 @@ export class GameScene extends DirtyScene {
         this.load.audio("new-message", "/resources/objects/new-message.mp3");
         this.load.audio("meeting-in", "/resources/objects/meeting-in.wav");
         this.load.audio("meeting-out", "/resources/objects/meeting-out.wav");
+        this.load.audio("meeting-invite", "/resources/objects/meeting-invite.mp3");
 
         this.sound.pauseOnBlur = false;
         // Bubble, meeting and scripting API sounds play through Phaser's own AudioContext (absent when Phaser falls back

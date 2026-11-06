@@ -30,10 +30,10 @@ export class InviteManager {
         this.subscriptions.push(
             this.connection.meetingInvitationRequestReceivedStream.subscribe((payload) => {
                 meetingInvitationRequestStore.set(payload);
-                // Play a short sound to notify the user that a meeting request has arrived
+                // Same chime as the clicker, same volume: one invite, one sound.
                 const scene = gameManager.getCurrentGameScene();
                 if (scene) {
-                    scene.playMeetingInSound();
+                    scene.playSound("meeting-invite", 0.3);
                 }
             }),
         );
