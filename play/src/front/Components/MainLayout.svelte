@@ -45,6 +45,7 @@
     import { LL } from "../../i18n/i18n-svelte";
     import { sidePanelWidthStore } from "../Stores/SidePanelStore";
     import { startCalendarLoader } from "../Services/CalendarLoader";
+    import { startMicAutoMute } from "../Stores/MicAutoMute";
     import { mapEditorSideBarWidthStore } from "./MapEditor/MapEditorSideBarWidthStore";
     import { isSearchShortcut } from "./searchShortcut";
     import ActionBar from "./ActionBar/ActionBar.svelte";
@@ -177,6 +178,7 @@
         document.addEventListener("focusin", handleFocusInEvent);
         document.addEventListener("focusout", handleFocusOutEvent);
         startCalendarLoader();
+        startMicAutoMute();
     });
 
     onDestroy(() => {

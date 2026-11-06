@@ -273,7 +273,7 @@ export class RemotePlayer extends Character implements ActivatableInterface {
             actionName: get(LL).chat.userList.invite(),
             protected: false,
             priority: 3,
-            style: "bg-white/10 hover:bg-white/30",
+            style: "bg-primary hover:bg-primary/80 text-white",
             callback: () => {
                 const sent = this.scene.inviteManager?.requestMeetingInvitation(this.userUuid, this.userId);
                 if (sent) {
