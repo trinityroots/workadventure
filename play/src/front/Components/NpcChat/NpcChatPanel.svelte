@@ -61,8 +61,7 @@
         <header class="flex items-center gap-2 border-b border-white/10 px-3 py-2">
             <span class="text-white/80" aria-hidden="true">
                 <!-- Icon markup comes from the fixed npcRoleIcons table, never from user input. -->
-                {@html npcRoleIconSvg($npcChatStore.npc.icon)}
-                <!-- eslint-disable-line svelte/no-at-html-tags -->
+                {@html npcRoleIconSvg($npcChatStore.npc.icon)}<!-- eslint-disable-line svelte/no-at-html-tags -->
             </span>
             <span class="flex-1 truncate text-sm font-semibold text-white">{$npcChatStore.npc.name}</span>
             <button
@@ -93,6 +92,20 @@
                                     </li>
                                 {/each}
                             </ul>
+                        {/if}
+                        {#if message.images?.length}
+                            <div class="mt-1 grid grid-cols-2 gap-1 border-t border-white/10 pt-1">
+                                {#each message.images as image (image.url)}
+                                    <a href={image.url} target="_blank" rel="noreferrer">
+                                        <img
+                                            src={image.url}
+                                            alt={image.title}
+                                            loading="lazy"
+                                            class="h-20 w-full rounded object-cover"
+                                        />
+                                    </a>
+                                {/each}
+                            </div>
                         {/if}
                     </div>
                 </div>

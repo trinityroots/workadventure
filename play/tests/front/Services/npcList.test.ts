@@ -55,11 +55,16 @@ describe("npc list and chat", () => {
         expect(get(npcChatStore).npc).toBeNull();
     });
 
-    it("appends both sides of a sent message", async () => {
+    it("appends both sides of a sent message and streams the reply", async () => {
         openNpcChat(rowan);
-        global.fetch = vi.fn(() =>
-            Promise.resolve(new Response(JSON.stringify({ reply: "hello", sources: [] }), { status: 200 })),
-        );
+        const frames = [
+            'event: delta\ndata: {"type":"delta","text":"hel"}\n\n',
+            'event: delta\ndata: {"type":"delta","text":"lo"}\n\n',
+            'event: sources\ndata: {"type":"sources","sources":[{"title":"Policy","url":"https://k/p"}]}\n\n',
+            'event: images\ndata: {"type":"images","images":[{"title":"chart","url":"https://k/c.png"}]}\n\n',
+            'event: done\ndata: {"type":"done","model":"default"}\n\n',
+        ].join("");
+        global.fetch = vi.fn(() => Promise.resolve(new Response(frames, { status: 200 })));
 
         await sendNpcMessage("hi there");
 
@@ -67,6 +72,8 @@ describe("npc list and chat", () => {
         expect(state.sending).toBe(false);
         expect(state.messages.map((m) => m.role)).toEqual(["user", "assistant"]);
         expect(state.messages[1].content).toBe("hello");
+        expect(state.messages[1].sources?.[0].title).toBe("Policy");
+        expect(state.messages[1].images?.[0].url).toBe("https://k/c.png");
     });
 
     it("records an error when the NPC cannot be reached", async () => {
@@ -78,6 +85,7 @@ describe("npc list and chat", () => {
         const state = get(npcChatStore);
         expect(state.error).toBe("error");
         expect(state.sending).toBe(false);
+        expect(state.messages.map((m) => m.role)).toEqual(["user"]);
     });
 
     it("picks the nearest NPC inside the range only", () => {

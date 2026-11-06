@@ -10,6 +10,7 @@ export interface NpcChatMessage {
     role: "user" | "assistant";
     content: string;
     sources?: Array<{ title: string; url: string }>;
+    images?: Array<{ title: string; url: string }>;
 }
 
 export interface NpcChatState {
@@ -69,7 +70,7 @@ export function nearestNpc(range: number): NpcInfo | null {
     return best;
 }
 
-/** Sends one turn and appends both sides of the exchange to the open chat. */
+/** Sends one turn, streaming the reply into the open chat. */
 export async function sendNpcMessage(text: string): Promise<void> {
     const state = get(npcChatStore);
     if (!state.npc || state.sending || !text.trim()) return;
@@ -77,12 +78,21 @@ export async function sendNpcMessage(text: string): Promise<void> {
     const history: NpcChatMessage[] = [...state.messages, { role: "user", content: trimmed }];
     npcChatStore.set({
         ...state,
-        messages: history,
+        messages: [...history, { role: "assistant", content: "" }],
         sending: true,
         error: null,
     });
 
     const token = sessionToken();
+    const appendDelta = (delta: string): void => {
+        npcChatStore.update((current) => {
+            const messages = [...current.messages];
+            const last = messages.length - 1;
+            if (last >= 0) messages[last] = { ...messages[last], content: messages[last].content + delta };
+            return { ...current, messages };
+        });
+    };
+
     try {
         const response = await fetch(`${CORE_URL}/api/game/npc/${encodeURIComponent(state.npc.id)}/chat`, {
             method: "POST",
@@ -91,18 +101,59 @@ export async function sendNpcMessage(text: string): Promise<void> {
                 messages: history.map(({ role, content }) => ({ role, content })),
             }),
         });
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        const payload = (await response.json()) as { reply: string; sources?: Array<{ title: string; url: string }> };
-        npcChatStore.update((current) => ({
-            ...current,
-            sending: false,
-            messages: [...current.messages, { role: "assistant", content: payload.reply, sources: payload.sources }],
-        }));
+        if (!response.ok || !response.body) throw new Error(`HTTP ${response.status}`);
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = "";
+        let failed = false;
+
+        for (;;) {
+            // Streamed frames arrive in order: one chunk at a time is the whole point.
+            // eslint-disable-next-line no-await-in-loop
+            const { done, value } = await reader.read();
+            if (done) break;
+            buffer += decoder.decode(value, { stream: true });
+            const frames = buffer.split("\n\n");
+            buffer = frames.pop() ?? "";
+            for (const frame of frames) {
+                const event = /^event: (.+)$/m.exec(frame)?.[1];
+                const dataLine = /^data: (.+)$/m.exec(frame)?.[1];
+                if (!event || !dataLine) continue;
+                const payload = JSON.parse(dataLine) as {
+                    text?: string;
+                    sources?: Array<{ title: string; url: string }>;
+                    images?: Array<{ title: string; url: string }>;
+                    error?: string;
+                };
+                if (event === "delta" && payload.text) appendDelta(payload.text);
+                if ((event === "sources" || event === "images") && payload.sources) {
+                    npcChatStore.update((current) => {
+                        const messages = [...current.messages];
+                        const last = messages.length - 1;
+                        if (last >= 0) messages[last] = { ...messages[last], sources: payload.sources };
+                        return { ...current, messages };
+                    });
+                }
+                if ((event === "sources" || event === "images") && payload.images) {
+                    npcChatStore.update((current) => {
+                        const messages = [...current.messages];
+                        const last = messages.length - 1;
+                        if (last >= 0) messages[last] = { ...messages[last], images: payload.images };
+                        return { ...current, messages };
+                    });
+                }
+                if (event === "error") failed = true;
+            }
+        }
+        if (failed) throw new Error("npc error");
+        npcChatStore.update((current) => ({ ...current, sending: false }));
     } catch {
-        npcChatStore.update((current) => ({
-            ...current,
-            sending: false,
-            error: "error",
-        }));
+        npcChatStore.update((current) => {
+            const messages = [...current.messages];
+            const last = messages.at(-1);
+            if (last?.role === "assistant" && !last.content) messages.pop();
+            return { ...current, messages, sending: false, error: "error" };
+        });
     }
 }
