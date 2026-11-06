@@ -4088,8 +4088,11 @@ ${escapedMessage}
 
     /** Spawns the server's NPC cast as native entities with player-style badges. */
     private async spawnNpcEntities(): Promise<void> {
-        const npcs = await loadNpcList();
-        if (!this.scene.isActive()) return;
+        const npcs = await this.retryUntil(async () => {
+            const list = await loadNpcList();
+            return list.length > 0 ? list : null;
+        });
+        if (!this.scene.isActive() || !npcs) return;
         const marketOpen = await fetchMarketStatus()
             .then((status) => status.open)
             .catch(() => false);
@@ -4097,8 +4100,18 @@ ${escapedMessage}
             if (npc.id === "sable" && !marketOpen) continue;
             this.spawnNpcEntity(npc);
         }
-        const boards = await loadBoards();
-        if (!this.scene.isActive()) return;
+        await this.spawnBoardEntities();
+        this.marketTimer = setInterval(() => {
+            this.refreshMarketNpc(npcs).catch(() => undefined);
+        }, 30_000);
+    }
+
+    private async spawnBoardEntities(): Promise<void> {
+        const boards = await this.retryUntil(async () => {
+            const list = await loadBoards();
+            return list.length > 0 ? list : null;
+        });
+        if (!this.scene.isActive() || !boards) return;
         for (const board of boards) {
             this.spawnNpcEntity({
                 id: board.key,
@@ -4110,9 +4123,25 @@ ${escapedMessage}
                 sprite: "resources/npcs/board.png",
             });
         }
-        this.marketTimer = setInterval(() => {
-            this.refreshMarketNpc(npcs).catch(() => undefined);
-        }, 30_000);
+    }
+
+    /**
+     * The room token is only usable once the connection has authenticated, and the NPC
+     * fetch happens while the scene starts, so the first calls can come back empty.
+     */
+    private async retryUntil<T>(load: () => Promise<T | null>, attempts = 15, delayMs = 2000): Promise<T | null> {
+        for (let attempt = 0; attempt < attempts; attempt += 1) {
+            // Sequential on purpose: each attempt waits for the previous answer and the retry delay.
+            // eslint-disable-next-line no-await-in-loop
+            const value = await load();
+            if (value !== null) return value;
+            if (!this.scene.isActive()) return null;
+            // eslint-disable-next-line no-await-in-loop
+            await new Promise((resolve) => {
+                setTimeout(resolve, delayMs);
+            });
+        }
+        return null;
     }
 
     private spawnNpcEntity(npc: NpcInfo): void {
