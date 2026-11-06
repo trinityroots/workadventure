@@ -24,6 +24,7 @@ export class UsernameDisplay {
     private readonly element: HTMLDivElement;
     private readonly playerNameElement: HTMLParagraphElement;
     private readonly playerName: string;
+    private readonly roleIconElement: HTMLDivElement | undefined;
     private playerNameOutlineColor: number | undefined;
     private displayScale: number;
     private readonly statusDisplay: UsernameStatusDisplay;
@@ -49,6 +50,7 @@ export class UsernameDisplay {
         private y: number,
         playerName: string,
         outlineColor: number | undefined,
+        roleIconSvg?: string,
     ) {
         this.playerName = playerName;
         this.displayScale = this.getDisplayScale(waScaleManager.zoomModifier);
@@ -59,6 +61,15 @@ export class UsernameDisplay {
         this.raisedHandDisplay = new UsernameRaisedHandDisplay();
         this.playerNameElement = this.createPlayerNameElement();
 
+        // NPCs carry a role glyph instead of the player availability dot.
+        if (roleIconSvg) {
+            this.roleIconElement = document.createElement("div");
+            this.roleIconElement.style.display = "flex";
+            this.roleIconElement.style.alignItems = "center";
+            this.roleIconElement.style.pointerEvents = "none";
+            this.roleIconElement.innerHTML = roleIconSvg;
+        }
+
         this.element = document.createElement("div");
 
         this.element.ariaHidden = "true";
@@ -67,12 +78,21 @@ export class UsernameDisplay {
 
         this.applyStyles();
         this.updatePlayerDepth();
-        this.element.append(
-            this.statusDisplay.element,
-            this.playerNameElement,
-            this.megaphoneDisplay.element,
-            this.raisedHandDisplay.element,
-        );
+        if (this.roleIconElement) {
+            this.element.append(
+                this.roleIconElement,
+                this.playerNameElement,
+                this.megaphoneDisplay.element,
+                this.raisedHandDisplay.element,
+            );
+        } else {
+            this.element.append(
+                this.statusDisplay.element,
+                this.playerNameElement,
+                this.megaphoneDisplay.element,
+                this.raisedHandDisplay.element,
+            );
+        }
         this.updateUsernameBackgroundColor(outlineColor);
 
         this.gameScene.usernameDomLayer.addUsername(this.element);
@@ -141,6 +161,7 @@ export class UsernameDisplay {
 
     public destroy(): void {
         this.element.remove();
+        this.roleIconElement?.remove();
         this.statusDisplay.destroy();
         this.megaphoneDisplay.destroy();
         this.raisedHandDisplay.destroy();

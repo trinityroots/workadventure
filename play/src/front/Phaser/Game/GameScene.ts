@@ -136,6 +136,10 @@ import { PHASER_COLOR_DESIGN_SYSTEM_SECONDARY } from "../../Utils/DesignSystemPh
 
 import { SuperLoaderPlugin } from "../Services/SuperLoaderPlugin";
 import { startMonsterStream, stopMonsterStream } from "../../Services/monsterStream";
+import { closeNpcChat, loadNpcList, openNpcChat } from "../../Services/npcList";
+import { closeShop, fetchMarketStatus, openShop } from "../../Services/shop";
+import { boardListStore, closeLeaderboard, loadBoards, openLeaderboard } from "../../Services/leaderboard";
+import type { NpcInfo } from "../../Enum/Npc";
 import { embedScreenLayoutStore } from "../../Stores/EmbedScreenLayoutStore";
 import { highlightedEmbedScreen } from "../../Stores/HighlightedEmbedScreenStore";
 import type { AddPlayerEvent } from "../../Api/Events/AddPlayerEvent";
@@ -1225,6 +1229,10 @@ export class GameScene extends DirtyScene {
 
         iframeListener.cleanup();
         stopMonsterStream();
+        if (this.marketTimer) {
+            clearInterval(this.marketTimer);
+            this.marketTimer = undefined;
+        }
         this.monsterManager = undefined;
         uiWebsiteManager.closeAll();
         followUsersStore.stopFollowing();
@@ -2137,6 +2145,7 @@ export class GameScene extends DirtyScene {
                         position: () => ({ x: this.CurrentPlayer.x, y: this.CurrentPlayer.y }),
                         onCommand: (command) => this.monsterManager?.handle(command),
                     });
+                    this.spawnNpcEntities().catch(() => undefined);
                 }
 
                 this.activatablesManager = new ActivatablesManager(this.CurrentPlayer);
@@ -4073,6 +4082,93 @@ ${escapedMessage}
             this.connection?.emitAskPosition(uuidParam, this.roomUrl);
             urlManager.clearHashParameter();
         }
+    }
+
+    private marketTimer: ReturnType<typeof setInterval> | undefined;
+
+    /** Spawns the server's NPC cast as native entities with player-style badges. */
+    private async spawnNpcEntities(): Promise<void> {
+        const npcs = await loadNpcList();
+        if (!this.scene.isActive()) return;
+        const marketOpen = await fetchMarketStatus()
+            .then((status) => status.open)
+            .catch(() => false);
+        for (const npc of npcs) {
+            if (npc.id === "sable" && !marketOpen) continue;
+            this.spawnNpcEntity(npc);
+        }
+        const boards = await loadBoards();
+        if (!this.scene.isActive()) return;
+        for (const board of boards) {
+            this.spawnNpcEntity({
+                id: board.key,
+                name: board.title,
+                icon: "star",
+                kind: "board",
+                x: board.x,
+                y: board.y,
+                sprite: "resources/npcs/board.png",
+            });
+        }
+        this.marketTimer = setInterval(() => {
+            this.refreshMarketNpc(npcs).catch(() => undefined);
+        }, 30_000);
+    }
+
+    private spawnNpcEntity(npc: NpcInfo): void {
+        this.monsterManager?.handle({
+            op: "spawn",
+            id: `npc-${npc.id}`,
+            x: npc.x,
+            y: npc.y,
+            textureUrl: npc.sprite,
+            frameStart: 0,
+            name: npc.name,
+            hp: 0,
+            maxHp: 0,
+            npc,
+        });
+    }
+
+    /** Sable only exists while a market window is open; re-checked every 30s. */
+    private async refreshMarketNpc(npcs: NpcInfo[]): Promise<void> {
+        if (!this.scene.isActive()) return;
+        const sable = npcs.find((npc) => npc.id === "sable");
+        if (!sable) return;
+        const open = await fetchMarketStatus()
+            .then((status) => status.open)
+            .catch(() => false);
+        const existing = `npc-${sable.id}`;
+        if (open) {
+            this.spawnNpcEntity(sable);
+        } else {
+            this.monsterManager?.handle({ op: "remove", id: existing });
+        }
+    }
+
+    /** Clicking an NPC walks the player up to it, then opens its panel on arrival. */
+    public onNpcClicked(npc: NpcInfo): void {
+        this.moveTo({ x: npc.x, y: npc.y + 32 }, true)
+            .then(({ cancelled }) => {
+                if (cancelled || !this.scene.isActive()) return;
+                if (npc.kind === "board") {
+                    const board = get(boardListStore).find((entry) => entry.key === npc.id);
+                    if (board) {
+                        closeNpcChat();
+                        closeShop();
+                        openLeaderboard(board);
+                    }
+                } else if (npc.kind === "shop") {
+                    closeNpcChat();
+                    closeLeaderboard();
+                    openShop(npc).catch(() => undefined);
+                } else {
+                    closeShop();
+                    closeLeaderboard();
+                    openNpcChat(npc);
+                }
+            })
+            .catch(() => undefined);
     }
 
     /**

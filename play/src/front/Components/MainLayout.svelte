@@ -46,6 +46,9 @@
     import { sidePanelWidthStore } from "../Stores/SidePanelStore";
     import { startCalendarLoader } from "../Services/CalendarLoader";
     import { startMicAutoMute } from "../Stores/MicAutoMute";
+    import { startPresenceHeartbeat, stopPresenceHeartbeat } from "../Services/presenceHeartbeat";
+    import { startTradePolling, stopTradePolling } from "../Services/trade";
+    import { restoreGamePanel } from "./GamePanel/sidebar";
     import { mapEditorSideBarWidthStore } from "./MapEditor/MapEditorSideBarWidthStore";
     import { isSearchShortcut } from "./searchShortcut";
     import ActionBar from "./ActionBar/ActionBar.svelte";
@@ -83,6 +86,10 @@
     import TodoList from "./TodoList/TodoList.svelte";
     import ProximityNotificationContainer from "./ProximityNotification/ProximityNotificationContainer.svelte";
     import MeetingInvitationPopup from "./MeetingInvitation/MeetingInvitationPopup.svelte";
+    import NpcChatPanel from "./NpcChat/NpcChatPanel.svelte";
+    import ShopPanel from "./NpcChat/ShopPanel.svelte";
+    import LeaderboardPanel from "./NpcChat/LeaderboardPanel.svelte";
+    import TradePanel from "./Trade/TradePanel.svelte";
     import ChevronLeftIcon from "./Icons/ChevronLeftIcon.svelte";
     import { IconArrowsMinimize, IconMessageCircle2, IconUserPlus } from "@wa-icons";
 
@@ -179,9 +186,14 @@
         document.addEventListener("focusout", handleFocusOutEvent);
         startCalendarLoader();
         startMicAutoMute();
+        startPresenceHeartbeat();
+        restoreGamePanel();
+        startTradePolling();
     });
 
     onDestroy(() => {
+        stopPresenceHeartbeat();
+        stopTradePolling();
         document.removeEventListener("focusin", handleFocusInEvent);
         document.removeEventListener("focusout", handleFocusOutEvent);
         inputFormFocusStore.set(false);
@@ -467,6 +479,10 @@
             {/if}
 
             <ExternalComponents zone="popup" />
+            <NpcChatPanel />
+            <ShopPanel />
+            <LeaderboardPanel />
+            <TradePanel />
             {#if $requestVisitCardsStore || $wokaMenuStore || $actionsMenuStore || $meetingInvitationRequestStore}
                 <div
                     transition:fly={{ x: 210, duration: 500 }}

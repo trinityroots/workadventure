@@ -29,8 +29,16 @@ import locate from "./locate";
 import randomNames from "./randomNames";
 import onboarding from "./onboarding";
 import recording from "./recording";
+import { npcChat } from "./npcChat";
+import { shop } from "./shop";
+import { gamePanel } from "./gamePanel";
+import { trade } from "./trade";
 
 const pt_BR = deepmerge(en_US, {
+    shop,
+    npcChat,
+    gamePanel,
+    trade,
     audio,
     camera,
     chat,

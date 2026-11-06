@@ -10,7 +10,7 @@ function report(context: string, error: unknown): void {
 /** Pulls the signed-in player's drops from the admin and feeds the inventory store. */
 export async function refreshInventory(): Promise<void> {
     try {
-        const items = await adminFetch<InventoryItem[]>("/api/monsters/inventory");
+        const items = await adminFetch<InventoryItem[]>("/api/game/monster/inventory");
         inventoryItemsStore.set(items.filter((entry) => entry.qty > 0));
     } catch (error) {
         report("Inventory", error);
@@ -20,7 +20,7 @@ export async function refreshInventory(): Promise<void> {
 /** Pulls the saved equip map so worn items survive a reload. */
 export async function loadEquipment(): Promise<void> {
     try {
-        equippedStore.set(await adminFetch<Record<string, string>>("/api/monsters/equipment"));
+        equippedStore.set(await adminFetch<Record<string, string>>("/api/game/monster/equipment"));
     } catch (error) {
         report("Equipment", error);
     }
@@ -29,7 +29,7 @@ export async function loadEquipment(): Promise<void> {
 /** Sends the whole equip map; a failed write keeps the local state and logs. */
 export async function saveEquipment(): Promise<void> {
     try {
-        await adminFetch("/api/monsters/equipment", {
+        await adminFetch("/api/game/monster/equipment", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ equipped: get(equippedStore) }),

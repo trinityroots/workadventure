@@ -1,0 +1,13 @@
+export const shop = {
+    gold: "金币",
+    buy: "购买",
+    sell: "出售",
+    use: "使用",
+    reroll: "重掷",
+    owned: "你的物品",
+    closed: "Sable 现在不在",
+    empty: "这里什么也没有",
+    error: "无法连接到商店。",
+    attack: "攻击",
+    closesIn: "关闭倒计时",
+};

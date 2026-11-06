@@ -13,6 +13,8 @@
     import { wokaMenuStore } from "../../../Stores/WokaMenuStore";
     import { LL } from "../../../../i18n/i18n-svelte";
     import { openModerationModal } from "../../../Components/Moderation/openModerationModal";
+    import SwordIcon from "../../../Components/Icons/SwordIcon.svelte";
+    import { openTradePanel } from "../../../Services/trade";
     import { analyticsClient } from "../../../Administration/AnalyticsClient";
     import type { UserProviderMerger } from "../../UserProviderMerger/UserProviderMerger";
     import { IconForbid, IconDots, IconCamera, IconMapPin, IconUserPlus } from "@wa-icons";
@@ -222,6 +224,20 @@
                 >
                     <IconMapPin class="w-4" />
                     {$LL.chat.userList.follow()}
+                </span>
+                <!-- svelte-ignore a11y_click_events_have_key_events -->
+                <!-- svelte-ignore a11y_no_static_element_interactions -->
+                <span
+                    class="trade wa-dropdown-item text-nowrap flex gap-2 items-center hover:bg-white/10 m-0 p-2 w-full text-sm rounded"
+                    data-testid="user-list-trade"
+                    onclick={(event) => {
+                        event.stopPropagation();
+                        openTradePanel(user.chatId);
+                        closeChatUserMenu();
+                    }}
+                >
+                    <SwordIcon height="h-4" width="w-4" />
+                    {$LL.trade.title()}
                 </span>
                 <!-- svelte-ignore a11y_click_events_have_key_events -->
                 <!-- svelte-ignore a11y_no_static_element_interactions -->

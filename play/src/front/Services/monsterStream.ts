@@ -186,7 +186,7 @@ async function connectStream(stream: ActiveStream): Promise<void> {
         return;
     }
     try {
-        const response = await fetch(`${CORE_URL}/api/monsters/stream`, {
+        const response = await fetch(`${CORE_URL}/api/game/monster/stream`, {
             headers: { Authorization: `Bearer ${token}` },
             signal: stream.controller.signal,
         });
@@ -267,7 +267,7 @@ export function attackNearestMonster(): void {
     if (!target || !token) return;
     stream.lastAttack = now;
 
-    fetch(`${CORE_URL}/api/monsters/${encodeURIComponent(target.id)}/attack`, {
+    fetch(`${CORE_URL}/api/game/monster/${encodeURIComponent(target.id)}/attack`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
     })

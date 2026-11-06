@@ -6,7 +6,7 @@ export interface InventoryItem {
     qty: number;
 }
 
-/** The player's drops, as returned by the admin's /api/monsters/inventory. */
+/** The player's drops, as returned by /api/game/monster/inventory. */
 export const inventoryItemsStore = writable<InventoryItem[]>([]);
 
 /** Slot → the drop key worn there. Kept local until the admin carries it (see InventoryLoader). */

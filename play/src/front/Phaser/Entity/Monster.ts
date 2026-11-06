@@ -1,5 +1,9 @@
 import * as Phaser from "phaser";
 import type { MonsterCommand } from "../../Api/Events/MonsterEvent";
+import type { NpcInfo } from "../../Enum/Npc";
+import { UsernameDisplay } from "../Components/UsernameDisplay";
+import { npcRoleIconSvg } from "../Components/npcRoleIcons";
+import type { GameScene } from "../Game/GameScene";
 
 import Container = Phaser.GameObjects.Container;
 import Graphics = Phaser.GameObjects.Graphics;
@@ -7,16 +11,21 @@ import Graphics = Phaser.GameObjects.Graphics;
 const FRAME_SIZE = 32;
 const MOVE_SPEED = 64;
 const BAR_WIDTH = 28;
+const NPC_BADGE_OFFSET = 22;
 
 /**
  * A monster (or NPC) rendered natively by the game: a spritesheet entity with a
  * nameplate, a health bar and smooth movement toward the position the map script
- * asks for. Floating damage numbers are spawned on every hit.
+ * asks for. Floating damage numbers are spawned on every hit. NPCs carry the
+ * player-style name badge with a role icon instead of a text nameplate, and a
+ * click walks the player over and opens their panel.
  */
 export class Monster extends Container {
     private readonly sprite: Phaser.GameObjects.Sprite;
     private readonly hpBar: Graphics;
     private readonly stepListener: (time: number, delta: number) => void;
+    private readonly usernameDisplay?: UsernameDisplay;
+    private readonly npc?: NpcInfo;
     private target: { x: number; y: number };
     private hp: number;
     private maxHp: number;
@@ -30,12 +39,14 @@ export class Monster extends Container {
         name?: string,
         hp = 0,
         maxHp = 0,
+        npc?: NpcInfo,
     ) {
         super(scene, x, y);
 
         this.hp = hp;
         this.maxHp = maxHp;
         this.target = { x, y };
+        this.npc = npc;
 
         const idleAnim = `${textureKey}-${frameStart}-idle`;
         if (!scene.anims.exists(idleAnim)) {
@@ -57,7 +68,24 @@ export class Monster extends Container {
         this.hpBar = scene.add.graphics();
         this.add(this.hpBar);
 
-        if (name) {
+        if (npc && name) {
+            this.usernameDisplay = new UsernameDisplay(
+                scene as unknown as GameScene,
+                x,
+                y - NPC_BADGE_OFFSET,
+                name,
+                undefined,
+                npcRoleIconSvg(npc.icon),
+            );
+            this.setSize(32, 64);
+            this.setInteractive(
+                new Phaser.Geom.Rectangle(-16, -48, 32, 64),
+                Phaser.Geom.Rectangle.Contains, // eslint-disable-line @typescript-eslint/unbound-method
+            );
+            this.on(Phaser.Input.Events.POINTER_DOWN, () => {
+                if (this.npc) (this.scene as unknown as GameScene).onNpcClicked(this.npc);
+            });
+        } else if (name) {
             const nameplate = scene.add
                 .text(0, -40, name, {
                     fontSize: "11px",
@@ -143,12 +171,14 @@ export class Monster extends Container {
         this.setPosition(this.x + (dx / distance) * travel, this.y + (dy / distance) * travel);
         this.sprite.setFlipX(dx < 0);
         this.setDepth(this.y);
+        this.usernameDisplay?.setPosition(this.x, this.y - NPC_BADGE_OFFSET);
     }
 
     public destroy(): void {
         if (this.scene) {
             this.scene.events.removeListener("update", this.stepListener);
         }
+        this.usernameDisplay?.destroy();
         super.destroy();
     }
 }
@@ -177,6 +207,7 @@ export class MonsterManager {
                     command.name,
                     command.hp,
                     command.maxHp,
+                    command.npc,
                 ).catch((reason) => console.warn(`Could not spawn monster ${command.id}`, reason));
                 break;
             case "move":
@@ -203,13 +234,14 @@ export class MonsterManager {
         name?: string,
         hp = 0,
         maxHp = 0,
+        npc?: NpcInfo,
     ): Promise<void> {
         const textureKey = await this.loadTexture(textureUrl);
         if (!textureKey || !this.scene.scene.isActive()) {
             return;
         }
         this.remove(id);
-        this.monsters.set(id, new Monster(this.scene, x, y, textureKey, frameStart, name, hp, maxHp));
+        this.monsters.set(id, new Monster(this.scene, x, y, textureKey, frameStart, name, hp, maxHp, npc));
     }
 
     private remove(id: string): void {

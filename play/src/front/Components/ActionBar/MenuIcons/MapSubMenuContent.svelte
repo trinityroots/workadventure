@@ -21,8 +21,19 @@
     import { chatVisibilityStore } from "../../../Stores/ChatStore";
     import ActionBarButton from "../ActionBarButton.svelte";
     import { EditorToolName } from "../../../Phaser/Game/MapEditor/MapEditorModeManager";
+    import { closeGamePanel, isGamePanelOpen, openGamePanel } from "../../GamePanel/sidebar";
+    import SwordIcon from "../../Icons/SwordIcon.svelte";
     import AdditionalMenuItems from "./AdditionalMenuItems.svelte";
     import { IconMapSearch, IconDesk, IconDeskExit, IconSpeakerPhone, IconMapEditor } from "@wa-icons";
+
+    function toggleGamePanel() {
+        if (isGamePanelOpen()) {
+            closeGamePanel();
+        } else {
+            openGamePanel();
+        }
+        closeMapMenu();
+    }
 
     function resetChatVisibility() {
         chatVisibilityStore.set(false);
@@ -164,5 +175,9 @@
         <IconDeskExit font-size="20" />
     </ActionBarButton>
 {/if}
+
+<ActionBarButton onclick={toggleGamePanel} label={$LL.gamePanel.title()}>
+    <SwordIcon height="h-5" width="w-5" />
+</ActionBarButton>
 
 <AdditionalMenuItems menu="buildMenu" />

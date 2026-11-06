@@ -29,8 +29,16 @@ import messageScreen from "./messageScreen";
 import randomNames from "./randomNames";
 import onboarding from "./onboarding";
 import recording from "./recording";
+import { npcChat } from "./npcChat";
+import { shop } from "./shop";
+import { gamePanel } from "./gamePanel";
+import { trade } from "./trade";
 
 const fr_FR = deepmerge(en_US, {
+    shop,
+    npcChat,
+    gamePanel,
+    trade,
     area,
     audio,
     camera,

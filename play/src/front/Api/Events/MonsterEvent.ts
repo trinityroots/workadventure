@@ -1,5 +1,15 @@
 import { z } from "zod";
 
+const npcPayload = z.object({
+    id: z.string().min(1),
+    name: z.string(),
+    icon: z.string(),
+    kind: z.enum(["knowledge", "guide", "shop", "board"]),
+    x: z.number(),
+    y: z.number(),
+    sprite: z.string(),
+});
+
 const spawnCommand = z.object({
     op: z.literal("spawn"),
     id: z.string().min(1),
@@ -10,6 +20,7 @@ const spawnCommand = z.object({
     name: z.string().optional(),
     hp: z.number().optional(),
     maxHp: z.number().optional(),
+    npc: npcPayload.optional(),
 });
 
 const moveCommand = z.object({

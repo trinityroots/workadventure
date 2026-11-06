@@ -1,0 +1,13 @@
+export const shop = {
+    gold: "Gold",
+    buy: "Buy",
+    sell: "Sell",
+    use: "Use",
+    reroll: "Reroll",
+    owned: "Your items",
+    closed: "Sable is away right now",
+    empty: "Nothing here",
+    error: "Could not reach the shop.",
+    attack: "Attack",
+    closesIn: "Closes in",
+};

@@ -69,6 +69,31 @@ Do not edit generated `src/i18n/i18n-*.ts` files directly.
 - Mic auto-mute: `startMicAutoMute()` (MainLayout onMount) mutes an idle microphone when the window
   loses focus or the tab hides (`focusStore` + `visibilityStore`, same machinery as PrivacyShutdown);
   `isInActiveConversationStore` gates it so a running conversation keeps its mic.
+- NPCs come from the game service (`Services/npcList.ts`, `GET /api/game/npc/list`) and spawn
+  as native entities with the player-style `UsernameDisplay` badge whose availability dot is
+  replaced by a role icon (`Phaser/Components/npcRoleIcons.ts`). Clicking one walks the player
+  to an adjacent tile (`GameScene.onNpcClicked`) and opens `NpcChat/NpcChatPanel.svelte` on
+  arrival; **X** opens the nearest NPC within 120px (same focus/input guards as calendar's L).
+  The panel is a right-side drawer, not a chat-sidebar tab; i18n keys live under `npcChat`.
+- Shop NPCs open `NpcChat/ShopPanel.svelte` (same right-side drawer, `Services/shop.ts`
+  store): Bram/Nell catalogs with buy, Rilla sell-back, Moss reroll, Sable market stock
+  with a closing countdown — Sable's entity only exists while `/api/game/market/status`
+  says open (GameScene re-checks every 30s). Potions show a Use action.
+- Leaderboard boards also arrive as NPC entities with `kind: "board"` (`Services/leaderboard.ts`,
+  `GET /api/game/boards`); the sprite is `resources/npcs/board.png`. Click or X opens
+  `NpcChat/LeaderboardPanel.svelte` with the board's period/metric ranking only when the
+  player is in range (X prefers a nearer NPC).
+- `Services/presenceHeartbeat.ts` (started in MainLayout) posts `/api/session/heartbeat` every
+  60s and `/api/session/leave` on `pagehide`; core turns that into the presence audit.
+- The game panel (`Components/GamePanel/`) is a chat-sidebar component tab, not a drawer:
+  `sidebar.ts` opens it, remembers the open/closed choice in `localStorage["wa-game-panel-open"]`,
+  and `restoreGamePanel()` (MainLayout onMount) opens it by default on join. It shows quests
+  (`Services/quests.ts`, claim), achievements and the leaderboard list. The action bar's Tools
+  menu (MapSubMenuContent) toggles it.
+- Trade (`Components/Trade/TradePanel.svelte`, `Services/trade.ts`) is a right-side drawer fed by
+  a 5s poll (`startTradePolling` in MainLayout). Entry point is the user-list action menu, which
+  invites by Matrix handle; the game service resolves the handle back to a player email. Offers
+  are item stacks + gold, both sides confirm, and the swap runs atomically in the game service.
 - Match the translation import style and UI patterns of neighboring components.
 - Event listeners and subscriptions must have explicit cleanup. ESLint checks listener removal and ignored subscriptions.
 - For Phaser or media behavior, test actual runtime state rather than relying only on rendered DOM state.

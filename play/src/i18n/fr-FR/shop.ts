@@ -1,0 +1,13 @@
+export const shop = {
+    gold: "Or",
+    buy: "Acheter",
+    sell: "Vendre",
+    use: "Utiliser",
+    reroll: "Relancer",
+    owned: "Vos objets",
+    closed: "Sable est absent pour l'instant",
+    empty: "Rien ici",
+    error: "Impossible de joindre le boutique.",
+    attack: "Attaque",
+    closesIn: "Ferme dans",
+};
