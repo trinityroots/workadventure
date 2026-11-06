@@ -94,4 +94,17 @@ describe("CalendarJoinButton", () => {
 
         await unmount(component);
     });
+
+    it("walks to a bare-hash area name in the location (Google Calendar room links)", async () => {
+        const onjoin = vi.fn();
+        const { target, component } = render(meeting(`${window.location.origin}/#Lounge`, true), { onjoin });
+
+        target.querySelector("a")?.click();
+
+        expect(walkToMoveTarget).toHaveBeenCalledWith("Lounge");
+        expect(openTab).not.toHaveBeenCalled();
+        expect(onjoin).toHaveBeenCalledTimes(1);
+
+        await unmount(component);
+    });
 });

@@ -60,6 +60,9 @@ Do not edit generated `src/i18n/i18n-*.ts` files directly.
 - The chat drawer's search field is always visible in its header; Cmd/Ctrl+K opens the user list
   and focuses it (`Components/searchShortcut.ts` decides the keystroke, `chatSearchFocusRequest`
   asks the header to take focus). The map script no longer registers its own search button.
+- Calendar meeting-room events keep the room URL in the Google Calendar event *location* with a bare
+  area name in the hash (`…/~/trinityroots/office.wam#Lounge`). `CalendarJoinButton.goThere` walks the
+  player to that area in place; `#moveTo=<area>` is the in-app link form.
 - Match the translation import style and UI patterns of neighboring components.
 - Event listeners and subscriptions must have explicit cleanup. ESLint checks listener removal and ignored subscriptions.
 - For Phaser or media behavior, test actual runtime state rather than relying only on rendered DOM state.

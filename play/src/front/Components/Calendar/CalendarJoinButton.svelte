@@ -36,7 +36,9 @@
         clickEvent.preventDefault();
         const scene = gameManager.getCurrentGameScene();
         if (url.pathname === window.location.pathname) {
-            const target = new URLSearchParams(url.hash.slice(1)).get("moveTo");
+            const hash = url.hash.slice(1);
+            // Calendar locations carry a bare area name (#Lounge); in-app links use #moveTo=<area>.
+            const target = new URLSearchParams(hash).get("moveTo") ?? (hash && !hash.includes("=") ? hash : undefined);
             if (target) scene.walkToMoveTarget(target);
             // Already in the meeting's map, which has no area to walk to: just get the agenda out of the way.
             else chatVisibilityStore.set(false);
