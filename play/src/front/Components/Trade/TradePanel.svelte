@@ -84,8 +84,7 @@
         <header class="flex items-center gap-2 border-b border-white/10 px-3 py-2">
             <span class="text-white/80" aria-hidden="true">
                 <!-- Icon markup comes from the fixed npcRoleIcons table, never from user input. -->
-                {@html npcRoleIconSvg("coin")}
-                <!-- eslint-disable-line svelte/no-at-html-tags -->
+                {@html npcRoleIconSvg("coin")}<!-- eslint-disable-line svelte/no-at-html-tags -->
             </span>
             <span class="flex-1 text-sm font-semibold text-white">{$LL.trade.title()}</span>
             <button

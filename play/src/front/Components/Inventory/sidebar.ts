@@ -1,8 +1,22 @@
-import { navChat } from "../../Chat/Stores/ChatStore";
-import { chatVisibilityStore } from "../../Stores/ChatStore";
-import Inventory from "./Inventory.svelte";
+import { get, writable } from "svelte/store";
+import { closeNpcChat } from "../../Services/npcList";
+import { closeShop } from "../../Services/shop";
+import { closeLeaderboard } from "../../Services/leaderboard";
 
-export function openInventorySidebar(): void {
-    navChat.switchToCustomComponent(Inventory);
-    chatVisibilityStore.set(true);
+/** The inventory is its own floating window, not a chat-sidebar tab. */
+export const inventoryOpenStore = writable(false);
+
+export function isInventoryOpen(): boolean {
+    return get(inventoryOpenStore);
+}
+
+export function openInventory(): void {
+    closeNpcChat();
+    closeShop();
+    closeLeaderboard();
+    inventoryOpenStore.set(true);
+}
+
+export function closeInventory(): void {
+    inventoryOpenStore.set(false);
 }

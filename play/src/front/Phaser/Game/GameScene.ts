@@ -139,6 +139,7 @@ import { startMonsterStream, stopMonsterStream } from "../../Services/monsterStr
 import { closeNpcChat, loadNpcList, openNpcChat } from "../../Services/npcList";
 import { closeShop, fetchMarketStatus, openShop } from "../../Services/shop";
 import { boardListStore, closeLeaderboard, loadBoards, openLeaderboard } from "../../Services/leaderboard";
+import { closeInventory } from "../../Components/Inventory/sidebar";
 import type { NpcInfo } from "../../Enum/Npc";
 import { embedScreenLayoutStore } from "../../Stores/EmbedScreenLayoutStore";
 import { highlightedEmbedScreen } from "../../Stores/HighlightedEmbedScreenStore";
@@ -4180,6 +4181,7 @@ ${escapedMessage}
         this.moveTo({ x: npc.x, y: npc.y + 32 }, true)
             .then(({ cancelled }) => {
                 if (cancelled || !this.scene.isActive()) return;
+                closeInventory();
                 if (npc.kind === "board") {
                     const board = get(boardListStore).find((entry) => entry.key === npc.id);
                     if (board) {

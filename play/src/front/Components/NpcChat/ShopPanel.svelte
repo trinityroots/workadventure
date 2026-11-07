@@ -1,10 +1,31 @@
 <script lang="ts">
     import { LL } from "../../../i18n/i18n-svelte";
-    import { npcRoleIconSvg } from "../../Phaser/Components/npcRoleIcons";
     import { buyItem, closeShop, rerollItem, sellItem, shopStore, usePotion } from "../../Services/shop";
     import type { ShopItem } from "../../Services/shop";
+    import { iconUrl, itemDef } from "../Inventory/items";
+    import FloatingWindow from "../GameWindow/FloatingWindow.svelte";
 
     let remaining = $state("");
+    let selected = $state<string | null>(null);
+
+    // Station art per shop, the way craft stations anchor the middle pane.
+    const stations: Record<string, string> = {
+        bram: "⚒",
+        moss: "🔨",
+        nell: "⚗",
+        rilla: "🛍",
+        sable: "🏮",
+    };
+
+    interface Slot {
+        id: string;
+        owned: boolean;
+        qty: number;
+        roll?: number;
+        name: string;
+        detail: string;
+        price?: number;
+    }
 
     $effect(() => {
         const closesAt = $shopStore.market?.closesAt;
@@ -27,15 +48,21 @@
         return () => clearInterval(timer);
     });
 
+    // Switching NPCs resets the selection; refreshes of the same shop keep it.
+    let lastNpcId = "";
+    $effect(() => {
+        const npcId = $shopStore.npc?.id ?? "";
+        if (npcId !== lastNpcId) {
+            lastNpcId = npcId;
+            selected = null;
+        }
+    });
+
     function lookup(id: string): ShopItem | undefined {
         return (
             $shopStore.items.find((entry) => entry.id === id) ??
             $shopStore.market?.stock.find((line) => line.itemId === id)?.item
         );
-    }
-
-    function itemName(id: string): string {
-        return lookup(id)?.name ?? id;
     }
 
     function itemDetail(item: ShopItem | undefined): string {
@@ -47,138 +74,232 @@
     function run(action: () => Promise<void>): void {
         action().catch(() => undefined);
     }
+
+    const slots = $derived.by((): Slot[] => {
+        if ($shopStore.npc?.id === "sable") {
+            return ($shopStore.market?.stock ?? []).map((line) => ({
+                id: line.itemId,
+                owned: false,
+                qty: line.qty,
+                name: line.item?.name ?? line.itemId,
+                detail: line.item?.description ?? "",
+                price: line.item?.price ?? undefined,
+            }));
+        }
+        const catalog: Slot[] = $shopStore.catalog.map((item) => ({
+            id: item.id,
+            owned: false,
+            qty: 0,
+            name: item.name,
+            detail: itemDetail(item),
+            price: item.price,
+        }));
+        const owned: Slot[] = $shopStore.owned.map((entry) => ({
+            id: entry.item,
+            owned: true,
+            qty: entry.qty,
+            roll: entry.roll,
+            name: lookup(entry.item)?.name ?? entry.item,
+            detail: itemDetail(lookup(entry.item)),
+        }));
+        return [...catalog, ...owned];
+    });
+
+    const selectedSlot = $derived(slots.find((slot) => slot.id === selected) ?? null);
+    const isSable = $derived($shopStore.npc?.id === "sable");
+
+    interface ShopAction {
+        label: string;
+        price?: number;
+        disabled: boolean;
+        run: () => void;
+    }
+
+    const action = $derived.by((): ShopAction | null => {
+        const slot = selectedSlot;
+        const npcId = $shopStore.npc?.id;
+        if (!slot || !npcId) return null;
+        if (isSable) {
+            const price = slot.price ?? Number.POSITIVE_INFINITY;
+            return {
+                label: $LL.shop.buy(),
+                price,
+                disabled: $shopStore.gold < price,
+                run: () => run(() => buyItem(slot.id, 1)),
+            };
+        }
+        if (!slot.owned) {
+            const price = slot.price ?? Number.POSITIVE_INFINITY;
+            return {
+                label: npcId === "rilla" ? $LL.shop.sell() : $LL.shop.buy(),
+                price,
+                disabled: $shopStore.gold < price,
+                run: () => run(() => buyItem(slot.id, 1)),
+            };
+        }
+        if (npcId === "rilla") {
+            const item = lookup(slot.id);
+            return {
+                label: $LL.shop.sell(),
+                price: Math.floor((item?.price ?? 0) / 2),
+                disabled: item === undefined,
+                run: () => run(() => sellItem(slot.id, 1)),
+            };
+        }
+        if (npcId === "moss" && lookup(slot.id)?.rollMax) {
+            return {
+                label: $LL.shop.reroll(),
+                price: $shopStore.rerollCost,
+                disabled: $shopStore.gold < $shopStore.rerollCost,
+                run: () => run(() => rerollItem(slot.id)),
+            };
+        }
+        if (lookup(slot.id)?.kind === "potion") {
+            return { label: $LL.shop.use(), disabled: false, run: () => run(() => usePotion(slot.id)) };
+        }
+        return null;
+    });
 </script>
 
 {#if $shopStore.npc}
-    <aside
-        class="fixed top-0 right-0 z-[300] flex h-full w-[340px] max-w-[92vw] flex-col border-s border-white/10 bg-contrast/95 backdrop-blur-md"
-        data-testid="shop-panel"
-    >
-        <header class="flex items-center gap-2 border-b border-white/10 px-3 py-2">
-            <span class="text-white/80" aria-hidden="true">
-                <!-- Icon markup comes from the fixed npcRoleIcons table, never from user input. -->
-                {@html npcRoleIconSvg($shopStore.npc.icon)}
-                <!-- eslint-disable-line svelte/no-at-html-tags -->
-            </span>
-            <span class="flex-1 truncate text-sm font-semibold text-white">{$shopStore.npc.name}</span>
-            <span class="rounded bg-black/40 px-2 py-0.5 text-xs text-yellow-300">
+    <FloatingWindow title={$shopStore.npc.name} onClose={closeShop} testid="shop-panel" widthClass="w-[460px]">
+        {#snippet headerExtra()}
+            <span class="rounded border border-pop-yellow/40 bg-black/40 px-2 py-0.5 font-mono text-xs text-pop-yellow">
                 {$LL.shop.gold()}: {$shopStore.gold}
             </span>
-            <button
-                type="button"
-                class="rounded p-1 text-white/70 hover:bg-white/10 hover:text-white"
-                aria-label="Close"
-                onclick={closeShop}
-            >
-                ✕
-            </button>
-        </header>
+        {/snippet}
 
-        <div class="flex flex-1 flex-col gap-3 overflow-y-auto p-3 no-scroll-bar">
-            {#if $shopStore.loading}
-                <div class="text-xs italic text-white/50">{$LL.npcChat.thinking()}</div>
-            {/if}
-            {#if $shopStore.error}
-                <div class="text-xs text-red-400">{$LL.shop.error()}</div>
-            {/if}
-
+        {#if $shopStore.error}
+            <div class="mb-2 text-xs text-red-400">{$LL.shop.error()}</div>
+        {/if}
+        {#if $shopStore.npc.id === "sable" && !$shopStore.market?.open}
+            <div class="text-sm text-white/60">{$LL.shop.closed()}</div>
+        {:else if !slots.length && !$shopStore.loading}
+            <div class="text-sm text-white/60">{$LL.shop.empty()}</div>
+        {:else}
             {#if $shopStore.npc.id === "sable"}
-                {#if !$shopStore.market?.open}
-                    <div class="text-sm text-white/60">{$LL.shop.closed()}</div>
-                {:else}
-                    <div class="text-xs text-white/50">
-                        {$LL.shop.closesIn()}: {remaining}
-                    </div>
-                    {#each $shopStore.market.stock as line (line.itemId)}
-                        <div class="flex items-center gap-2 rounded-md bg-white/5 px-2 py-1.5">
-                            <div class="min-w-0 flex-1">
-                                <div class="truncate text-sm text-white">{line.item?.name ?? line.itemId}</div>
-                                <div class="truncate text-xs text-white/50">
-                                    {line.item?.description ?? ""} · x{line.qty}
-                                </div>
-                            </div>
-                            <button
-                                type="button"
-                                class="rounded bg-primary px-2 py-1 text-xs text-white disabled:opacity-40"
-                                disabled={$shopStore.gold < (line.item?.price ?? Infinity)}
-                                onclick={() => run(() => buyItem(line.itemId, 1))}
-                            >
-                                {line.item?.price ?? "?"}
-                            </button>
-                        </div>
-                    {/each}
-                {/if}
-            {:else}
-                {#each $shopStore.catalog as item (item.id)}
-                    <div class="flex items-center gap-2 rounded-md bg-white/5 px-2 py-1.5">
-                        <div class="min-w-0 flex-1">
-                            <div class="truncate text-sm text-white">{item.name}</div>
-                            <div class="truncate text-xs text-white/50">{itemDetail(item)}</div>
-                        </div>
-                        <button
-                            type="button"
-                            class="rounded bg-primary px-2 py-1 text-xs text-white disabled:opacity-40"
-                            disabled={$shopStore.gold < item.price}
-                            onclick={() => run(() => buyItem(item.id, 1))}
-                        >
-                            {$shopStore.npc.id === "rilla" ? $LL.shop.sell() : $LL.shop.buy()}
-                            {item.price}
-                        </button>
-                    </div>
-                {/each}
+                <div class="mb-2 font-mono text-xs text-pop-yellow">⏳ {$LL.shop.closesIn()}: {remaining}</div>
+            {/if}
 
-                {#if $shopStore.owned.length}
-                    <div class="mt-1 text-xs uppercase tracking-wide text-white/40">{$LL.shop.owned()}</div>
-                {/if}
-                {#each $shopStore.owned as owned (owned.item)}
-                    {@const item = lookup(owned.item)}
-                    <div class="flex items-center gap-2 rounded-md bg-white/5 px-2 py-1.5">
-                        <div class="min-w-0 flex-1">
-                            <div class="truncate text-sm text-white">
-                                {itemName(owned.item)}
-                                {#if owned.roll !== undefined}
-                                    <span class="text-xs text-white/50">+{owned.roll}</span>
+            <div class="flex items-start gap-2">
+                <!-- Left: item slots -->
+                <div class="w-[40%] rounded-md border-2 border-[#5a4020] bg-[#6b4a2b] p-1.5">
+                    <div class="grid grid-cols-3 gap-1.5">
+                        {#each slots as slot (slot.id)}
+                            <button
+                                type="button"
+                                class="relative aspect-square rounded border-2 {selected === slot.id
+                                    ? 'border-pop-yellow bg-[#f3e6c8]'
+                                    : 'border-[#b89a5a] bg-[#e8d3ab] hover:border-[#8a6d1f]'}"
+                                title={slot.name}
+                                aria-label={slot.name}
+                                onclick={() => (selected = slot.id)}
+                            >
+                                <img
+                                    src={iconUrl(itemDef(slot.id).icon)}
+                                    alt=""
+                                    class="absolute left-1/2 top-1/2 h-7 w-7 -translate-x-1/2 -translate-y-1/2 [image-rendering:pixelated]"
+                                />
+                                {#if slot.roll !== undefined}
+                                    <span
+                                        class="absolute left-0.5 top-0.5 font-mono text-[9px] font-bold leading-none text-[#8a6d1f] [text-shadow:0_1px_0_#f3e6c8]"
+                                    >
+                                        +{slot.roll}
+                                    </span>
                                 {/if}
-                                <span class="text-xs text-white/40">x{owned.qty}</span>
-                            </div>
-                            <div class="truncate text-xs text-white/50">{itemDetail(item)}</div>
-                        </div>
-                        {#if $shopStore.npc.id === "rilla"}
-                            <button
-                                type="button"
-                                class="rounded bg-primary px-2 py-1 text-xs text-white disabled:opacity-40"
-                                disabled={item === undefined}
-                                onclick={() => run(() => sellItem(owned.item, 1))}
-                            >
-                                {$LL.shop.sell()}
-                                {Math.floor((item?.price ?? 0) / 2)}
+                                {#if slot.owned && slot.qty > 1}
+                                    <span
+                                        class="absolute bottom-0.5 right-1 font-mono text-[9px] font-bold leading-none text-[#3a2c1a]"
+                                    >
+                                        {slot.qty}
+                                    </span>
+                                {:else if !slot.owned && slot.qty > 0}
+                                    <span
+                                        class="absolute bottom-0.5 right-1 font-mono text-[9px] font-bold leading-none text-[#3a2c1a]"
+                                    >
+                                        {slot.qty}
+                                    </span>
+                                {/if}
                             </button>
-                        {:else if $shopStore.npc.id === "moss" && item?.rollMax}
-                            <button
-                                type="button"
-                                class="rounded bg-primary px-2 py-1 text-xs text-white disabled:opacity-40"
-                                disabled={$shopStore.gold < $shopStore.rerollCost}
-                                onclick={() => run(() => rerollItem(owned.item))}
-                            >
-                                {$LL.shop.reroll()}
-                                {$shopStore.rerollCost}
-                            </button>
-                        {:else if item?.kind === "potion"}
-                            <button
-                                type="button"
-                                class="rounded bg-primary px-2 py-1 text-xs text-white"
-                                onclick={() => run(() => usePotion(owned.item))}
-                            >
-                                {$LL.shop.use()}
-                            </button>
+                        {/each}
+                    </div>
+                    <div class="mt-1.5 flex justify-between border-t-2 border-dashed border-[#a87b52] pt-1.5 px-0.5">
+                        <span class="font-mono text-[10px] font-bold text-[#f7ecd4]">✦ {$shopStore.gold}</span>
+                        <span class="font-mono text-[10px] text-[#e8d3ab]">
+                            {$LL.shop.owned()}: {$shopStore.owned.length}
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Middle: selection + station + action -->
+                <div class="flex w-[28%] flex-col items-center gap-2">
+                    <div class="flex h-14 w-14 items-center justify-center">
+                        {#if selectedSlot}
+                            <img
+                                src={iconUrl(itemDef(selectedSlot.id).icon)}
+                                alt=""
+                                class="h-12 w-12 [image-rendering:pixelated]"
+                            />
                         {/if}
                     </div>
-                {/each}
+                    {#if action}
+                        <button
+                            type="button"
+                            class="w-full rounded border-2 border-[#2c5a28] bg-[#3f7d3a] px-2 py-1.5 font-mono text-xs font-bold text-white shadow hover:brightness-110 disabled:opacity-40"
+                            disabled={action.disabled}
+                            onclick={action.run}
+                        >
+                            {action.label}
+                            {#if action.price !== undefined && Number.isFinite(action.price)}
+                                ✦ {action.price}
+                            {/if}
+                        </button>
+                    {/if}
+                    <div class="select-none text-center text-4xl leading-none" aria-hidden="true">
+                        {stations[$shopStore.npc.id] ?? "⚒"}
+                    </div>
+                </div>
 
-                {#if !$shopStore.catalog.length && !$shopStore.owned.length}
-                    <div class="text-sm text-white/60">{$LL.shop.empty()}</div>
-                {/if}
-            {/if}
-        </div>
-    </aside>
+                <!-- Right: description parchment -->
+                <div class="w-[32%] rounded-md border-2 border-[#5a4020] bg-[#f7ecd4] text-[#3a2c1a]">
+                    <div
+                        class="border-b-2 border-[#a87b52] bg-[#e0cba0] px-2 py-1 text-center font-mono text-[10px] font-bold tracking-widest"
+                    >
+                        DESCRIPTION
+                    </div>
+                    {#if selectedSlot}
+                        <div class="p-2">
+                            <div class="mb-1 text-center">
+                                <img
+                                    src={iconUrl(itemDef(selectedSlot.id).icon)}
+                                    alt=""
+                                    class="mx-auto h-10 w-10 [image-rendering:pixelated]"
+                                />
+                            </div>
+                            <div class="text-center text-xs font-bold">{selectedSlot.name}</div>
+                            <div class="mt-1 text-[10px] leading-snug text-[#6b5a3f]">{selectedSlot.detail}</div>
+                            <div class="mt-1.5 space-y-0.5 border-t border-dashed border-[#b89a5a] pt-1.5">
+                                {#if selectedSlot.roll !== undefined}
+                                    <div class="font-mono text-[11px]">◆ +{selectedSlot.roll}</div>
+                                {/if}
+                                {#if lookup(selectedSlot.id)?.rollMax}
+                                    <div class="font-mono text-[11px] text-[#8a6d1f]">
+                                        ◆ max +{lookup(selectedSlot.id)?.rollMax}
+                                    </div>
+                                {/if}
+                                {#if selectedSlot.price !== undefined}
+                                    <div class="font-mono text-[11px] text-[#8a6d1f]">◆ {selectedSlot.price}</div>
+                                {/if}
+                                {#if selectedSlot.owned}
+                                    <div class="font-mono text-[11px] text-[#6b5a3f]">◆ x{selectedSlot.qty}</div>
+                                {/if}
+                            </div>
+                        </div>
+                    {:else}
+                        <div class="p-2 text-center text-[10px] text-[#8a7a5f]">Pick an item →</div>
+                    {/if}
+                </div>
+            </div>
+        {/if}
+    </FloatingWindow>
 {/if}

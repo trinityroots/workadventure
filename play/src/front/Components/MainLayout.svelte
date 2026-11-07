@@ -48,7 +48,11 @@
     import { startMicAutoMute } from "../Stores/MicAutoMute";
     import { startPresenceHeartbeat, stopPresenceHeartbeat } from "../Services/presenceHeartbeat";
     import { startTradePolling, stopTradePolling } from "../Services/trade";
+    import GamePanel from "./GamePanel/GamePanel.svelte";
     import { restoreGamePanel } from "./GamePanel/sidebar";
+    import FloatingWindow from "./GameWindow/FloatingWindow.svelte";
+    import Inventory from "./Inventory/Inventory.svelte";
+    import { closeInventory, inventoryOpenStore } from "./Inventory/sidebar";
     import { mapEditorSideBarWidthStore } from "./MapEditor/MapEditorSideBarWidthStore";
     import { isSearchShortcut } from "./searchShortcut";
     import ActionBar from "./ActionBar/ActionBar.svelte";
@@ -479,6 +483,16 @@
             {/if}
 
             <ExternalComponents zone="popup" />
+            <GamePanel />
+            {#if $inventoryOpenStore}
+                <FloatingWindow
+                    title={$LL.externalModule.inventory.title()}
+                    onClose={closeInventory}
+                    testid="inventory-panel"
+                >
+                    <Inventory />
+                </FloatingWindow>
+            {/if}
             <NpcChatPanel />
             <ShopPanel />
             <LeaderboardPanel />

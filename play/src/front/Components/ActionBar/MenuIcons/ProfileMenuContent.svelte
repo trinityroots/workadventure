@@ -36,7 +36,7 @@
     import ExternalComponents from "../../ExternalModules/ExternalComponents.svelte";
     import CamSettingsIcon from "../../Icons/CamSettingsIcon.svelte";
     import { IconBackpack, IconBug, IconFileDownload, IconHelpCircle, IconLogout } from "../../Icons";
-    import { openInventorySidebar } from "../../Inventory/sidebar";
+    import { openInventory } from "../../Inventory/sidebar";
     import ProfilIcon from "../../Icons/ProfilIcon.svelte";
     import SettingsIcon from "../../Icons/SettingsIcon.svelte";
     import Woka from "../../Woka/WokaFromUserId.svelte";
@@ -193,7 +193,7 @@
             dataTestId="inventory-menu-item"
             onclick={() => {
                 openedMenuStore.close("profileMenu");
-                openInventorySidebar();
+                openInventory();
             }}
         >
             <IconBackpack class="h-5 w-5" />
