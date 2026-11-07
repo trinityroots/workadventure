@@ -106,17 +106,18 @@ Do not edit generated `src/i18n/i18n-*.ts` files directly.
 - The game panel (`Components/GamePanel/`) is a standalone quest tracker pinned to the right
   edge at `top-24` (the top-16 slot collides with the Tools/Share/user-menu header row),
   rendered by MainLayout directly and always visible — it has no close control, so there is
-  no open/closed store and no action-bar entry. Collapsed it shows active quest progress;
-  expanded it lists every quest (`Services/quests.ts`, claim). Chrome matches the NPC panels
+  no open/closed store and no action-bar entry. Collapsed it shows only the header bar
+  (title + expand control); expanded it lists every quest as compact rows
+  (`Services/quests.ts`, claim). Chrome matches the NPC panels
   (navy frame, mono pop-yellow header) with purple→gold gradient progress bars, gold CLAIM
   buttons and an emerald tint on ready quests; Esc on an expanded tracker collapses it.
   Quest view only — the achievements UI was removed with the tab nav. Leaderboards are not
   in it — boards are walk-to map objects only.
 - Game feel (`Services/gameSfx.ts`): synthesized WebAudio chiptune effects, no audio files —
-  `playSfx(name)` for close blips (RpgDialog, FloatingWindow; opening is silent), a quiet
-  global button tick (document capture listener installed in MainLayout with matching
-  cleanup), NPC click pop, chat greeting ding, claim fanfare, coin for buy/sell, ding for
-  reroll/use, and a thud on monster hits. Combat VFX live in `Phaser/Entity/Monster.ts`
+  `playSfx(name)` for close blips (RpgDialog, FloatingWindow; opening is silent), NPC click
+  pop, chat greeting ding, claim fanfare, coin for buy/sell, ding for
+  reroll/use, and a thud on monster hits. There is no global click tick — button presses are
+  silent. Combat VFX live in `Phaser/Entity/Monster.ts`
   (floating damage number, white flash, sprite shake, scale-out on remove); shop actions
   burst the slot (`slot-burst`) and pop the gold chip (`gold-pop`) in `ShopPanel.svelte`.
 - Trade (`Components/Trade/TradePanel.svelte`, `Services/trade.ts`) is a right-side drawer fed by
