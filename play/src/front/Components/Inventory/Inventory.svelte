@@ -117,7 +117,7 @@
                                 : statsText(itemDef(entry.item))}
                             aria-label="{itemDef(entry.item).name} × {entry.qty}"
                             data-testid="bag-{entry.item}"
-                            class="relative aspect-square rounded-sm border border-white/15 bg-contrast/70 transition-colors hover:border-light-blue/70"
+                            class="relative aspect-square rounded-sm border border-white/25 bg-contrast/70 transition-colors hover:border-light-blue/70"
                             onclick={() => onBagClick(entry.item)}
                         >
                             <img
@@ -132,7 +132,7 @@
                             </span>
                         </button>
                     {:else}
-                        <div class="aspect-square rounded-sm border border-white/10 bg-contrast/40"></div>
+                        <div class="aspect-square rounded-sm border border-white/25 bg-contrast/40"></div>
                     {/if}
                 {/each}
             </div>

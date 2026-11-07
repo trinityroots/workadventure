@@ -1,5 +1,5 @@
 export const gamePanel = {
-    title: "การผจญภัย",
+    title: "ภารกิจ",
     tabs: {
         quests: "ภารกิจ",
         achievements: "ความสำเร็จ",

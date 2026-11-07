@@ -76,5 +76,6 @@ export function itemDef(key: string): ItemDef {
 }
 
 export function iconUrl(icon: string): string {
-    return `/static/images/items/${icon}.png`;
+    // v8: pack swap to Pixel-RPG-icons — bumps past the game-icons.net art.
+    return `/static/images/items/${icon}.png?v=8`;
 }

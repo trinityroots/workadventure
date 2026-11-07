@@ -4,7 +4,7 @@
     import { LL } from "../../../i18n/i18n-svelte";
     import { npcRoleIconHtml } from "../../Phaser/Components/npcRoleIcons";
     import { playSfx } from "../../Services/gameSfx";
-    import { claimQuest, loadQuests, questsStore } from "../../Services/quests";
+    import { claimQuest, loadQuests, questsStore, type QuestView } from "../../Services/quests";
 
     let expanded = $state(false);
     let seenIds: Set<string> | null = null;
@@ -52,6 +52,21 @@
         expanded = !expanded;
     }
 
+    const TYPE_ICON: Record<string, string> = {
+        kill: "⚔",
+        visit: "🧭",
+        talk: "💬",
+        collect: "🎒",
+        timesheet: "⏳",
+    };
+
+    function rewardLine(quest: QuestView): string | null {
+        const parts: string[] = [];
+        if (quest.rewardGold > 0) parts.push(`✦ ${quest.rewardGold} gold`);
+        if (quest.rewardItem) parts.push(`${quest.rewardQty}× ${quest.rewardItem}`);
+        return parts.length ? parts.join("  ·  ") : null;
+    }
+
     const ready = $derived($questsStore.quests.filter((quest) => quest.status === "completed"));
     const active = $derived($questsStore.quests.filter((quest) => quest.status !== "completed"));
     const orderedQuests = $derived([...ready, ...active]);
@@ -61,23 +76,26 @@
 
 <div
     data-testid="game-panel"
-    class="pointer-events-auto fixed right-3 top-24 z-[250] w-[200px] max-w-[86vw] rounded-md border border-white/15 bg-contrast/95 text-white shadow-[0_0_0_1px_rgba(0,0,0,.45),0_10px_30px_rgba(0,0,0,.5)] backdrop-blur-md"
+    class="pointer-events-auto fixed right-3 top-24 z-[250] w-[248px] max-w-[86vw] rounded-md border border-white/15 bg-contrast/95 text-white shadow-[0_0_0_1px_rgba(0,0,0,.45),0_10px_30px_rgba(0,0,0,.5)] backdrop-blur-md"
 >
     <header
-        class="flex items-center gap-1 bg-black/25 px-1.5 py-0.5 {expanded
+        class="flex items-center gap-2 bg-black/25 px-2 py-1 {expanded
             ? 'rounded-t-md border-b border-white/10'
             : 'rounded-md'}"
     >
-        <span class="text-pop-yellow" aria-hidden="true">
+        <span
+            class="flex h-7 w-7 items-center justify-center rounded border border-pop-yellow/50 bg-black/40 text-pop-yellow"
+            aria-hidden="true"
+        >
             <!-- Icon markup comes from the fixed npcRoleIcons table, never from user input. -->
-            {@html npcRoleIconHtml("quill")}<!-- eslint-disable-line svelte/no-at-html-tags -->
+            {@html npcRoleIconHtml("scroll", 16)}<!-- eslint-disable-line svelte/no-at-html-tags -->
         </span>
-        <span class="flex-1 truncate font-mono text-[9px] font-bold uppercase tracking-widest text-pop-yellow"
+        <span class="min-w-0 flex-1 truncate font-mono text-sm font-bold uppercase tracking-wider text-pop-yellow"
             >{$LL.gamePanel.title()}</span
         >
         <button
             type="button"
-            class="rounded p-0.5 text-[9px] text-white/50 hover:bg-white/10 hover:text-white"
+            class="rounded p-0.5 text-sm text-white/60 hover:bg-white/10 hover:text-white"
             aria-label={$LL.gamePanel.title()}
             title="Q"
             onclick={() => (expanded = !expanded)}
@@ -87,44 +105,71 @@
     </header>
 
     {#if expanded}
-        <div class="max-h-[40vh] overflow-y-auto p-1 no-scroll-bar">
+        <div class="max-h-[45vh] space-y-1 overflow-y-auto p-1.5 no-scroll-bar">
             {#if $questsStore.loading}
-                <p class="px-0.5 py-1 text-[10px] italic text-white/50">{$LL.gamePanel.loading()}</p>
+                <p class="px-1 py-1.5 text-sm italic text-white/50">{$LL.gamePanel.loading()}</p>
             {:else if $questsStore.error}
-                <p class="px-0.5 py-1 text-[10px] text-red-400">{$LL.gamePanel.error()}</p>
+                <p class="px-1 py-1.5 text-sm text-red-400">{$LL.gamePanel.error()}</p>
             {:else if orderedQuests.length === 0}
-                <p class="px-0.5 py-1 text-[10px] text-white/50">{$LL.gamePanel.noQuests()}</p>
+                <p class="px-1 py-1.5 text-sm text-white/50">{$LL.gamePanel.noQuests()}</p>
             {:else}
                 {#each orderedQuests as quest (quest.assignmentId)}
+                    {@const pct = Math.min(100, (quest.progress / Math.max(1, quest.count)) * 100)}
+                    {@const done = quest.status === "completed"}
                     <div
-                        class="mb-0.5 rounded border px-1 py-0.5 leading-tight last:mb-0 {quest.status === 'completed'
-                            ? 'border-emerald-400/40 bg-emerald-400/10'
+                        class="rounded border px-2 py-1.5 {done
+                            ? 'border-emerald-400/50 bg-emerald-400/10 shadow-[0_0_10px_rgba(52,211,153,.15)]'
                             : 'border-white/10 bg-white/5'}"
                     >
-                        <div class="flex items-center gap-1">
-                            <span class="flex-1 truncate text-[9px] font-medium">{quest.title}</span>
-                            {#if quest.status === "completed"}
+                        <div class="flex items-start gap-1.5">
+                            <span class="mt-px text-sm leading-none" aria-hidden="true"
+                                >{TYPE_ICON[quest.type] ?? "•"}</span
+                            >
+                            <span class="flex-1 text-sm font-medium leading-snug">{quest.title}</span>
+                            {#if done}
                                 <button
                                     type="button"
-                                    class="rounded border border-pop-yellow/60 bg-pop-yellow/20 px-1 py-px font-mono text-[8px] font-bold text-pop-yellow hover:bg-pop-yellow/35"
+                                    class="shrink-0 rounded border border-pop-yellow/60 bg-pop-yellow/20 px-2 py-0.5 text-xs font-bold text-pop-yellow hover:bg-pop-yellow/35"
                                     onclick={() => claim(claimQuest(quest.assignmentId))}
                                 >
                                     {$LL.gamePanel.claim()}
                                 </button>
                             {:else}
-                                <span class="text-[8px] text-white/60"
+                                <span class="shrink-0 rounded bg-white/10 px-1.5 py-px font-mono text-xs text-white/70"
                                     >{Math.min(quest.progress, quest.count)}/{quest.count}</span
                                 >
                             {/if}
                         </div>
-                        {#if quest.status !== "completed"}
-                            <div class="mt-0.5 h-px overflow-hidden rounded bg-white/10">
-                                <div
-                                    class="h-full bg-gradient-to-r from-primary to-pop-yellow"
-                                    style="width: {Math.min(100, (quest.progress / Math.max(1, quest.count)) * 100)}%"
-                                ></div>
+                        {#if rewardLine(quest)}
+                            <p class="mt-1 pl-5 text-xs text-pop-yellow/80">{rewardLine(quest)}</p>
+                        {/if}
+                        {#if !done}
+                            <div class="mt-1.5 flex items-center gap-1.5 pl-5">
+                                <div class="h-1.5 flex-1 overflow-hidden rounded-full bg-white/10">
+                                    <div
+                                        class="h-full rounded-full bg-gradient-to-r from-primary to-pop-yellow transition-all"
+                                        style="width: {pct}%"
+                                    ></div>
+                                </div>
+                                <span class="font-mono text-[11px] text-white/50">{Math.round(pct)}%</span>
                             </div>
                         {/if}
+                        <div class="mt-1 flex gap-1 pl-5">
+                            <span
+                                class="rounded px-1 py-px text-[10px] uppercase tracking-wide {quest.repeat === 'daily'
+                                    ? 'bg-sky-500/20 text-sky-300'
+                                    : 'bg-white/10 text-white/50'}"
+                            >
+                                {quest.repeat}
+                            </span>
+                            {#if done}
+                                <span
+                                    class="rounded bg-emerald-500/20 px-1 py-px text-[10px] uppercase tracking-wide text-emerald-300"
+                                >
+                                    ready
+                                </span>
+                            {/if}
+                        </div>
                     </div>
                 {/each}
             {/if}

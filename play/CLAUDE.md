@@ -61,8 +61,11 @@ Do not edit generated `src/i18n/i18n-*.ts` files directly.
   the NPC panels so two windows never stack).
 - Item art and stats: `Components/Inventory/items.ts` mirrors the game catalog (ids,
   slots, `attack`, `rollMax`, `potion`) and its `statsText()` feeds the tooltips; the icons
-  are `public/static/images/items/<id>.png`, one per catalog item, drawn from game-icons.net
-  glyphs (CC BY 3.0) in the same two-tone style as the older `item_*` sprites.
+  are `public/static/images/items/<id>.png`, one per catalog item, full-colour pixel art
+  from Allexio/Pixel-RPG-icons (CC0-1.0), regenerated to 64×64 on a transparent canvas
+  (content box 56px, NEAREST) and served through `iconUrl()` with `?v=8` so a pack swap
+  busts the browser cache. The pack has no glove sprite, so `work_gloves`/`item_gloves`
+  use `items/Fabric.png` as the closest match.
 - The chat drawer's search field is always visible in its header; Cmd/Ctrl+K opens the user list
   and focuses it (`Components/searchShortcut.ts` decides the keystroke, `chatSearchFocusRequest`
   asks the header to take focus). The map script no longer registers its own search button.
@@ -126,7 +129,9 @@ Do not edit generated `src/i18n/i18n-*.ts` files directly.
   (200px wide, 9px type, hairline progress bars; **Q** toggles; a 45s poll auto-expands
   when a new assignmentId appears)
   (`Services/quests.ts`, claim). Chrome matches the NPC panels
-  (navy frame, mono pop-yellow header) with purple→gold gradient progress bars, gold CLAIM
+  (navy frame; header carries the npc-role `scroll` icon in the same bordered `h-7 w-7`
+  yellow chip RpgDialog uses, plus a mono uppercase pop-yellow title) with purple→gold
+  gradient progress bars, gold CLAIM
   buttons and an emerald tint on ready quests; Esc on an expanded tracker collapses it.
   Quest view only — the achievements UI was removed with the tab nav. Leaderboards are not
   in it — boards are walk-to map objects only.

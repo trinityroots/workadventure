@@ -44,7 +44,7 @@ describe("Inventory", () => {
 
         const cell = target.querySelector("[data-testid='bag-slime_gel']") as HTMLButtonElement;
         expect(cell).not.toBeNull();
-        expect(cell.querySelector("img")?.getAttribute("src")).toBe("/static/images/items/item_goo.png");
+        expect(cell.querySelector("img")?.getAttribute("src")).toBe("/static/images/items/item_goo.png?v=8");
         expect(cell.querySelector("img")?.getAttribute("alt")).toBe("Slime goo");
         expect(cell.querySelector("span")?.textContent?.trim()).toBe("5");
 

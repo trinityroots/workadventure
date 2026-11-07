@@ -26,7 +26,7 @@ describe("itemDef", () => {
         for (const id of CATALOG_IDS) {
             const def = itemDef(id);
             expect(def.name, id).not.toBe(id);
-            expect(iconUrl(def.icon)).toBe(`/static/images/items/${def.icon}.png`);
+            expect(iconUrl(def.icon)).toBe(`/static/images/items/${def.icon}.png?v=8`);
             if (def.slot) {
                 expect(def.attack, id).toBeGreaterThan(0);
                 expect(def.rollMax, id).toBeGreaterThan(0);
