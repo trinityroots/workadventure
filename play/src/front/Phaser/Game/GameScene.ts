@@ -135,6 +135,7 @@ import { StringUtils } from "../../Utils/StringUtils";
 import { PHASER_COLOR_DESIGN_SYSTEM_SECONDARY } from "../../Utils/DesignSystemPhaserColors";
 
 import { SuperLoaderPlugin } from "../Services/SuperLoaderPlugin";
+import { playSfx } from "../../Services/gameSfx";
 import { startMonsterStream, stopMonsterStream } from "../../Services/monsterStream";
 import { closeNpcChat, loadNpcList, openNpcChat } from "../../Services/npcList";
 import { closeShop, fetchMarketStatus, openShop } from "../../Services/shop";
@@ -4178,6 +4179,7 @@ ${escapedMessage}
 
     /** Clicking an NPC walks the player up to it, then opens its panel on arrival. */
     public onNpcClicked(npc: NpcInfo): void {
+        playSfx("npcPop");
         this.moveTo({ x: npc.x, y: npc.y + 32 }, true)
             .then(({ cancelled }) => {
                 if (cancelled || !this.scene.isActive()) return;

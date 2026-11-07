@@ -1,8 +1,9 @@
 import * as Phaser from "phaser";
 import type { MonsterCommand } from "../../Api/Events/MonsterEvent";
 import type { NpcInfo } from "../../Enum/Npc";
+import { playSfx } from "../../Services/gameSfx";
 import { UsernameDisplay } from "../Components/UsernameDisplay";
-import { npcRoleIconSvg } from "../Components/npcRoleIcons";
+import { npcRoleIconHtml } from "../Components/npcRoleIcons";
 import type { GameScene } from "../Game/GameScene";
 
 import Container = Phaser.GameObjects.Container;
@@ -17,7 +18,8 @@ const NPC_BADGE_ICON_SIZE = 16;
 /**
  * A monster (or NPC) rendered natively by the game: a spritesheet entity with a
  * nameplate, a health bar and smooth movement toward the position the map script
- * asks for. Floating damage numbers are spawned on every hit. NPCs carry the
+ * asks for. Every hit spawns a floating damage number plus a white flash, a sprite
+ * shake and a thud. NPCs carry the
  * player-style name badge with a role icon instead of a text nameplate, and a
  * click walks the player over and opens their panel.
  */
@@ -78,7 +80,7 @@ export class Monster extends Container {
                 y - NPC_BADGE_OFFSET,
                 name,
                 undefined,
-                npcRoleIconSvg(npc.icon, NPC_BADGE_ICON_SIZE),
+                npcRoleIconHtml(npc.icon, NPC_BADGE_ICON_SIZE),
             );
             this.setSize(32, 64);
             this.setInteractive(
@@ -123,6 +125,12 @@ export class Monster extends Container {
     public damage(amount: number): void {
         this.setHp(Math.max(this.hp - amount, 0));
         this.showDamage(amount);
+        playSfx("hit");
+        this.sprite.setTintFill();
+        this.scene.time.delayedCall(90, () => {
+            if (this.sprite.active) this.sprite.clearTint();
+        });
+        this.scene.tweens.add({ targets: this.sprite, x: { from: -2, to: 0 }, duration: 140 });
     }
 
     private showDamage(amount: number): void {
@@ -250,8 +258,20 @@ export class MonsterManager {
     }
 
     private remove(id: string): void {
-        this.monsters.get(id)?.destroy();
+        const monster = this.monsters.get(id);
         this.monsters.delete(id);
+        if (!monster) return;
+        if (this.scene.scene.isActive()) {
+            this.scene.tweens.add({
+                targets: monster,
+                scale: 0.2,
+                alpha: 0,
+                duration: 160,
+                onComplete: () => monster.destroy(),
+            });
+        } else {
+            monster.destroy();
+        }
     }
 
     private loadTexture(textureUrl: string): Promise<string> {

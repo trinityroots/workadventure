@@ -1,6 +1,11 @@
 <script lang="ts">
+    import { onMount, onDestroy } from "svelte";
     import type { Snippet } from "svelte";
-    import { npcRoleIconSvg } from "../../Phaser/Components/npcRoleIcons";
+    import { playSfx } from "../../Services/gameSfx";
+    import { npcRoleIconHtml } from "../../Phaser/Components/npcRoleIcons";
+
+    onMount(() => playSfx("open"));
+    onDestroy(() => playSfx("close"));
 
     interface Props {
         icon: string;
@@ -15,7 +20,10 @@
     let { icon, title, subtitle, headerExtra, children, onClose, testid }: Props = $props();
 </script>
 
-<div class="fixed inset-0 z-[300] flex items-center justify-center bg-black/60 p-4" data-testid={testid}>
+<div
+    class="pointer-events-auto fixed inset-0 z-[300] flex items-center justify-center bg-black/60 p-4"
+    data-testid={testid}
+>
     <div
         role="dialog"
         aria-modal="true"
@@ -28,7 +36,7 @@
                 aria-hidden="true"
             >
                 <!-- Icon markup comes from the fixed npcRoleIcons table, never from user input. -->
-                {@html npcRoleIconSvg(icon, 16)}<!-- eslint-disable-line svelte/no-at-html-tags -->
+                {@html npcRoleIconHtml(icon, 16)}<!-- eslint-disable-line svelte/no-at-html-tags -->
             </span>
             <div class="min-w-0 flex-1">
                 <div class="truncate font-mono text-sm font-bold uppercase tracking-wider text-pop-yellow">

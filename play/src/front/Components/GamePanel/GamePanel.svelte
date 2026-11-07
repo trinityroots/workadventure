@@ -1,7 +1,8 @@
 <script lang="ts">
     import { onMount } from "svelte";
     import { LL } from "../../../i18n/i18n-svelte";
-    import { npcRoleIconSvg } from "../../Phaser/Components/npcRoleIcons";
+    import { npcRoleIconHtml } from "../../Phaser/Components/npcRoleIcons";
+    import { playSfx } from "../../Services/gameSfx";
     import { claimAchievement, claimQuest, loadQuests, questsStore } from "../../Services/quests";
     import { closeGamePanel, gamePanelOpenStore } from "./sidebar";
 
@@ -29,9 +30,16 @@
         }
     }
 
-    function run(action: Promise<unknown>): void {
-        action.catch(() => undefined);
+    function claim(action: Promise<boolean>): void {
+        action.then((ok) => playSfx(ok ? "fanfare" : "click")).catch(() => undefined);
     }
+
+    let wasOpen: boolean | null = null;
+    $effect(() => {
+        const open = $gamePanelOpenStore;
+        if (wasOpen !== null && open !== wasOpen) playSfx(open ? "open" : "close");
+        wasOpen = open;
+    });
 
     const ready = $derived($questsStore.quests.filter((quest) => quest.status === "completed"));
     const active = $derived($questsStore.quests.filter((quest) => quest.status !== "completed"));
@@ -46,7 +54,7 @@
 {#if $gamePanelOpenStore}
     <div
         data-testid="game-panel"
-        class="fixed right-0 top-16 z-[250] w-[252px] max-w-[86vw] rounded-l-lg border border-pop-yellow/55 bg-contrast/95 text-white shadow-[0_0_0_1px_rgba(0,0,0,.45),0_10px_30px_rgba(0,0,0,.5)] backdrop-blur-md"
+        class="pointer-events-auto fixed right-0 top-24 z-[250] w-[252px] max-w-[86vw] rounded-l-lg border border-pop-yellow/55 bg-contrast/95 text-white shadow-[0_0_0_1px_rgba(0,0,0,.45),0_10px_30px_rgba(0,0,0,.5)] backdrop-blur-md"
     >
         <span
             class="pointer-events-none absolute left-1 top-1 h-2.5 w-2.5 border-l-2 border-t-2 border-pop-yellow"
@@ -60,7 +68,7 @@
             <header class="flex items-center gap-2 border-b border-white/10 px-2.5 py-1.5">
                 <span class="text-pop-yellow" aria-hidden="true">
                     <!-- Icon markup comes from the fixed npcRoleIcons table, never from user input. -->
-                    {@html npcRoleIconSvg("quill")}<!-- eslint-disable-line svelte/no-at-html-tags -->
+                    {@html npcRoleIconHtml("quill")}<!-- eslint-disable-line svelte/no-at-html-tags -->
                 </span>
                 <span class="flex-1 truncate font-mono text-xs font-bold uppercase tracking-widest text-pop-yellow"
                     >{$LL.gamePanel.title()}</span
@@ -95,7 +103,7 @@
                                     <button
                                         type="button"
                                         class="rounded border border-pop-yellow/60 bg-pop-yellow/20 px-1.5 py-0.5 font-mono text-[10px] font-bold text-pop-yellow hover:bg-pop-yellow/35"
-                                        onclick={() => run(claimQuest(quest.assignmentId))}
+                                        onclick={() => claim(claimQuest(quest.assignmentId))}
                                     >
                                         {$LL.gamePanel.claim()}
                                     </button>
@@ -133,7 +141,7 @@
             <header class="flex items-center gap-2 border-b border-white/10 px-2.5 py-1.5">
                 <span class="text-pop-yellow" aria-hidden="true">
                     <!-- Icon markup comes from the fixed npcRoleIcons table, never from user input. -->
-                    {@html npcRoleIconSvg("quill")}<!-- eslint-disable-line svelte/no-at-html-tags -->
+                    {@html npcRoleIconHtml("quill")}<!-- eslint-disable-line svelte/no-at-html-tags -->
                 </span>
                 <span class="flex-1 truncate font-mono text-xs font-bold uppercase tracking-widest text-pop-yellow"
                     >{$LL.gamePanel.title()}</span
@@ -194,7 +202,7 @@
                                         <button
                                             type="button"
                                             class="rounded border border-pop-yellow/60 bg-pop-yellow/20 px-1.5 py-0.5 font-mono text-[11px] font-bold text-pop-yellow hover:bg-pop-yellow/35"
-                                            onclick={() => run(claimQuest(quest.assignmentId))}
+                                            onclick={() => claim(claimQuest(quest.assignmentId))}
                                         >
                                             {$LL.gamePanel.claim()}
                                         </button>
@@ -231,7 +239,7 @@
                                 <button
                                     type="button"
                                     class="rounded border border-pop-yellow/60 bg-pop-yellow/20 px-1.5 py-0.5 font-mono text-[11px] font-bold text-pop-yellow hover:bg-pop-yellow/35"
-                                    onclick={() => run(claimAchievement(achievement.id))}
+                                    onclick={() => claim(claimAchievement(achievement.id))}
                                 >
                                     {$LL.gamePanel.claim()}
                                 </button>

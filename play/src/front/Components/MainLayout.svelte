@@ -46,6 +46,7 @@
     import { sidePanelWidthStore } from "../Stores/SidePanelStore";
     import { startCalendarLoader } from "../Services/CalendarLoader";
     import { startMicAutoMute } from "../Stores/MicAutoMute";
+    import { playSfx } from "../Services/gameSfx";
     import { startPresenceHeartbeat, stopPresenceHeartbeat } from "../Services/presenceHeartbeat";
     import { startTradePolling, stopTradePolling } from "../Services/trade";
     import GamePanel from "./GamePanel/GamePanel.svelte";
@@ -185,9 +186,15 @@
         );
     }
 
+    const handleClickSfx = (event: Event): void => {
+        const el = event.target as HTMLElement | null;
+        if (el?.closest("button, [role=button]")) playSfx("click");
+    };
+
     onMount(() => {
         document.addEventListener("focusin", handleFocusInEvent);
         document.addEventListener("focusout", handleFocusOutEvent);
+        document.addEventListener("click", handleClickSfx, true);
         startCalendarLoader();
         startMicAutoMute();
         startPresenceHeartbeat();
@@ -200,6 +207,7 @@
         stopTradePolling();
         document.removeEventListener("focusin", handleFocusInEvent);
         document.removeEventListener("focusout", handleFocusOutEvent);
+        document.removeEventListener("click", handleClickSfx, true);
         inputFormFocusStore.set(false);
         if (participantListAutoHideTimer) {
             clearTimeout(participantListAutoHideTimer);

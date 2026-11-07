@@ -1,6 +1,8 @@
 <script lang="ts">
+    import { onMount } from "svelte";
     import { get } from "svelte/store";
     import { LL } from "../../../i18n/i18n-svelte";
+    import { playSfx } from "../../Services/gameSfx";
     import { closeNpcChat, nearestNpc, npcChatStore, openNpcChat, sendNpcMessage } from "../../Services/npcList";
     import { closeLeaderboard, nearestBoard, openLeaderboard } from "../../Services/leaderboard";
     import { closeShop, openShop } from "../../Services/shop";
@@ -10,6 +12,8 @@
 
     let text = $state("");
     let logElement: HTMLDivElement | undefined = $state();
+
+    onMount(() => playSfx("ding"));
 
     // Both arguments are reactive reads: the effect re-runs when a message lands or a reply is pending.
     function scheduleScroll(_messageCount: number, _sending: boolean): void {

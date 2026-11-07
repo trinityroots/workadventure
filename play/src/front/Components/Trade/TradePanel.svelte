@@ -10,7 +10,7 @@
         setTradeOffer,
         tradeStore,
     } from "../../Services/trade";
-    import { npcRoleIconSvg } from "../../Phaser/Components/npcRoleIcons";
+    import { npcRoleIconHtml } from "../../Phaser/Components/npcRoleIcons";
 
     let offered = $state<Record<string, number>>({});
     let offeredGold = $state(0);
@@ -78,13 +78,13 @@
 
 {#if $tradeStore.open}
     <aside
-        class="fixed top-0 right-0 z-[300] flex h-full w-[340px] max-w-[92vw] flex-col border-s border-white/10 bg-contrast/95 backdrop-blur-md"
+        class="pointer-events-auto fixed top-0 right-0 z-[300] flex h-full w-[340px] max-w-[92vw] flex-col border-s border-white/10 bg-contrast/95 backdrop-blur-md"
         data-testid="trade-panel"
     >
         <header class="flex items-center gap-2 border-b border-white/10 px-3 py-2">
             <span class="text-white/80" aria-hidden="true">
                 <!-- Icon markup comes from the fixed npcRoleIcons table, never from user input. -->
-                {@html npcRoleIconSvg("coin")}<!-- eslint-disable-line svelte/no-at-html-tags -->
+                {@html npcRoleIconHtml("coin")}<!-- eslint-disable-line svelte/no-at-html-tags -->
             </span>
             <span class="flex-1 text-sm font-semibold text-white">{$LL.trade.title()}</span>
             <button

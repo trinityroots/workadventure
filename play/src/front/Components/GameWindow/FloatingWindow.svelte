@@ -1,5 +1,7 @@
 <script lang="ts">
+    import { onMount, onDestroy } from "svelte";
     import type { Snippet } from "svelte";
+    import { playSfx } from "../../Services/gameSfx";
 
     interface Props {
         title: string;
@@ -11,10 +13,13 @@
     }
 
     let { title, headerExtra, children, onClose, testid, widthClass = "w-[360px]" }: Props = $props();
+
+    onMount(() => playSfx("open"));
+    onDestroy(() => playSfx("close"));
 </script>
 
 <div
-    class="fixed right-3 top-16 z-[310] flex max-h-[82vh] {widthClass} max-w-[94vw] flex-col rounded-lg border border-white/15 bg-contrast/95 shadow-[0_0_0_1px_rgba(0,0,0,.45),0_18px_50px_rgba(0,0,0,.55)] backdrop-blur-md"
+    class="pointer-events-auto fixed right-3 top-24 z-[310] flex max-h-[82vh] {widthClass} max-w-[94vw] flex-col rounded-lg border border-white/15 bg-contrast/95 shadow-[0_0_0_1px_rgba(0,0,0,.45),0_18px_50px_rgba(0,0,0,.55)] backdrop-blur-md"
     role="dialog"
     aria-label={title}
     data-testid={testid}

@@ -2,11 +2,14 @@
     import { LL } from "../../../i18n/i18n-svelte";
     import { buyItem, closeShop, rerollItem, sellItem, shopStore, usePotion } from "../../Services/shop";
     import type { ShopItem } from "../../Services/shop";
+    import { playSfx } from "../../Services/gameSfx";
     import { iconUrl, itemDef } from "../Inventory/items";
     import FloatingWindow from "../GameWindow/FloatingWindow.svelte";
 
     let remaining = $state("");
     let selected = $state<string | null>(null);
+    let flashId = $state<string | null>(null);
+    let goldPop = $state(false);
 
     // Station art per shop, the way craft stations anchor the middle pane.
     const stations: Record<string, string> = {
@@ -71,8 +74,19 @@
         return `${$LL.shop.attack()}: ${item.attack ?? 0}`;
     }
 
-    function run(action: () => Promise<void>): void {
-        action().catch(() => undefined);
+    // A successful action bursts the slot, pops the gold chip and plays its effect.
+    function run(action: () => Promise<void>, sfx: "coin" | "ding"): void {
+        action()
+            .then(() => {
+                if (selected) {
+                    flashId = selected;
+                    setTimeout(() => (flashId = null), 600);
+                }
+                goldPop = true;
+                setTimeout(() => (goldPop = false), 400);
+                playSfx(sfx);
+            })
+            .catch(() => undefined);
     }
 
     const slots = $derived.by((): Slot[] => {
@@ -125,7 +139,7 @@
                 label: $LL.shop.buy(),
                 price,
                 disabled: $shopStore.gold < price,
-                run: () => run(() => buyItem(slot.id, 1)),
+                run: () => run(() => buyItem(slot.id, 1), "coin"),
             };
         }
         if (!slot.owned) {
@@ -134,7 +148,7 @@
                 label: npcId === "rilla" ? $LL.shop.sell() : $LL.shop.buy(),
                 price,
                 disabled: $shopStore.gold < price,
-                run: () => run(() => buyItem(slot.id, 1)),
+                run: () => run(() => buyItem(slot.id, 1), "coin"),
             };
         }
         if (npcId === "rilla") {
@@ -143,7 +157,7 @@
                 label: $LL.shop.sell(),
                 price: Math.floor((item?.price ?? 0) / 2),
                 disabled: item === undefined,
-                run: () => run(() => sellItem(slot.id, 1)),
+                run: () => run(() => sellItem(slot.id, 1), "coin"),
             };
         }
         if (npcId === "moss" && lookup(slot.id)?.rollMax) {
@@ -151,11 +165,11 @@
                 label: $LL.shop.reroll(),
                 price: $shopStore.rerollCost,
                 disabled: $shopStore.gold < $shopStore.rerollCost,
-                run: () => run(() => rerollItem(slot.id)),
+                run: () => run(() => rerollItem(slot.id), "ding"),
             };
         }
         if (lookup(slot.id)?.kind === "potion") {
-            return { label: $LL.shop.use(), disabled: false, run: () => run(() => usePotion(slot.id)) };
+            return { label: $LL.shop.use(), disabled: false, run: () => run(() => usePotion(slot.id), "ding") };
         }
         return null;
     });
@@ -164,7 +178,10 @@
 {#if $shopStore.npc}
     <FloatingWindow title={$shopStore.npc.name} onClose={closeShop} testid="shop-panel" widthClass="w-[460px]">
         {#snippet headerExtra()}
-            <span class="rounded border border-pop-yellow/40 bg-black/40 px-2 py-0.5 font-mono text-xs text-pop-yellow">
+            <span
+                class="rounded border border-pop-yellow/40 bg-black/40 px-2 py-0.5 font-mono text-xs text-pop-yellow"
+                class:gold-pop={goldPop}
+            >
                 {$LL.shop.gold()}: {$shopStore.gold}
             </span>
         {/snippet}
@@ -191,6 +208,7 @@
                                 class="relative aspect-square rounded border-2 {selected === slot.id
                                     ? 'border-pop-yellow bg-[#f3e6c8]'
                                     : 'border-[#b89a5a] bg-[#e8d3ab] hover:border-[#8a6d1f]'}"
+                                class:slot-burst={flashId === slot.id}
                                 title={slot.name}
                                 aria-label={slot.name}
                                 onclick={() => (selected = slot.id)}
@@ -303,3 +321,32 @@
         {/if}
     </FloatingWindow>
 {/if}
+
+<style>
+    @keyframes slot-burst {
+        0% {
+            box-shadow: 0 0 0 0 rgba(249, 232, 30, 0.9);
+            transform: scale(1);
+        }
+        40% {
+            transform: scale(1.12);
+        }
+        100% {
+            box-shadow: 0 0 0 12px rgba(249, 232, 30, 0);
+            transform: scale(1);
+        }
+    }
+    .slot-burst {
+        animation: slot-burst 0.55s ease-out;
+    }
+
+    @keyframes gold-pop {
+        50% {
+            transform: scale(1.2);
+        }
+    }
+    .gold-pop {
+        display: inline-block;
+        animation: gold-pop 0.35s ease;
+    }
+</style>
