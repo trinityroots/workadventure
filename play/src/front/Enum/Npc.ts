@@ -7,4 +7,6 @@ export interface NpcInfo {
     x: number;
     y: number;
     sprite: string;
+    /** Opening line seeded as the first NPC message when the chat opens; chat NPCs only. */
+    greeting?: string;
 }

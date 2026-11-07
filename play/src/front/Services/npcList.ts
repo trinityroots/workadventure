@@ -46,7 +46,8 @@ export async function loadNpcList(): Promise<NpcInfo[]> {
 }
 
 export function openNpcChat(npc: NpcInfo): void {
-    npcChatStore.set({ npc, messages: [], sending: false, error: null });
+    const messages: NpcChatMessage[] = npc.greeting ? [{ role: "assistant", content: npc.greeting }] : [];
+    npcChatStore.set({ npc, messages, sending: false, error: null });
 }
 
 export function closeNpcChat(): void {

@@ -73,11 +73,16 @@ Do not edit generated `src/i18n/i18n-*.ts` files directly.
   `isInActiveConversationStore` gates it so a running conversation keeps its mic.
 - NPCs come from the game service (`Services/npcList.ts`, `GET /api/game/npc/list`) and spawn
   as native entities with the player-style `UsernameDisplay` badge whose availability dot is
-  replaced by a 16px role icon (`Phaser/Components/npcRoleIcons.ts`). NPCs stand still — only
+  replaced by a 16px role icon (`Phaser/Components/npcRoleIcons.ts` — PNGs at
+  `public/resources/icons/npc-<name>.png`, painted with `currentColor` through a CSS mask so
+  each context keeps its theme color). NPCs stand still — only
   monsters play the two-frame idle anim — and `MonsterManager.loadTexture` reserves a unique
   key per URL load (a shared key once made every NPC render the first sprite). Clicking one walks the player
   to an adjacent tile (`GameScene.onNpcClicked`) and opens `NpcChat/NpcChatPanel.svelte` on
-  arrival; **X** opens the nearest NPC within 120px (same focus/input guards as calendar's L).
+  arrival; **X** opens the nearest NPC within 120px (same focus/input guards as calendar's L). Opening a chat seeds the NPC's `greeting` (from `GET /api/game/npc/list`) as the
+  first NPC message, so every conversation starts with what you can ask that NPC about.
+  **Every fixed overlay must carry `pointer-events-auto`** (RpgDialog, FloatingWindow, GamePanel, TradePanel): the MainLayout root is `pointer-events-none`, and without the
+  class every click falls through to the game canvas — the panel renders but nothing responds, which reads as a freeze.
   The chat panel is a centered modal built on `NpcChat/RpgDialog.svelte` (pixel-JRPG theme:
   navy frame, pop-yellow accents, dimmed backdrop; the player's own lines are parchment
   bubbles) — not a drawer, not a chat-sidebar tab; i18n keys live under `npcChat`. Shop,
@@ -97,7 +102,8 @@ Do not edit generated `src/i18n/i18n-*.ts` files directly.
   ranking is real. Opens only when the player is in range (X prefers a nearer NPC).
 - `Services/presenceHeartbeat.ts` (started in MainLayout) posts `/api/session/heartbeat` every
   60s and `/api/session/leave` on `pagehide`; core turns that into the presence audit.
-- The game panel (`Components/GamePanel/`) is a standalone fixed tracker on the right edge,
+- The game panel (`Components/GamePanel/`) is a standalone fixed tracker on the right edge
+  at `top-24` (the top-16 slot collides with the Tools/Share/user-menu header row),
   not a chat-sidebar tab: `sidebar.ts` exports `gamePanelOpenStore` (open/closed persists in
   `localStorage["wa-game-panel-open"]`; `restoreGamePanel()` on MainLayout onMount opens it by
   default), and MainLayout renders `<GamePanel />` directly. Collapsed it shows active quest
@@ -106,6 +112,13 @@ Do not edit generated `src/i18n/i18n-*.ts` files directly.
   bars, gold CLAIM buttons, emerald tint on ready quests. Leaderboards are not in it —
   boards are walk-to map objects only. The action bar's Tools menu (MapSubMenuContent)
   toggles it.
+- Game feel (`Services/gameSfx.ts`): synthesized WebAudio chiptune effects, no audio files —
+  `playSfx(name)` for open/close blips (RpgDialog, FloatingWindow, GamePanel toggle), a quiet
+  global button tick (document capture listener installed in MainLayout with matching
+  cleanup), NPC click pop, chat greeting ding, claim fanfare, coin for buy/sell, ding for
+  reroll/use, and a thud on monster hits. Combat VFX live in `Phaser/Entity/Monster.ts`
+  (floating damage number, white flash, sprite shake, scale-out on remove); shop actions
+  burst the slot (`slot-burst`) and pop the gold chip (`gold-pop`) in `ShopPanel.svelte`.
 - Trade (`Components/Trade/TradePanel.svelte`, `Services/trade.ts`) is a right-side drawer fed by
   a 5s poll (`startTradePolling` in MainLayout). Entry point is the user-list action menu, which
   invites by Matrix handle; the game service resolves the handle back to a player email. Offers
