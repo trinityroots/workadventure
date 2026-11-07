@@ -3,7 +3,6 @@ export const gamePanel = {
     tabs: {
         quests: "Quests",
         achievements: "Achievements",
-        leaderboards: "Boards",
     },
     claim: "Claim",
     gold: "gold",
