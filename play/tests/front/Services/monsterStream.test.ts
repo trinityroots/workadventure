@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
 import {
+    ATTACK_DISTANCE,
     monsterEventSnapshot,
     monsterSnapshotCommands,
     nearestWithin,
@@ -89,6 +90,12 @@ describe("monsterEventSnapshot", () => {
 });
 
 describe("nearestWithin", () => {
+    it("attacks only within one map tile", () => {
+        expect(ATTACK_DISTANCE).toBe(32);
+        expect(nearestWithin([monster("a", { x: 31 })], 0, 0, ATTACK_DISTANCE)?.id).toBe("a");
+        expect(nearestWithin([monster("a", { x: 33 })], 0, 0, ATTACK_DISTANCE)).toBeNull();
+    });
+
     it("returns null when there are no monsters", () => {
         expect(nearestWithin([], 0, 0, 100)).toBeNull();
     });

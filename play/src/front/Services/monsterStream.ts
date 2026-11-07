@@ -23,7 +23,8 @@ interface AttackResult {
 const TEXTURE_PATH = "tilesets/WA_Monsters.png";
 // WA_Monsters.png holds two 32x32 frames per monster, in this order.
 const FRAME_START: Record<string, number> = { slime: 0, goblin: 2, bat: 4 };
-const ATTACK_DISTANCE = 96;
+/** One map tile — attacks only land from adjacent. */
+export const ATTACK_DISTANCE = 32;
 const ATTACK_COOLDOWN_MS = 500;
 const CORPSE_DELAY_MS = 400;
 

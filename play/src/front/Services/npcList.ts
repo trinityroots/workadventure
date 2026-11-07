@@ -15,6 +15,8 @@ export interface NpcChatMessage {
 
 export interface NpcChatState {
     npc: NpcInfo | null;
+    /** One id per open panel — the server pins the LangSmith trace to it. */
+    sessionId: string | null;
     messages: NpcChatMessage[];
     sending: boolean;
     error: string | null;
@@ -23,6 +25,7 @@ export interface NpcChatState {
 export const npcListStore = writable<NpcInfo[]>([]);
 export const npcChatStore = writable<NpcChatState>({
     npc: null,
+    sessionId: null,
     messages: [],
     sending: false,
     error: null,
@@ -47,11 +50,11 @@ export async function loadNpcList(): Promise<NpcInfo[]> {
 
 export function openNpcChat(npc: NpcInfo): void {
     const messages: NpcChatMessage[] = npc.greeting ? [{ role: "assistant", content: npc.greeting }] : [];
-    npcChatStore.set({ npc, messages, sending: false, error: null });
+    npcChatStore.set({ npc, sessionId: crypto.randomUUID(), messages, sending: false, error: null });
 }
 
 export function closeNpcChat(): void {
-    npcChatStore.set({ npc: null, messages: [], sending: false, error: null });
+    npcChatStore.set({ npc: null, sessionId: null, messages: [], sending: false, error: null });
 }
 
 /** Nearest spawned NPC within `range` pixels of the player, or null. */
@@ -100,6 +103,7 @@ export async function sendNpcMessage(text: string): Promise<void> {
             headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
             body: JSON.stringify({
                 messages: history.map(({ role, content }) => ({ role, content })),
+                sessionId: state.sessionId,
             }),
         });
         if (!response.ok || !response.body) throw new Error(`HTTP ${response.status}`);

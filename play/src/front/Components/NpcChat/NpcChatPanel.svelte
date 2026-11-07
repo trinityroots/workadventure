@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { onMount } from "svelte";
     import { get } from "svelte/store";
     import { LL } from "../../../i18n/i18n-svelte";
     import { playSfx } from "../../Services/gameSfx";
@@ -14,14 +13,22 @@
     let text = $state("");
     let logElement: HTMLDivElement | undefined = $state();
     let inputElement: HTMLInputElement | undefined = $state();
+    let lastDingedNpc: string | null = null;
 
-    onMount(() => playSfx("ding"));
-
-    // The panel lives inside an {#if}, so onMount runs at app start, not when an NPC opens —
-    // focus from an effect keyed on the open NPC, and again shortly after, because the
-    // Phaser canvas can grab focus while the modal mounts.
+    // This component is always mounted (only the dialog is in an {#if}), so onMount would
+    // ding on map entry — ding when an NPC opens instead, and refocus because Phaser can
+    // steal focus while the modal mounts.
     $effect(() => {
-        if (!$npcChatStore.npc || !inputElement) return;
+        const npc = $npcChatStore.npc;
+        if (!npc) {
+            lastDingedNpc = null;
+            return;
+        }
+        if (lastDingedNpc !== npc.id) {
+            lastDingedNpc = npc.id;
+            playSfx("ding");
+        }
+        if (!inputElement) return;
         const el = inputElement;
         const raf = requestAnimationFrame(() => el.focus({ preventScroll: true }));
         const timer = window.setTimeout(() => el.focus({ preventScroll: true }), 150);
@@ -45,7 +52,7 @@
         if (get(inputFormFocusStore)) return;
         const target = event.target as HTMLElement | null;
         if (target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable)) return;
-        const npc = nearestNpc(120);
+        const npc = nearestNpc(32);
         if (npc) {
             closeLeaderboard();
             closeInventory();
@@ -58,7 +65,7 @@
             }
             return;
         }
-        const board = nearestBoard(120);
+        const board = nearestBoard(32);
         if (board) {
             closeNpcChat();
             closeShop();

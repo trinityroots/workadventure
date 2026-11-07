@@ -295,15 +295,21 @@
                     </div>
                 </div>
 
-                <!-- Middle: selection + station + action -->
+                <!-- Middle: static preview box + station + action -->
                 <div class="flex w-[28%] flex-col items-center gap-2">
-                    <div class="flex h-14 w-14 items-center justify-center">
+                    <div
+                        class="flex h-20 w-24 items-center justify-center rounded border-2 border-white/20 bg-black/40 shadow-[inset_0_0_0_1px_rgba(0,0,0,.5)]"
+                        data-testid="shop-preview"
+                        aria-label="Item preview"
+                    >
                         {#if selectedSlot}
                             <img
                                 src={iconUrl(itemDef(selectedSlot.id).icon)}
-                                alt=""
-                                class="h-12 w-12 [image-rendering:pixelated]"
+                                alt={selectedSlot.name}
+                                class="h-14 w-14 [image-rendering:pixelated]"
                             />
+                        {:else}
+                            <span class="font-mono text-[9px] uppercase tracking-widest text-white/35">—</span>
                         {/if}
                     </div>
                     {#if action}

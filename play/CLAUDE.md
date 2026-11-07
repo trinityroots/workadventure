@@ -103,8 +103,8 @@ Do not edit generated `src/i18n/i18n-*.ts` files directly.
   RpgDialog and FloatingWindow each bind their own `svelte:window` keydown handler.
 - Shop NPCs open `NpcChat/ShopPanel.svelte` as a wide `GameWindow/FloatingWindow` laid out
   like a craft station (`Services/shop.ts` store): left parchment slot grid of pixel icons
-  (`Inventory/items.ts` `iconUrl`), middle pane with the per-shop station glyph + the
-  primary action (BUY/SELL/REROLL/USE, green CREATE-style button), right DESCRIPTION
+  (`Inventory/items.ts` `iconUrl`), a static preview box in the middle that fills with the
+  selected item's art, the per-shop station glyph + the primary action (BUY/SELL/REROLL/USE, green CREATE-style button), right DESCRIPTION
   parchment with stats as `◆` lines — Bram/Nell catalogs, Rilla sell-back, Moss reroll
   shows `◆ +roll` / `◆ max +rollMax`, Sable market stock with a closing countdown (its
   entity only exists while `/api/game/market/status` says open, re-checked every 30s).
@@ -123,7 +123,8 @@ Do not edit generated `src/i18n/i18n-*.ts` files directly.
   rendered by MainLayout directly and always visible — it has no close control, so there is
   no open/closed store and no action-bar entry. Collapsed it shows only the header bar
   (title + expand control); expanded it lists every quest as compact rows
-  (224px wide, 10px type, hairline progress bars)
+  (200px wide, 9px type, hairline progress bars; **Q** toggles; a 45s poll auto-expands
+  when a new assignmentId appears)
   (`Services/quests.ts`, claim). Chrome matches the NPC panels
   (navy frame, mono pop-yellow header) with purple→gold gradient progress bars, gold CLAIM
   buttons and an emerald tint on ready quests; Esc on an expanded tracker collapses it.
