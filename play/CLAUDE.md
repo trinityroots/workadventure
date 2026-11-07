@@ -73,9 +73,9 @@ Do not edit generated `src/i18n/i18n-*.ts` files directly.
   `isInActiveConversationStore` gates it so a running conversation keeps its mic.
 - NPCs come from the game service (`Services/npcList.ts`, `GET /api/game/npc/list`) and spawn
   as native entities with the player-style `UsernameDisplay` badge whose availability dot is
-  replaced by a 16px role icon (`Phaser/Components/npcRoleIcons.ts` — PNGs at
-  `public/resources/icons/npc-<name>.png`, painted with `currentColor` through a CSS mask so
-  each context keeps its theme color). NPCs stand still — only
+  replaced by a 16px role icon (`Phaser/Components/npcRoleIcons.ts` — themed-color PNGs at
+  `public/resources/icons/npc-<name>.png`, rendered as a plain `<img>`; each icon carries its
+  own palette, e.g. gold scroll, green leaf, teal flask). NPCs stand still — only
   monsters play the two-frame idle anim — and `MonsterManager.loadTexture` reserves a unique
   key per URL load (a shared key once made every NPC render the first sprite). Clicking one walks the player
   to an adjacent tile (`GameScene.onNpcClicked`) and opens `NpcChat/NpcChatPanel.svelte` on
@@ -86,8 +86,9 @@ Do not edit generated `src/i18n/i18n-*.ts` files directly.
   The chat panel is a centered modal built on `NpcChat/RpgDialog.svelte` (pixel-JRPG theme:
   navy frame, pop-yellow accents, dimmed backdrop; the player's own lines are parchment
   bubbles) — not a drawer, not a chat-sidebar tab; i18n keys live under `npcChat`. Shop,
-  leaderboard and inventory use `GameWindow/FloatingWindow` instead (right-anchored cards,
-  no backdrop).
+  leaderboard and inventory use `GameWindow/FloatingWindow` instead (centered card over a
+  dimmed backdrop, same frame family as the chat modal). Esc closes every NPC panel —
+  RpgDialog and FloatingWindow each bind their own `svelte:window` keydown handler.
 - Shop NPCs open `NpcChat/ShopPanel.svelte` as a wide `GameWindow/FloatingWindow` laid out
   like a craft station (`Services/shop.ts` store): left parchment slot grid of pixel icons
   (`Inventory/items.ts` `iconUrl`), middle pane with the per-shop station glyph + the
@@ -102,18 +103,17 @@ Do not edit generated `src/i18n/i18n-*.ts` files directly.
   ranking is real. Opens only when the player is in range (X prefers a nearer NPC).
 - `Services/presenceHeartbeat.ts` (started in MainLayout) posts `/api/session/heartbeat` every
   60s and `/api/session/leave` on `pagehide`; core turns that into the presence audit.
-- The game panel (`Components/GamePanel/`) is a standalone fixed tracker on the right edge
-  at `top-24` (the top-16 slot collides with the Tools/Share/user-menu header row),
-  not a chat-sidebar tab: `sidebar.ts` exports `gamePanelOpenStore` (open/closed persists in
-  `localStorage["wa-game-panel-open"]`; `restoreGamePanel()` on MainLayout onMount opens it by
-  default), and MainLayout renders `<GamePanel />` directly. Collapsed it shows active quest
-  progress; expanded it tabs quests + achievements (`Services/quests.ts`, claim) — ornate
-  styling: gold border with corner studs, mono gold headers, purple→gold gradient progress
-  bars, gold CLAIM buttons, emerald tint on ready quests. Leaderboards are not in it —
-  boards are walk-to map objects only. The action bar's Tools menu (MapSubMenuContent)
-  toggles it.
+- The game panel (`Components/GamePanel/`) is a standalone quest tracker pinned to the right
+  edge at `top-24` (the top-16 slot collides with the Tools/Share/user-menu header row),
+  rendered by MainLayout directly and always visible — it has no close control, so there is
+  no open/closed store and no action-bar entry. Collapsed it shows active quest progress;
+  expanded it lists every quest (`Services/quests.ts`, claim). Chrome matches the NPC panels
+  (navy frame, mono pop-yellow header) with purple→gold gradient progress bars, gold CLAIM
+  buttons and an emerald tint on ready quests; Esc on an expanded tracker collapses it.
+  Quest view only — the achievements UI was removed with the tab nav. Leaderboards are not
+  in it — boards are walk-to map objects only.
 - Game feel (`Services/gameSfx.ts`): synthesized WebAudio chiptune effects, no audio files —
-  `playSfx(name)` for open/close blips (RpgDialog, FloatingWindow, GamePanel toggle), a quiet
+  `playSfx(name)` for close blips (RpgDialog, FloatingWindow; opening is silent), a quiet
   global button tick (document capture listener installed in MainLayout with matching
   cleanup), NPC click pop, chat greeting ding, claim fanfare, coin for buy/sell, ding for
   reroll/use, and a thud on monster hits. Combat VFX live in `Phaser/Entity/Monster.ts`

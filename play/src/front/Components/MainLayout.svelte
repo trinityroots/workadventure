@@ -50,7 +50,7 @@
     import { startPresenceHeartbeat, stopPresenceHeartbeat } from "../Services/presenceHeartbeat";
     import { startTradePolling, stopTradePolling } from "../Services/trade";
     import GamePanel from "./GamePanel/GamePanel.svelte";
-    import { restoreGamePanel } from "./GamePanel/sidebar";
+
     import FloatingWindow from "./GameWindow/FloatingWindow.svelte";
     import Inventory from "./Inventory/Inventory.svelte";
     import { closeInventory, inventoryOpenStore } from "./Inventory/sidebar";
@@ -198,7 +198,6 @@
         startCalendarLoader();
         startMicAutoMute();
         startPresenceHeartbeat();
-        restoreGamePanel();
         startTradePolling();
     });
 

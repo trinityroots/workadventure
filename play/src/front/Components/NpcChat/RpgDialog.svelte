@@ -1,10 +1,9 @@
 <script lang="ts">
-    import { onMount, onDestroy } from "svelte";
+    import { onDestroy } from "svelte";
     import type { Snippet } from "svelte";
     import { playSfx } from "../../Services/gameSfx";
     import { npcRoleIconHtml } from "../../Phaser/Components/npcRoleIcons";
 
-    onMount(() => playSfx("open"));
     onDestroy(() => playSfx("close"));
 
     interface Props {
@@ -18,7 +17,13 @@
     }
 
     let { icon, title, subtitle, headerExtra, children, onClose, testid }: Props = $props();
+
+    function onKeyDown(event: KeyboardEvent) {
+        if (event.key === "Escape") onClose();
+    }
 </script>
+
+<svelte:window onkeydown={onKeyDown} />
 
 <div
     class="pointer-events-auto fixed inset-0 z-[300] flex items-center justify-center bg-black/60 p-4"
