@@ -41,7 +41,7 @@ const chat: DeepPartial<Translation["chat"]> = {
         sendMessage: "메시지 보내기",
         openingDirectChat: "여는 중…",
         follow: "위치 찾기",
-        invite: "초대",
+        invite: "Wave",
     },
     accept: "수락",
     decline: "거절",

@@ -1,5 +1,4 @@
 <script lang="ts">
-    import * as Sentry from "@sentry/svelte";
     import { onDestroy, onMount } from "svelte";
     import { computePosition, flip, shift, offset, autoUpdate } from "@floating-ui/dom";
     import type { Readable } from "svelte/store";
@@ -17,7 +16,8 @@
     import { openTradePanel } from "../../../Services/trade";
     import { analyticsClient } from "../../../Administration/AnalyticsClient";
     import type { UserProviderMerger } from "../../UserProviderMerger/UserProviderMerger";
-    import { IconForbid, IconDots, IconCamera, IconMapPin, IconUserPlus } from "@wa-icons";
+    import { playSfx } from "../../../Services/gameSfx";
+    import { IconForbid, IconDots, IconCamera, IconMapPin, IconHandStop } from "@wa-icons";
 
     interface Props {
         user: ChatUser;
@@ -249,19 +249,12 @@
                         if (user.uuid) {
                             const scene = gameManager.getCurrentGameScene();
                             const sent = scene.inviteManager?.requestMeetingInvitation(user.uuid);
-                            if (sent) {
-                                try {
-                                    scene.playSound("meeting-invite", 0.3);
-                                } catch (error) {
-                                    console.error("Failed to play sound: ", error);
-                                    Sentry.captureException(error);
-                                }
-                            }
+                            if (sent) playSfx("wave");
                         }
                         closeChatUserMenu();
                     }}
                 >
-                    <IconUserPlus class="w-4" />
+                    <IconHandStop class="w-4" />
                     {$LL.chat.userList.invite()}
                 </span>
             {:else if user.playUri}
@@ -294,19 +287,12 @@
                         if (user.uuid) {
                             const scene = gameManager.getCurrentGameScene();
                             const sent = scene.inviteManager?.requestMeetingInvitation(user.uuid);
-                            if (sent) {
-                                try {
-                                    scene.playSound("meeting-invite", 0.3);
-                                } catch (error) {
-                                    console.error("Failed to play sound: ", error);
-                                    Sentry.captureException(error);
-                                }
-                            }
+                            if (sent) playSfx("wave");
                         }
                         closeChatUserMenu();
                     }}
                 >
-                    <IconUserPlus class="w-4" />
+                    <IconHandStop class="w-4" />
                     {$LL.chat.userList.invite()}
                 </span>
             {/if}

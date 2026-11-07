@@ -42,7 +42,7 @@ const chat: DeepPartial<Translation["chat"]> = {
         sendMessage: "Powěsć pósłać",
         openingDirectChat: "Wočinja so…",
         follow: "Lokalizować",
-        invite: "Přeprosyć",
+        invite: "Wave",
     },
     accept: "Akceptować",
     decline: "Wotpokazać",

@@ -40,7 +40,7 @@ const chat: DeepPartial<Translation["chat"]> = {
         sendMessage: "傳送訊息",
         openingDirectChat: "正在開啟…",
         follow: "定位",
-        invite: "邀請",
+        invite: "Wave",
     },
     accept: "接受",
     decline: "拒絕",

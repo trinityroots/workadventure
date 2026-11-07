@@ -41,7 +41,7 @@ const chat: BaseTranslation = {
         sendMessage: "Send Message",
         openingDirectChat: "Opening…",
         follow: "Locate",
-        invite: "Invite",
+        invite: "Wave",
     },
     accept: "Accept",
     decline: "Decline",
