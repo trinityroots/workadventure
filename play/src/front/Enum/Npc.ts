@@ -7,6 +7,8 @@ export interface NpcInfo {
     x: number;
     y: number;
     sprite: string;
+    /** Spritesheet direction row; defaults to down. */
+    facing?: "down" | "left" | "right" | "up";
     /** Opening line seeded as the first NPC message when the chat opens; chat NPCs only. */
     greeting?: string;
 }
