@@ -28,10 +28,10 @@
 
 <div
     data-testid="game-panel"
-    class="pointer-events-auto fixed right-3 top-24 z-[250] w-[252px] max-w-[86vw] rounded-md border border-white/15 bg-contrast/95 text-white shadow-[0_0_0_1px_rgba(0,0,0,.45),0_10px_30px_rgba(0,0,0,.5)] backdrop-blur-md"
+    class="pointer-events-auto fixed right-3 top-24 z-[250] w-[224px] max-w-[86vw] rounded-md border border-white/15 bg-contrast/95 text-white shadow-[0_0_0_1px_rgba(0,0,0,.45),0_10px_30px_rgba(0,0,0,.5)] backdrop-blur-md"
 >
     <header
-        class="flex items-center gap-2 bg-black/25 px-3 py-2 {expanded
+        class="flex items-center gap-1.5 bg-black/25 px-2 py-1 {expanded
             ? 'rounded-t-md border-b border-white/10'
             : 'rounded-md'}"
     >
@@ -39,7 +39,7 @@
             <!-- Icon markup comes from the fixed npcRoleIcons table, never from user input. -->
             {@html npcRoleIconHtml("quill")}<!-- eslint-disable-line svelte/no-at-html-tags -->
         </span>
-        <span class="flex-1 truncate font-mono text-xs font-bold uppercase tracking-widest text-pop-yellow"
+        <span class="flex-1 truncate font-mono text-[10px] font-bold uppercase tracking-widest text-pop-yellow"
             >{$LL.gamePanel.title()}</span
         >
         <button
@@ -53,7 +53,7 @@
     </header>
 
     {#if expanded}
-        <div class="max-h-[60vh] overflow-y-auto p-2 no-scroll-bar">
+        <div class="max-h-[50vh] overflow-y-auto p-1.5 no-scroll-bar">
             {#if $questsStore.loading}
                 <p class="px-1 py-2 text-xs italic text-white/50">{$LL.gamePanel.loading()}</p>
             {:else if $questsStore.error}
@@ -63,28 +63,28 @@
             {:else}
                 {#each orderedQuests as quest (quest.assignmentId)}
                     <div
-                        class="mb-1.5 rounded-md border px-2 py-1.5 last:mb-0 {quest.status === 'completed'
+                        class="mb-1 rounded border px-1.5 py-1 leading-tight last:mb-0 {quest.status === 'completed'
                             ? 'border-emerald-400/40 bg-emerald-400/10'
                             : 'border-white/10 bg-white/5'}"
                     >
-                        <div class="flex items-center gap-2">
-                            <span class="flex-1 truncate text-[11px] font-medium">{quest.title}</span>
+                        <div class="flex items-center gap-1.5">
+                            <span class="flex-1 truncate text-[10px] font-medium">{quest.title}</span>
                             {#if quest.status === "completed"}
                                 <button
                                     type="button"
-                                    class="rounded border border-pop-yellow/60 bg-pop-yellow/20 px-1.5 py-0.5 font-mono text-[10px] font-bold text-pop-yellow hover:bg-pop-yellow/35"
+                                    class="rounded border border-pop-yellow/60 bg-pop-yellow/20 px-1 py-0.5 font-mono text-[9px] font-bold text-pop-yellow hover:bg-pop-yellow/35"
                                     onclick={() => claim(claimQuest(quest.assignmentId))}
                                 >
                                     {$LL.gamePanel.claim()}
                                 </button>
                             {:else}
-                                <span class="text-[10px] text-white/60"
+                                <span class="text-[9px] text-white/60"
                                     >{Math.min(quest.progress, quest.count)}/{quest.count}</span
                                 >
                             {/if}
                         </div>
                         {#if quest.status !== "completed"}
-                            <div class="mt-1 h-1 overflow-hidden rounded bg-white/10">
+                            <div class="mt-0.5 h-0.5 overflow-hidden rounded bg-white/10">
                                 <div
                                     class="h-full bg-gradient-to-r from-primary to-pop-yellow"
                                     style="width: {Math.min(100, (quest.progress / Math.max(1, quest.count)) * 100)}%"

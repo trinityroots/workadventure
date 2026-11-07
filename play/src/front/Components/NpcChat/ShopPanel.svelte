@@ -74,7 +74,8 @@
     function itemDetail(item: ShopItem | undefined): string {
         if (!item) return "";
         if (item.kind === "potion") return item.description;
-        return `${$LL.shop.attack()}: ${item.attack ?? 0}`;
+        const bonus = item.rollMax !== undefined ? ` · +0-${item.rollMax}` : "";
+        return `${$LL.shop.attack()}: ${item.attack ?? 0}${bonus}`;
     }
 
     // A successful action bursts the slot, pops the gold chip and plays its effect.

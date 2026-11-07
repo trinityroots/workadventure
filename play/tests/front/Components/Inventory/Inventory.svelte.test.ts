@@ -22,6 +22,10 @@ vi.mock("../../../../src/i18n/i18n-svelte", () => {
                 refresh: () => "Refresh inventory",
             },
         },
+        // Services/shop pulls adminFetch → gameManager → ScreenSharingStore, which
+        // reads this key while the module loads.
+        camera: { my: { nameTag: () => "Me" } },
+        shop: { use: () => "Use" },
     };
     return { default: readable(locale), locale: readable("en-US"), setLocale: () => undefined };
 });

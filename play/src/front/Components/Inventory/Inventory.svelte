@@ -3,7 +3,7 @@
     import { equippedStore, equipItem, inventoryItemsStore, unequipSlot } from "../../Stores/InventoryStore";
     import { loadEquipment, refreshInventory, saveEquipment } from "../../Services/InventoryLoader";
     import { usePotion } from "../../Services/shop";
-    import { EQUIP_SLOTS, iconUrl, itemDef, type EquipSlot } from "./items";
+    import { EQUIP_SLOTS, iconUrl, itemDef, statsText, type EquipSlot } from "./items";
     import { IconRefresh, IconUser } from "@wa-icons";
 
     $effect(() => {
@@ -66,8 +66,8 @@
         {#if wornKey}
             <button
                 type="button"
-                title={itemDef(wornKey).name}
-                aria-label={itemDef(wornKey).name}
+                title={statsText(itemDef(wornKey))}
+                aria-label={statsText(itemDef(wornKey))}
                 data-testid="slot-{slot}"
                 class="flex h-11 w-11 items-center justify-center rounded-md border border-light-blue/60 bg-white/5 hover:border-danger-600/70"
                 onclick={() => onSlotClick(slot)}
@@ -114,7 +114,7 @@
                             type="button"
                             title={itemDef(entry.item).potion
                                 ? `${itemDef(entry.item).name} — ${$LL.shop.use()}`
-                                : itemDef(entry.item).name}
+                                : statsText(itemDef(entry.item))}
                             aria-label="{itemDef(entry.item).name} × {entry.qty}"
                             data-testid="bag-{entry.item}"
                             class="relative aspect-square rounded-sm border border-white/15 bg-contrast/70 transition-colors hover:border-light-blue/70"

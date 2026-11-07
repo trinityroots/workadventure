@@ -15,9 +15,20 @@
     let logElement: HTMLDivElement | undefined = $state();
     let inputElement: HTMLInputElement | undefined = $state();
 
-    onMount(() => {
-        playSfx("ding");
-        queueMicrotask(() => inputElement?.focus());
+    onMount(() => playSfx("ding"));
+
+    // The panel lives inside an {#if}, so onMount runs at app start, not when an NPC opens —
+    // focus from an effect keyed on the open NPC, and again shortly after, because the
+    // Phaser canvas can grab focus while the modal mounts.
+    $effect(() => {
+        if (!$npcChatStore.npc || !inputElement) return;
+        const el = inputElement;
+        const raf = requestAnimationFrame(() => el.focus({ preventScroll: true }));
+        const timer = window.setTimeout(() => el.focus({ preventScroll: true }), 150);
+        return () => {
+            cancelAnimationFrame(raf);
+            window.clearTimeout(timer);
+        };
     });
 
     // Both arguments are reactive reads: the effect re-runs when a message lands or a reply is pending.

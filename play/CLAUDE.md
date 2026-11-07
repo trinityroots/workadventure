@@ -59,6 +59,10 @@ Do not edit generated `src/i18n/i18n-*.ts` files directly.
   The profile menu's Inventory entry (`Components/Inventory/sidebar.ts`) opens a
   `GameWindow/FloatingWindow` instead (`inventoryOpenStore`; `openInventory()` also closes
   the NPC panels so two windows never stack).
+- Item art and stats: `Components/Inventory/items.ts` mirrors the game catalog (ids,
+  slots, `attack`, `rollMax`, `potion`) and its `statsText()` feeds the tooltips; the icons
+  are `public/static/images/items/<id>.png`, one per catalog item, drawn from game-icons.net
+  glyphs (CC BY 3.0) in the same two-tone style as the older `item_*` sprites.
 - The chat drawer's search field is always visible in its header; Cmd/Ctrl+K opens the user list
   and focuses it (`Components/searchShortcut.ts` decides the keystroke, `chatSearchFocusRequest`
   asks the header to take focus). The map script no longer registers its own search button.
@@ -75,7 +79,8 @@ Do not edit generated `src/i18n/i18n-*.ts` files directly.
   as native entities with the player-style `UsernameDisplay` badge whose availability dot is
   replaced by a 16px role icon (`Phaser/Components/npcRoleIcons.ts` — themed-color PNGs at
   `public/resources/icons/npc-<name>.png`, rendered as a plain `<img>`; each icon carries its
-  own palette, e.g. gold scroll, green leaf, teal flask). NPCs stand still — the middle
+  own palette, e.g. gold scroll, green leaf, teal flask). The glyphs are game-icons.net
+  artwork (github.com/game-icons/icons, CC BY 3.0) tinted onto a dark chip, 64×64. NPCs stand still — the middle
   frame of their direction row, never mid-stride; `pose: "sit"` (from the game service)
   selects the sit rows 4-7 that seated cast members' sheets carry — and `MonsterManager.loadTexture` reserves a unique
   key per URL load (a shared key once made every NPC render the first sprite). Badge icons
@@ -88,7 +93,9 @@ Do not edit generated `src/i18n/i18n-*.ts` files directly.
   The chat panel is a centered modal built on `NpcChat/RpgDialog.svelte` (pixel-JRPG theme:
   navy frame, pop-yellow accents, dimmed backdrop; the player's own lines are parchment
   bubbles) — not a drawer, not a chat-sidebar tab; i18n keys live under `npcChat`. The modal
-  is `w-[640px]` capped at `60dvh` with a `360px` floor, focuses its input on open, streams
+  is `w-[640px]` capped at `60dvh` with a `360px` floor, focuses its input on open (an
+  `$effect` keyed on the open NPC plus a 150ms refocus — the panel is inside an `{#if}`, so
+  `onMount` fires at app start, and Phaser can steal focus while it mounts), streams
   deltas live, and renders assistant messages as sanitized markdown (`NpcChat/markdown.ts` —
   marked + DOMPurify; `.npc-md` styles in the panel). Shop,
   leaderboard and inventory use `GameWindow/FloatingWindow` instead (centered card over a
@@ -116,6 +123,7 @@ Do not edit generated `src/i18n/i18n-*.ts` files directly.
   rendered by MainLayout directly and always visible — it has no close control, so there is
   no open/closed store and no action-bar entry. Collapsed it shows only the header bar
   (title + expand control); expanded it lists every quest as compact rows
+  (224px wide, 10px type, hairline progress bars)
   (`Services/quests.ts`, claim). Chrome matches the NPC panels
   (navy frame, mono pop-yellow header) with purple→gold gradient progress bars, gold CLAIM
   buttons and an emerald tint on ready quests; Esc on an expanded tracker collapses it.
