@@ -15,6 +15,8 @@ const USERNAME_FONT_WEIGHT = 500;
 const PLAYER_NAME_BACKGROUND_COLOR = "rgba(27, 42, 65, 0.5)";
 const PLAYER_NAME_BACKGROUND_RADIUS = 8;
 const PLAYER_NAME_PADDING = 4;
+// NPC badges carry a 16px role icon, so the pill grows to fit it.
+const NPC_NAME_HEIGHT = 18;
 
 type Position = { x: number; y: number };
 
@@ -254,7 +256,8 @@ export class UsernameDisplay {
     private applyStyles(): void {
         const domScale = this.getDomScale();
         this.element.style.setProperty("--username-dom-scale", domScale.toString());
-        this.element.style.height = `${PLAYER_NAME_HEIGHT * domScale}px`;
+        const nameHeight = this.roleIconElement ? NPC_NAME_HEIGHT : PLAYER_NAME_HEIGHT;
+        this.element.style.height = `${nameHeight * domScale}px`;
         this.element.style.gap = `${PLAYER_NAME_GAP * domScale}px`;
         this.element.style.padding = `0 ${PLAYER_NAME_PADDING * domScale}px`;
         this.element.style.borderRadius = `${PLAYER_NAME_BACKGROUND_RADIUS * domScale}px`;

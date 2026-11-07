@@ -11,7 +11,7 @@ const PATHS: Record<string, string> = {
 };
 
 /** Inline SVG for the badge role icon (replaces the availability dot on NPCs). */
-export function npcRoleIconSvg(icon: string): string {
+export function npcRoleIconSvg(icon: string, size = 12): string {
     const path = PATHS[icon] ?? PATHS.star;
-    return `<svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor" fill-rule="evenodd" aria-hidden="true"><path d="${path}"/></svg>`;
+    return `<svg viewBox="0 0 16 16" width="${size}" height="${size}" fill="currentColor" fill-rule="evenodd" aria-hidden="true"><path d="${path}"/></svg>`;
 }

@@ -11,7 +11,8 @@ import Graphics = Phaser.GameObjects.Graphics;
 const FRAME_SIZE = 32;
 const MOVE_SPEED = 64;
 const BAR_WIDTH = 28;
-const NPC_BADGE_OFFSET = 22;
+const NPC_BADGE_OFFSET = 26;
+const NPC_BADGE_ICON_SIZE = 16;
 
 /**
  * A monster (or NPC) rendered natively by the game: a spritesheet entity with a
@@ -48,21 +49,23 @@ export class Monster extends Container {
         this.target = { x, y };
         this.npc = npc;
 
-        const idleAnim = `${textureKey}-${frameStart}-idle`;
-        if (!scene.anims.exists(idleAnim)) {
-            scene.anims.create({
-                key: idleAnim,
-                frames: scene.anims.generateFrameNumbers(textureKey, {
-                    start: frameStart,
-                    end: frameStart + 1,
-                }),
-                frameRate: 3,
-                repeat: -1,
-            });
-        }
-
         this.sprite = scene.add.sprite(0, 0, textureKey, frameStart).setOrigin(0.5, 0.5);
-        this.sprite.play(idleAnim);
+        // NPCs and boards stand still: only monsters get the two-frame idle cycle.
+        if (!npc) {
+            const idleAnim = `${textureKey}-${frameStart}-idle`;
+            if (!scene.anims.exists(idleAnim)) {
+                scene.anims.create({
+                    key: idleAnim,
+                    frames: scene.anims.generateFrameNumbers(textureKey, {
+                        start: frameStart,
+                        end: frameStart + 1,
+                    }),
+                    frameRate: 3,
+                    repeat: -1,
+                });
+            }
+            this.sprite.play(idleAnim);
+        }
         this.add(this.sprite);
 
         this.hpBar = scene.add.graphics();
@@ -75,7 +78,7 @@ export class Monster extends Container {
                 y - NPC_BADGE_OFFSET,
                 name,
                 undefined,
-                npcRoleIconSvg(npc.icon),
+                npcRoleIconSvg(npc.icon, NPC_BADGE_ICON_SIZE),
             );
             this.setSize(32, 64);
             this.setInteractive(
@@ -190,6 +193,8 @@ export class Monster extends Container {
 export class MonsterManager {
     private readonly monsters = new Map<string, Monster>();
     private readonly textureKeys = new Map<string, string>();
+    private readonly texturePromises = new Map<string, Promise<string>>();
+    private textureKeySeq = 0;
 
     constructor(private readonly scene: Phaser.Scene) {
         this.scene.events.once("shutdown", () => this.destroy());
@@ -254,16 +259,21 @@ export class MonsterManager {
         if (existing && this.scene.textures.exists(existing)) {
             return Promise.resolve(existing);
         }
+        // Concurrent spawns must share one load per URL; the key is reserved up front so
+        // two different URLs loading in the same millisecond never collide.
+        const pending = this.texturePromises.get(textureUrl);
+        if (pending) return pending;
         if (!this.scene.scene.isActive()) {
             return Promise.resolve("");
         }
 
-        const textureKey = `monster-${this.textureKeys.size}-${Date.now()}`;
-        return new Promise<string>((resolve) => {
+        const textureKey = `monster-${this.textureKeySeq++}`;
+        const promise = new Promise<string>((resolve) => {
             const finish = (key: string) => {
                 this.scene.load.off(Phaser.Loader.Events.COMPLETE, onComplete);
                 this.scene.load.off(Phaser.Loader.Events.FILE_LOAD_ERROR, onError);
                 this.scene.events.removeListener("shutdown", onShutdown);
+                this.texturePromises.delete(textureUrl);
                 resolve(key);
             };
             const fail = () => {
@@ -294,6 +304,8 @@ export class MonsterManager {
                 this.scene.load.start();
             }
         });
+        this.texturePromises.set(textureUrl, promise);
+        return promise;
     }
 
     private destroy(): void {
