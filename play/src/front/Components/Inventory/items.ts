@@ -5,6 +5,8 @@ export interface ItemDef {
     /** Where the item sits on the character; materials have no slot. */
     slot?: EquipSlot;
     icon: string;
+    /** Consumed from the bag with a click instead of worn. */
+    potion?: boolean;
 }
 
 /** The slot chips around the character, left column first. */
@@ -29,8 +31,11 @@ const ITEMS: Record<string, ItemDef> = {
     boots: { name: "Leather boots", slot: "feet", icon: "item_boots" },
     ring: { name: "Copper ring", slot: "ring", icon: "item_ring" },
     gloves: { name: "Leather gloves", slot: "hands", icon: "item_gloves" },
-    potion: { name: "Health potion", icon: "item_potion" },
-    health_potion: { name: "Health potion", icon: "item_potion" },
+    potion: { name: "Health potion", icon: "item_potion", potion: true },
+    health_potion: { name: "Health potion", icon: "item_potion", potion: true },
+    swift_flask: { name: "Swift Flask", icon: "item_potion", potion: true },
+    fortune_tonic: { name: "Fortune Tonic", icon: "item_potion", potion: true },
+    gold_draught: { name: "Gold Draught", icon: "item_potion", potion: true },
     gem: { name: "Blue gem", icon: "item_gem" },
     crystal: { name: "Blue gem", icon: "item_gem" },
     goo: { name: "Slime goo", icon: "item_goo" },

@@ -8,12 +8,17 @@
     import { closeShop, openShop } from "../../Services/shop";
     import { inputFormFocusStore } from "../../Stores/UserInputStore";
     import { closeInventory } from "../Inventory/sidebar";
+    import { renderMarkdown } from "./markdown";
     import RpgDialog from "./RpgDialog.svelte";
 
     let text = $state("");
     let logElement: HTMLDivElement | undefined = $state();
+    let inputElement: HTMLInputElement | undefined = $state();
 
-    onMount(() => playSfx("ding"));
+    onMount(() => {
+        playSfx("ding");
+        queueMicrotask(() => inputElement?.focus());
+    });
 
     // Both arguments are reactive reads: the effect re-runs when a message lands or a reply is pending.
     function scheduleScroll(_messageCount: number, _sending: boolean): void {
@@ -71,17 +76,22 @@
             {#each $npcChatStore.messages as message, index (index)}
                 <div class="flex {message.role === 'user' ? 'justify-end' : 'justify-start'}">
                     <div
-                        class="max-w-[88%] whitespace-pre-wrap rounded-md px-3 py-2 text-sm
+                        class="max-w-[88%] rounded-md px-3 py-2 text-sm
                             {message.role === 'user'
-                            ? 'border border-[#d4c090] bg-[#f3e6c8] text-[#3a2c1a]'
-                            : 'border border-white/15 border-l-2 border-l-pop-yellow bg-black/45 text-white/90'}"
+                            ? 'whitespace-pre-wrap border border-[#d4c090] bg-[#f3e6c8] text-[#3a2c1a]'
+                            : 'npc-md border border-white/15 border-l-2 border-l-pop-yellow bg-black/45 text-white/90'}"
                     >
                         {#if message.role !== "user"}
                             <div class="mb-0.5 font-mono text-[10px] uppercase tracking-widest text-pop-yellow/80">
                                 ▸ {$npcChatStore.npc.name}
                             </div>
                         {/if}
-                        {message.content}
+                        {#if message.role === "user"}
+                            {message.content}
+                        {:else}
+                            <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+                            {@html renderMarkdown(message.content)}
+                        {/if}
                         {#if message.sources?.length}
                             <ul class="mt-1 space-y-0.5 border-t border-white/10 pt-1 text-xs text-white/60">
                                 {#each message.sources as source (source.url)}
@@ -125,6 +135,7 @@
 
         <footer class="flex gap-2 border-t border-white/10 bg-black/25 p-2">
             <input
+                bind:this={inputElement}
                 class="flex-1 rounded-md border border-white/15 bg-black/50 px-2.5 py-1.5 font-mono text-sm text-white outline-none placeholder:text-white/40 focus:border-pop-yellow/60"
                 placeholder={$LL.npcChat.placeholder()}
                 bind:value={text}
@@ -143,3 +154,48 @@
         </footer>
     </RpgDialog>
 {/if}
+
+<style>
+    .npc-md :global(p) {
+        margin: 0 0 0.35rem;
+    }
+    .npc-md :global(p:last-child),
+    .npc-md :global(ul:last-child),
+    .npc-md :global(ol:last-child) {
+        margin-bottom: 0;
+    }
+    .npc-md :global(ul) {
+        margin: 0 0 0.35rem 1.1rem;
+        list-style: disc;
+    }
+    .npc-md :global(ol) {
+        margin: 0 0 0.35rem 1.1rem;
+        list-style: decimal;
+    }
+    .npc-md :global(code) {
+        border-radius: 3px;
+        background: rgb(0 0 0 / 0.45);
+        padding: 0 3px;
+        font-family: var(--font-mono, monospace);
+        font-size: 0.9em;
+    }
+    .npc-md :global(pre) {
+        overflow-x: auto;
+        border-radius: 4px;
+        background: rgb(0 0 0 / 0.5);
+        padding: 6px;
+        margin: 0 0 0.35rem;
+    }
+    .npc-md :global(pre code) {
+        background: none;
+        padding: 0;
+    }
+    .npc-md :global(a) {
+        color: #ffd93d;
+        text-decoration: underline;
+    }
+    .npc-md :global(strong) {
+        font-weight: 700;
+        color: #fff;
+    }
+</style>

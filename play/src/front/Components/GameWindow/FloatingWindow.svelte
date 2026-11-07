@@ -1,7 +1,5 @@
 <script lang="ts">
-    import { onDestroy } from "svelte";
     import type { Snippet } from "svelte";
-    import { playSfx } from "../../Services/gameSfx";
 
     interface Props {
         title: string;
@@ -13,8 +11,6 @@
     }
 
     let { title, headerExtra, children, onClose, testid, widthClass = "w-[360px]" }: Props = $props();
-
-    onDestroy(() => playSfx("close"));
 
     function onKeyDown(event: KeyboardEvent) {
         if (event.key === "Escape") onClose();
@@ -28,12 +24,12 @@
     data-testid={testid}
 >
     <div
-        class="flex max-h-[82vh] {widthClass} max-w-[94vw] flex-col rounded-lg border border-white/15 bg-contrast/95 shadow-[0_0_0_1px_rgba(0,0,0,.45),0_18px_50px_rgba(0,0,0,.55)] backdrop-blur-md"
+        class="flex max-h-[82vh] {widthClass} max-w-[94vw] flex-col rounded-md border border-white/15 bg-contrast/95 shadow-[0_0_0_1px_rgba(0,0,0,.45),0_18px_50px_rgba(0,0,0,.55)] backdrop-blur-md"
         role="dialog"
         aria-modal="true"
         aria-label={title}
     >
-        <header class="flex items-center gap-2 rounded-t-lg border-b border-white/10 bg-contrast-1000 px-3 py-2">
+        <header class="flex items-center gap-2 rounded-t-md border-b border-white/10 bg-contrast-1000 px-3 py-2">
             <span class="min-w-0 flex-1 truncate font-mono text-xs font-bold uppercase tracking-widest text-pop-yellow">
                 {title}
             </span>

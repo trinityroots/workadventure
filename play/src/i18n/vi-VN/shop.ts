@@ -2,6 +2,8 @@ export const shop = {
     gold: "Vàng",
     buy: "Mua",
     sell: "Bán",
+    sellAll: "Bán hết",
+    buyMax: "Mua tối đa",
     use: "Dùng",
     reroll: "Tung lại",
     owned: "Vật phẩm của bạn",

@@ -2,6 +2,7 @@
     import LL from "../../../i18n/i18n-svelte";
     import { equippedStore, equipItem, inventoryItemsStore, unequipSlot } from "../../Stores/InventoryStore";
     import { loadEquipment, refreshInventory, saveEquipment } from "../../Services/InventoryLoader";
+    import { usePotion } from "../../Services/shop";
     import { EQUIP_SLOTS, iconUrl, itemDef, type EquipSlot } from "./items";
     import { IconRefresh, IconUser } from "@wa-icons";
 
@@ -25,6 +26,12 @@
 
     function onBagClick(key: string): void {
         const def = itemDef(key);
+        if (def.potion) {
+            usePotion(key)
+                .then(() => refreshInventory())
+                .catch(() => undefined);
+            return;
+        }
         if (!def.slot) return;
         equipItem(key, def.slot);
         saveEquipment().catch(() => undefined);
@@ -105,7 +112,9 @@
                     {#if entry}
                         <button
                             type="button"
-                            title={itemDef(entry.item).name}
+                            title={itemDef(entry.item).potion
+                                ? `${itemDef(entry.item).name} — ${$LL.shop.use()}`
+                                : itemDef(entry.item).name}
                             aria-label="{itemDef(entry.item).name} × {entry.qty}"
                             data-testid="bag-{entry.item}"
                             class="relative aspect-square rounded-sm border border-white/15 bg-contrast/70 transition-colors hover:border-light-blue/70"

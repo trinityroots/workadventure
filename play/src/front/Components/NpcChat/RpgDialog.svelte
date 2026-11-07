@@ -1,10 +1,6 @@
 <script lang="ts">
-    import { onDestroy } from "svelte";
     import type { Snippet } from "svelte";
-    import { playSfx } from "../../Services/gameSfx";
     import { npcRoleIconHtml } from "../../Phaser/Components/npcRoleIcons";
-
-    onDestroy(() => playSfx("close"));
 
     interface Props {
         icon: string;
@@ -33,7 +29,7 @@
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        class="flex max-h-[86vh] w-[400px] max-w-[94vw] flex-col overflow-hidden rounded-xl border border-white/15 bg-contrast/95 shadow-[0_0_0_1px_rgba(0,0,0,.4),0_18px_50px_rgba(0,0,0,.55)] backdrop-blur-md"
+        class="flex max-h-[60dvh] min-h-[360px] w-[640px] max-w-[94vw] flex-col overflow-hidden rounded-md border border-white/15 bg-contrast/95 shadow-[0_0_0_1px_rgba(0,0,0,.4),0_18px_50px_rgba(0,0,0,.55)] backdrop-blur-md"
     >
         <header class="flex items-center gap-2 border-b border-white/10 bg-black/25 px-3 py-2">
             <span

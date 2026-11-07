@@ -4147,15 +4147,16 @@ ${escapedMessage}
     }
 
     private spawnNpcEntity(npc: NpcInfo): void {
-        // Sprite sheets are 3 frames x 4 direction rows: down, left, right, up.
+        // Sprite sheets are 3 frames x 4 direction rows: down, left, right, up, plus sit rows 4-7.
         const facingRow = { down: 0, left: 1, right: 2, up: 3 }[npc.facing ?? "down"];
+        const row = npc.pose === "sit" ? 4 + facingRow : facingRow;
         this.monsterManager?.handle({
             op: "spawn",
             id: `npc-${npc.id}`,
             x: npc.x,
             y: npc.y,
             textureUrl: npc.sprite,
-            frameStart: facingRow * 3,
+            frameStart: row * 3 + 1,
             name: npc.name,
             hp: 0,
             maxHp: 0,

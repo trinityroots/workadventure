@@ -28,12 +28,12 @@
 
 <div
     data-testid="game-panel"
-    class="pointer-events-auto fixed right-3 top-24 z-[250] w-[252px] max-w-[86vw] rounded-lg border border-white/15 bg-contrast/95 text-white shadow-[0_0_0_1px_rgba(0,0,0,.45),0_10px_30px_rgba(0,0,0,.5)] backdrop-blur-md"
+    class="pointer-events-auto fixed right-3 top-24 z-[250] w-[252px] max-w-[86vw] rounded-md border border-white/15 bg-contrast/95 text-white shadow-[0_0_0_1px_rgba(0,0,0,.45),0_10px_30px_rgba(0,0,0,.5)] backdrop-blur-md"
 >
     <header
-        class="flex items-center gap-2 bg-contrast-1000 px-3 py-2 {expanded
-            ? 'rounded-t-lg border-b border-white/10'
-            : 'rounded-lg'}"
+        class="flex items-center gap-2 bg-black/25 px-3 py-2 {expanded
+            ? 'rounded-t-md border-b border-white/10'
+            : 'rounded-md'}"
     >
         <span class="text-pop-yellow" aria-hidden="true">
             <!-- Icon markup comes from the fixed npcRoleIcons table, never from user input. -->

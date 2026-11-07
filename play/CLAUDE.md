@@ -75,9 +75,11 @@ Do not edit generated `src/i18n/i18n-*.ts` files directly.
   as native entities with the player-style `UsernameDisplay` badge whose availability dot is
   replaced by a 16px role icon (`Phaser/Components/npcRoleIcons.ts` — themed-color PNGs at
   `public/resources/icons/npc-<name>.png`, rendered as a plain `<img>`; each icon carries its
-  own palette, e.g. gold scroll, green leaf, teal flask). NPCs stand still — only
-  monsters play the two-frame idle anim — and `MonsterManager.loadTexture` reserves a unique
-  key per URL load (a shared key once made every NPC render the first sprite). Clicking one walks the player
+  own palette, e.g. gold scroll, green leaf, teal flask). NPCs stand still — the middle
+  frame of their direction row, never mid-stride; `pose: "sit"` (from the game service)
+  selects the sit rows 4-7 that seated cast members' sheets carry — and `MonsterManager.loadTexture` reserves a unique
+  key per URL load (a shared key once made every NPC render the first sprite). Badge icons
+  size with `calc(px * var(--username-dom-scale, 1))` so they track zoom like the status dot. Clicking one walks the player
   to an adjacent tile (`GameScene.onNpcClicked`) and opens `NpcChat/NpcChatPanel.svelte` on
   arrival; **X** opens the nearest NPC within 120px (same focus/input guards as calendar's L). Opening a chat seeds the NPC's `greeting` (from `GET /api/game/npc/list`) as the
   first NPC message, so every conversation starts with what you can ask that NPC about.
@@ -85,7 +87,10 @@ Do not edit generated `src/i18n/i18n-*.ts` files directly.
   class every click falls through to the game canvas — the panel renders but nothing responds, which reads as a freeze.
   The chat panel is a centered modal built on `NpcChat/RpgDialog.svelte` (pixel-JRPG theme:
   navy frame, pop-yellow accents, dimmed backdrop; the player's own lines are parchment
-  bubbles) — not a drawer, not a chat-sidebar tab; i18n keys live under `npcChat`. Shop,
+  bubbles) — not a drawer, not a chat-sidebar tab; i18n keys live under `npcChat`. The modal
+  is `w-[640px]` capped at `60dvh` with a `360px` floor, focuses its input on open, streams
+  deltas live, and renders assistant messages as sanitized markdown (`NpcChat/markdown.ts` —
+  marked + DOMPurify; `.npc-md` styles in the panel). Shop,
   leaderboard and inventory use `GameWindow/FloatingWindow` instead (centered card over a
   dimmed backdrop, same frame family as the chat modal). Esc closes every NPC panel —
   RpgDialog and FloatingWindow each bind their own `svelte:window` keydown handler.
@@ -96,6 +101,9 @@ Do not edit generated `src/i18n/i18n-*.ts` files directly.
   parchment with stats as `◆` lines — Bram/Nell catalogs, Rilla sell-back, Moss reroll
   shows `◆ +roll` / `◆ max +rollMax`, Sable market stock with a closing countdown (its
   entity only exists while `/api/game/market/status` says open, re-checked every 30s).
+  Only Rilla and Moss list the player's own items (sell / reroll); Bram, Nell and Sable are
+  pure catalogs. Potions carry `potion: true` in `Inventory/items.ts` and are consumed by
+  clicking them in the Inventory bag (`usePotion` → `/api/game/potion/use`, then a refresh).
 - Leaderboard boards also arrive as NPC entities with `kind: "board"` (`Services/leaderboard.ts`,
   `GET /api/game/boards`); the sprite is `resources/npcs/board.png`. Click or X opens
   `NpcChat/LeaderboardPanel.svelte` (a `FloatingWindow`): the board never reveals its metric
@@ -114,10 +122,9 @@ Do not edit generated `src/i18n/i18n-*.ts` files directly.
   Quest view only — the achievements UI was removed with the tab nav. Leaderboards are not
   in it — boards are walk-to map objects only.
 - Game feel (`Services/gameSfx.ts`): synthesized WebAudio chiptune effects, no audio files —
-  `playSfx(name)` for close blips (RpgDialog, FloatingWindow; opening is silent), NPC click
-  pop, chat greeting ding, claim fanfare, coin for buy/sell, ding for
-  reroll/use, and a thud on monster hits. There is no global click tick — button presses are
-  silent. Combat VFX live in `Phaser/Entity/Monster.ts`
+  `playSfx(name)` for NPC click pop, chat greeting ding, claim fanfare, coin for buy/sell,
+  ding for reroll/use, a hand-wave blip and a thud on monster hits. There is no global click
+  tick and no open/close blip — panel opens and closes are silent. Combat VFX live in `Phaser/Entity/Monster.ts`
   (floating damage number, white flash, sprite shake, scale-out on remove); shop actions
   burst the slot (`slot-burst`) and pop the gold chip (`gold-pop`) in `ShopPanel.svelte`.
 - Trade (`Components/Trade/TradePanel.svelte`, `Services/trade.ts`) is a right-side drawer fed by

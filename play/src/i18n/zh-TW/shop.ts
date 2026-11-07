@@ -2,6 +2,8 @@ export const shop = {
     gold: "金幣",
     buy: "購買",
     sell: "出售",
+    sellAll: "全部出售",
+    buyMax: "最大購買",
     use: "使用",
     reroll: "重擲",
     owned: "你的物品",

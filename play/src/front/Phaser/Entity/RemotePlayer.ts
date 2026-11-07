@@ -24,7 +24,8 @@ import chat from "../../Components/images/chat.png";
 import { userIsConnected } from "../../Stores/MenuStore";
 import RequiresLoginForChatModal from "../../Chat/Components/RequiresLoginForChatModal.svelte";
 import { analyticsClient } from "../../Administration/AnalyticsClient";
-import { IconCamera, IconUserPlus } from "@wa-icons";
+import { playSfx } from "../../Services/gameSfx";
+import { IconCamera, IconHandStop } from "@wa-icons";
 import { modals } from "@wa-modals";
 
 /**
@@ -276,15 +277,9 @@ export class RemotePlayer extends Character implements ActivatableInterface {
             style: "bg-white/10 hover:bg-white/30",
             callback: () => {
                 const sent = this.scene.inviteManager?.requestMeetingInvitation(this.userUuid, this.userId);
-                if (sent) {
-                    try {
-                        this.scene.playSound("meeting-invite", 0.3);
-                    } catch (error) {
-                        Sentry.captureException(error);
-                    }
-                }
+                if (sent) playSfx("wave");
             },
-            actionIcon: IconUserPlus,
+            actionIcon: IconHandStop,
         });
 
         return actions;

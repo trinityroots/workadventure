@@ -8,6 +8,7 @@
 
     let remaining = $state("");
     let selected = $state<string | null>(null);
+    let qty = $state(1);
     let flashId = $state<string | null>(null);
     let goldPop = $state(false);
 
@@ -25,6 +26,7 @@
         owned: boolean;
         qty: number;
         roll?: number;
+        equipped?: boolean;
         name: string;
         detail: string;
         price?: number;
@@ -58,6 +60,7 @@
         if (npcId !== lastNpcId) {
             lastNpcId = npcId;
             selected = null;
+            qty = 1;
         }
     });
 
@@ -100,6 +103,7 @@
                 price: line.item?.price ?? undefined,
             }));
         }
+        const npcId = $shopStore.npc?.id ?? "";
         const catalog: Slot[] = $shopStore.catalog.map((item) => ({
             id: item.id,
             owned: false,
@@ -108,11 +112,15 @@
             detail: itemDetail(item),
             price: item.price,
         }));
-        const owned: Slot[] = $shopStore.owned.map((entry) => ({
+        // Owned gear only matters where it can be acted on: Rilla sells, Moss rerolls.
+        // Bram, Nell and Sable are pure shops — potions are used from the Inventory.
+        const showOwned = npcId === "rilla" || npcId === "moss";
+        const owned: Slot[] = (showOwned ? $shopStore.owned : []).map((entry) => ({
             id: entry.item,
             owned: true,
             qty: entry.qty,
             roll: entry.roll,
+            equipped: entry.equipped,
             name: lookup(entry.item)?.name ?? entry.item,
             detail: itemDetail(lookup(entry.item)),
         }));
@@ -134,42 +142,71 @@
         const npcId = $shopStore.npc?.id;
         if (!slot || !npcId) return null;
         if (isSable) {
-            const price = slot.price ?? Number.POSITIVE_INFINITY;
+            const price = (slot.price ?? Number.POSITIVE_INFINITY) * qty;
             return {
                 label: $LL.shop.buy(),
                 price,
                 disabled: $shopStore.gold < price,
-                run: () => run(() => buyItem(slot.id, 1), "coin"),
+                run: () => run(() => buyItem(slot.id, qty), "coin"),
             };
         }
         if (!slot.owned) {
-            const price = slot.price ?? Number.POSITIVE_INFINITY;
+            const unit = slot.price ?? Number.POSITIVE_INFINITY;
+            const price = unit * qty;
             return {
                 label: npcId === "rilla" ? $LL.shop.sell() : $LL.shop.buy(),
                 price,
                 disabled: $shopStore.gold < price,
-                run: () => run(() => buyItem(slot.id, 1), "coin"),
+                run: () => run(() => buyItem(slot.id, qty), "coin"),
             };
         }
         if (npcId === "rilla") {
             const item = lookup(slot.id);
+            const credit = Math.floor((item?.price ?? 0) / 2) * qty;
             return {
                 label: $LL.shop.sell(),
-                price: Math.floor((item?.price ?? 0) / 2),
-                disabled: item === undefined,
-                run: () => run(() => sellItem(slot.id, 1), "coin"),
+                price: credit,
+                disabled: slot.equipped === true || item === undefined || qty > slot.qty,
+                run: () => run(() => sellItem(slot.id, qty), "coin"),
             };
         }
         if (npcId === "moss" && lookup(slot.id)?.rollMax) {
             return {
                 label: $LL.shop.reroll(),
                 price: $shopStore.rerollCost,
-                disabled: $shopStore.gold < $shopStore.rerollCost,
+                disabled: slot.equipped === true || $shopStore.gold < $shopStore.rerollCost,
                 run: () => run(() => rerollItem(slot.id), "ding"),
             };
         }
         if (lookup(slot.id)?.kind === "potion") {
             return { label: $LL.shop.use(), disabled: false, run: () => run(() => usePotion(slot.id), "ding") };
+        }
+        return null;
+    });
+
+    // One-click quantities: sell the whole stack at Rilla, spend as much gold as possible elsewhere.
+    const shortcut = $derived.by((): ShopAction | null => {
+        const slot = selectedSlot;
+        const npcId = $shopStore.npc?.id;
+        if (!slot || !npcId || !action) return null;
+        if (npcId === "rilla" && slot.owned && slot.qty > 1) {
+            const item = lookup(slot.id);
+            return {
+                label: $LL.shop.sellAll(),
+                price: Math.floor((item?.price ?? 0) / 2) * slot.qty,
+                disabled: slot.equipped === true,
+                run: () => run(() => sellItem(slot.id, slot.qty), "coin"),
+            };
+        }
+        if (!slot.owned && slot.price !== undefined && slot.price > 0 && npcId !== "rilla") {
+            const max = Math.min(99, Math.floor($shopStore.gold / slot.price));
+            if (max < 1) return null;
+            return {
+                label: $LL.shop.buyMax(),
+                price: slot.price * max,
+                disabled: false,
+                run: () => run(() => buyItem(slot.id, max), "coin"),
+            };
         }
         return null;
     });
@@ -187,7 +224,7 @@
         {/snippet}
 
         {#if $shopStore.error}
-            <div class="mb-2 text-xs text-red-400">{$LL.shop.error()}</div>
+            <div class="mb-2 text-xs text-red-400">{$shopStore.error}</div>
         {/if}
         {#if $shopStore.npc.id === "sable" && !$shopStore.market?.open}
             <div class="text-sm text-white/60">{$LL.shop.closed()}</div>
@@ -202,22 +239,30 @@
                 <!-- Left: item slots -->
                 <div class="w-[40%] rounded-md border-2 border-[#5a4020] bg-[#6b4a2b] p-1.5">
                     <div class="grid grid-cols-3 gap-1.5">
-                        {#each slots as slot (slot.id)}
+                        {#each slots as slot (slot.id + (slot.owned ? "-own" : "-cat"))}
                             <button
                                 type="button"
                                 class="relative aspect-square rounded border-2 {selected === slot.id
                                     ? 'border-pop-yellow bg-[#f3e6c8]'
                                     : 'border-[#b89a5a] bg-[#e8d3ab] hover:border-[#8a6d1f]'}"
                                 class:slot-burst={flashId === slot.id}
-                                title={slot.name}
+                                title={slot.equipped ? `${slot.name} — equipped` : slot.name}
                                 aria-label={slot.name}
-                                onclick={() => (selected = slot.id)}
+                                onclick={() => {
+                                    selected = slot.id;
+                                    qty = 1;
+                                }}
                             >
                                 <img
                                     src={iconUrl(itemDef(slot.id).icon)}
                                     alt=""
                                     class="absolute left-1/2 top-1/2 h-7 w-7 -translate-x-1/2 -translate-y-1/2 [image-rendering:pixelated]"
                                 />
+                                {#if slot.equipped}
+                                    <span class="absolute right-0.5 top-0.5 text-[10px] leading-none" aria-hidden="true"
+                                        >🚫</span
+                                    >
+                                {/if}
                                 {#if slot.roll !== undefined}
                                     <span
                                         class="absolute left-0.5 top-0.5 font-mono text-[9px] font-bold leading-none text-[#8a6d1f] [text-shadow:0_1px_0_#f3e6c8]"
@@ -261,6 +306,16 @@
                         {/if}
                     </div>
                     {#if action}
+                        {#if selectedSlot && ($shopStore.npc?.id === "rilla" || !selectedSlot.owned)}
+                            <input
+                                type="number"
+                                min="1"
+                                max={selectedSlot.owned ? selectedSlot.qty : 99}
+                                bind:value={qty}
+                                aria-label="Quantity"
+                                class="w-16 rounded border border-[#b89a5a] bg-[#f3e6c8] px-1 py-0.5 text-center font-mono text-xs text-[#3a2c1a]"
+                            />
+                        {/if}
                         <button
                             type="button"
                             class="w-full rounded border-2 border-[#2c5a28] bg-[#3f7d3a] px-2 py-1.5 font-mono text-xs font-bold text-white shadow hover:brightness-110 disabled:opacity-40"
@@ -272,6 +327,19 @@
                                 ✦ {action.price}
                             {/if}
                         </button>
+                        {#if shortcut}
+                            <button
+                                type="button"
+                                class="w-full rounded border-2 border-[#8a6d1f] bg-[#c9a24b] px-2 py-1 font-mono text-xs font-bold text-[#3a2c1a] shadow hover:brightness-110 disabled:opacity-40"
+                                disabled={shortcut.disabled}
+                                onclick={shortcut.run}
+                            >
+                                {shortcut.label}
+                                {#if shortcut.price !== undefined && Number.isFinite(shortcut.price)}
+                                    ✦ {shortcut.price}
+                                {/if}
+                            </button>
+                        {/if}
                     {/if}
                     <div class="select-none text-center text-4xl leading-none" aria-hidden="true">
                         {stations[$shopStore.npc.id] ?? "⚒"}

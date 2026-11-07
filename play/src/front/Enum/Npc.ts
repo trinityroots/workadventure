@@ -9,6 +9,8 @@ export interface NpcInfo {
     sprite: string;
     /** Spritesheet direction row; defaults to down. */
     facing?: "down" | "left" | "right" | "up";
+    /** Sit rows of the sheet instead of the standing rows; defaults to stand. */
+    pose?: "stand" | "sit";
     /** Opening line seeded as the first NPC message when the chat opens; chat NPCs only. */
     greeting?: string;
 }

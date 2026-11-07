@@ -2,6 +2,8 @@ export const shop = {
     gold: "ทอง",
     buy: "ซื้อ",
     sell: "ขาย",
+    sellAll: "ขายทั้งหมด",
+    buyMax: "ซื้อสูงสุด",
     use: "ใช้",
     reroll: "สุ่มใหม่",
     owned: "ไอเทมของคุณ",

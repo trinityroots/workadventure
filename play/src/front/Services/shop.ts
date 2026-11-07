@@ -21,6 +21,8 @@ export interface OwnedItem {
     item: string;
     qty: number;
     roll?: number;
+    /** Currently worn; the shop refuses to sell or reroll it until unequipped. */
+    equipped?: boolean;
 }
 
 export interface MarketStatus {

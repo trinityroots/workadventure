@@ -2,6 +2,8 @@ export const shop = {
     gold: "Zlato",
     buy: "kupić",
     sell: "předać",
+    sellAll: "Wšitko prodać",
+    buyMax: "Najwjele kupić",
     use: "wužić",
     reroll: "znowu",
     owned: "Twoje wěcy",

@@ -1,4 +1,4 @@
-export type SfxName = "open" | "close" | "click" | "fanfare" | "npcPop" | "ding" | "hit" | "coin" | "wave";
+export type SfxName = "click" | "fanfare" | "npcPop" | "ding" | "hit" | "coin" | "wave";
 
 interface Tone {
     freq: number;
@@ -39,8 +39,6 @@ function tone(c: AudioContext, spec: Tone): void {
 }
 
 const SOUNDS: Record<SfxName, Tone[]> = {
-    open: [{ freq: 520, glideTo: 880, dur: 0.11 }],
-    close: [{ freq: 880, glideTo: 440, dur: 0.09, vol: 0.1 }],
     click: [{ freq: 1100, dur: 0.04, vol: 0.06 }],
     npcPop: [{ freq: 700, glideTo: 320, dur: 0.09, type: "sine", vol: 0.14 }],
     ding: [{ freq: 988, dur: 0.22, type: "sine", vol: 0.12 }],

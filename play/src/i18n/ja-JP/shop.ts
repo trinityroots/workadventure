@@ -2,6 +2,8 @@ export const shop = {
     gold: "ゴールド",
     buy: "購入",
     sell: "売却",
+    sellAll: "全部売却",
+    buyMax: "最大購入",
     use: "使用",
     reroll: "振り直し",
     owned: "手持ちのアイテム",

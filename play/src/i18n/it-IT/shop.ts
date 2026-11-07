@@ -2,6 +2,8 @@ export const shop = {
     gold: "Oro",
     buy: "Compra",
     sell: "Vendi",
+    sellAll: "Vendi tutto",
+    buyMax: "Compra max",
     use: "Usa",
     reroll: "Ritira",
     owned: "I tuoi oggetti",
