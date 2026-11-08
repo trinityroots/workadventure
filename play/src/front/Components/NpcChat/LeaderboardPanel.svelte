@@ -1,6 +1,5 @@
 <script lang="ts">
     import { closeLeaderboard, leaderboardStore } from "../../Services/leaderboard";
-    import { sanitizeHTML } from "../../Chat/Components/Room/Message/WA-HTML-Sanitizer";
     import FloatingWindow from "../GameWindow/FloatingWindow.svelte";
 
     // The board never shows its rule or exact scores — each metric gets a cryptic line instead.
@@ -85,10 +84,18 @@
                     {/each}
                 </div>
             {/if}
-        {:else}
-            <div class="npc-md text-sm text-white/90">
-                {@html sanitizeHTML(activeTab.html)}<!-- eslint-disable-line svelte/no-at-html-tags -->
+        {:else if activeTab.html?.trim()}
+            <!-- Sandboxed so the admin's own <style> runs in isolation instead of leaking into the panel. -->
+            <div class="h-[50vh] w-full">
+                <iframe
+                    class="block h-full w-full border-0 bg-white"
+                    title={activeTab.title}
+                    sandbox="allow-popups"
+                    srcdoc={activeTab.html}
+                ></iframe>
             </div>
+        {:else}
+            <div class="text-xs text-white/50">Nothing posted yet.</div>
         {/if}
     </FloatingWindow>
 {/if}
