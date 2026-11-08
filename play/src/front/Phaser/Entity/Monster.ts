@@ -74,9 +74,9 @@ export class Monster extends Container {
         this.add(this.hpBar);
 
         if (npc) {
-            // Boards carry no name badge and use their own large frame size.
+            // Boards carry no name badge and are drawn at 0.75 so they read as map furniture.
             if (npc.kind === "board") {
-                this.sprite.setOrigin(0.5, 1);
+                this.sprite.setOrigin(0.5, 1).setScale(0.75);
             } else if (name) {
                 this.usernameDisplay = new UsernameDisplay(
                     scene as unknown as GameScene,
@@ -90,7 +90,7 @@ export class Monster extends Container {
             this.setSize(32, 64);
             this.setInteractive(
                 npc.kind === "board"
-                    ? new Phaser.Geom.Rectangle(-48, -78, 96, 78)
+                    ? new Phaser.Geom.Rectangle(-36, -60, 72, 60)
                     : new Phaser.Geom.Rectangle(-16, -48, 32, 64),
                 Phaser.Geom.Rectangle.Contains, // eslint-disable-line @typescript-eslint/unbound-method
             );
