@@ -125,16 +125,21 @@ Do not edit generated `src/i18n/i18n-*.ts` files directly.
   `GET /api/game/boards`); the sprite is `resources/npcs/board.png`. Click or X opens
   `NpcChat/LeaderboardPanel.svelte` (a `FloatingWindow`): the board never reveals its metric
   or scores — the header shows a per-metric riddle and every score renders `??`, only the
-  ranking is real. Opens only when the player is in range (X prefers a nearer NPC).
+  ranking is real. The panel is tabbed: `BoardInfo.tabs` comes from the game service sorted by
+  admin `sortOrder`, a `leaderboard` tab shows the riddle + ranking, an `html` tab shows the
+  admin-authored content (sanitized, `.npc-md`), and the window title follows the active tab.
+  Opens only when the player is in range (X prefers a nearer NPC).
 - `Services/presenceHeartbeat.ts` (started in MainLayout) posts `/api/session/heartbeat` every
   60s and `/api/session/leave` on `pagehide`; core turns that into the presence audit.
 - The game panel (`Components/GamePanel/`) is a standalone quest tracker pinned to the right
   edge at `top-24` (the top-16 slot collides with the Tools/Share/user-menu header row),
   rendered by MainLayout directly and always visible — it has no close control, so there is
   no open/closed store and no action-bar entry. Collapsed it shows only the header bar
-  (title + expand control); expanded it lists every quest as compact rows
-  (200px wide, 13px titles, hairline progress bars, `p-0.5`/`px-1.5 py-0.5` with `mt-px`
-  sub-row spacing; **Q** toggles;
+  (title + expand control); the header is one full-width button, so a click anywhere on it
+  toggles, and the cards are separated by dividers rather than a border box per row.
+  Expanded it lists every quest as compact rows
+  (200px wide, 13px titles, hairline progress bars, `p-0.5`/`px-1.5 py-0.5`; the progress
+  bar sits flush (`mt-0`) under the reward line, other sub-rows use `mt-px`; **Q** toggles;
   a 45s poll auto-expands
   when a new assignmentId appears)
   (`Services/quests.ts`, claim). The shell is translucent like the top bar

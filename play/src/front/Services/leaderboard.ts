@@ -3,6 +3,17 @@ import { gameManager } from "../Phaser/Game/GameManager";
 import { CORE_URL } from "../Enum/EnvironmentVariable";
 import { sessionToken } from "./adminFetch";
 
+/** Admin-authored board content; the leaderboard scoreboard is one of these (type "leaderboard"). */
+export interface BoardTabInfo {
+    id: string;
+    title: string;
+    type: "html" | "leaderboard";
+    html: string;
+    startsAt: string | null;
+    endsAt: string | null;
+    sortOrder: number;
+}
+
 export interface BoardInfo {
     id: string;
     key: string;
@@ -12,6 +23,7 @@ export interface BoardInfo {
     x: number;
     y: number;
     active: boolean;
+    tabs: BoardTabInfo[];
 }
 
 export interface LeaderboardRow {

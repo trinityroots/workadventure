@@ -79,10 +79,15 @@
     data-testid="game-panel"
     class="pointer-events-auto fixed right-3 top-24 z-[250] w-[248px] max-w-[86vw] rounded-md border border-white/15 bg-contrast/80 text-white shadow-[0_0_0_1px_rgba(0,0,0,.45),0_10px_30px_rgba(0,0,0,.5)] backdrop-blur"
 >
-    <header
-        class="flex items-center gap-1.5 bg-black/25 px-2 py-1 {expanded
+    <button
+        type="button"
+        class="flex w-full cursor-pointer items-center gap-1.5 bg-black/25 px-2 py-1 text-left {expanded
             ? 'rounded-t-md border-b border-white/10'
             : 'rounded-md'}"
+        aria-expanded={expanded}
+        aria-label={$LL.gamePanel.title()}
+        title="Q"
+        onclick={() => (expanded = !expanded)}
     >
         <span class="flex items-center" aria-hidden="true">
             <!-- Icon markup comes from the fixed npcRoleIcons table, never from user input. -->
@@ -91,19 +96,11 @@
         <span class="min-w-0 flex-1 truncate font-mono text-sm font-bold uppercase tracking-wider text-pop-yellow"
             >{$LL.gamePanel.title()}</span
         >
-        <button
-            type="button"
-            class="rounded p-0.5 text-sm text-white/60 hover:bg-white/10 hover:text-white"
-            aria-label={$LL.gamePanel.title()}
-            title="Q"
-            onclick={() => (expanded = !expanded)}
-        >
-            {expanded ? "⤡" : "⤢"}
-        </button>
-    </header>
+        <span class="rounded p-0.5 text-sm text-white/60" aria-hidden="true">{expanded ? "⤡" : "⤢"}</span>
+    </button>
 
     {#if expanded}
-        <div class="max-h-[45vh] space-y-px overflow-y-auto p-0.5 no-scroll-bar">
+        <div class="max-h-[45vh] divide-y divide-white/10 overflow-y-auto p-0.5 no-scroll-bar">
             {#if $questsStore.loading}
                 <p class="px-1 py-1.5 text-sm italic text-white/50">{$LL.gamePanel.loading()}</p>
             {:else if $questsStore.error}
@@ -114,11 +111,7 @@
                 {#each orderedQuests as quest (quest.assignmentId)}
                     {@const pct = Math.min(100, (quest.progress / Math.max(1, quest.count)) * 100)}
                     {@const done = quest.status === "completed"}
-                    <div
-                        class="rounded border px-1.5 py-0.5 {done
-                            ? 'border-emerald-400/50 bg-emerald-400/10 shadow-[0_0_10px_rgba(52,211,153,.15)]'
-                            : 'border-white/10 bg-white/5'}"
-                    >
+                    <div class="px-1.5 py-1 {done ? 'bg-emerald-400/10 shadow-[0_0_10px_rgba(52,211,153,.15)]' : ''}">
                         <div class="flex items-start gap-1.5">
                             {#if TYPE_ICON[quest.type]}
                                 <img
@@ -147,7 +140,7 @@
                             <p class="mt-px pl-4 text-[11px] text-pop-yellow/80">{rewardLine(quest)}</p>
                         {/if}
                         {#if !done}
-                            <div class="mt-px flex items-center gap-1.5 pl-4">
+                            <div class="mt-0 flex items-center gap-1.5 pl-4">
                                 <div class="h-1 flex-1 overflow-hidden rounded-full bg-white/10">
                                     <div
                                         class="h-full rounded-full bg-gradient-to-r from-primary to-pop-yellow transition-all"
