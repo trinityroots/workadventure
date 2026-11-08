@@ -76,7 +76,7 @@ export class Monster extends Container {
         if (npc) {
             // Boards carry no name badge and use their own large frame size.
             if (npc.kind === "board") {
-                this.sprite.setOrigin(0.5, 0.75);
+                this.sprite.setOrigin(0.5, 1);
             } else if (name) {
                 this.usernameDisplay = new UsernameDisplay(
                     scene as unknown as GameScene,
@@ -90,7 +90,7 @@ export class Monster extends Container {
             this.setSize(32, 64);
             this.setInteractive(
                 npc.kind === "board"
-                    ? new Phaser.Geom.Rectangle(-48, -50, 96, 66)
+                    ? new Phaser.Geom.Rectangle(-48, -78, 96, 78)
                     : new Phaser.Geom.Rectangle(-16, -48, 32, 64),
                 Phaser.Geom.Rectangle.Contains, // eslint-disable-line @typescript-eslint/unbound-method
             );
@@ -320,11 +320,11 @@ export class MonsterManager {
             };
             const onShutdown = () => finish("");
 
-            // The board art is one large 96x64 frame; every other sheet is 32x32.
+            // The board art is one large 96x80 frame; every other sheet is 32x32.
             const boardFrame = textureUrl.includes("board.png");
             this.scene.load.spritesheet(textureKey, textureUrl, {
                 frameWidth: boardFrame ? 96 : FRAME_SIZE,
-                frameHeight: boardFrame ? 64 : FRAME_SIZE,
+                frameHeight: boardFrame ? 80 : FRAME_SIZE,
             });
             this.scene.load.on(Phaser.Loader.Events.COMPLETE, onComplete);
             this.scene.load.on(Phaser.Loader.Events.FILE_LOAD_ERROR, onError);
