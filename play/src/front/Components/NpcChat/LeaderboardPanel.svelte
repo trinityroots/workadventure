@@ -30,7 +30,14 @@
 </script>
 
 {#if $leaderboardStore.open && config}
-    <FloatingWindow title={config.title} widthClass="w-[1024px]" onClose={closeLeaderboard} testid="leaderboard-panel">
+    <FloatingWindow
+        title={config.title}
+        titleIcon="star"
+        widthClass="w-[1024px]"
+        heightClass="h-[60vh]"
+        onClose={closeLeaderboard}
+        testid="leaderboard-panel"
+    >
         {#if tabs.length > 0}
             <div class="mb-2 flex flex-wrap gap-1 border-b border-white/10 pb-2">
                 {#each tabs as tab (tab.id)}

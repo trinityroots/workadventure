@@ -1,8 +1,11 @@
 <script lang="ts">
     import type { Snippet } from "svelte";
+    import { npcRoleIconHtml } from "../../Phaser/Components/npcRoleIcons";
 
     interface Props {
         title: string;
+        /** Role icon rendered before the title, same as the chat dialog header. */
+        titleIcon?: string;
         headerExtra?: Snippet;
         children: Snippet;
         onClose: () => void;
@@ -12,7 +15,16 @@
         heightClass?: string;
     }
 
-    let { title, headerExtra, children, onClose, testid, widthClass = "w-[360px]", heightClass = "" }: Props = $props();
+    let {
+        title,
+        titleIcon,
+        headerExtra,
+        children,
+        onClose,
+        testid,
+        widthClass = "w-[360px]",
+        heightClass = "",
+    }: Props = $props();
 
     function onKeyDown(event: KeyboardEvent) {
         if (event.key === "Escape") onClose();
@@ -32,6 +44,9 @@
         aria-label={title}
     >
         <header class="flex items-center gap-2 rounded-t-md border-b border-white/10 bg-contrast-1000 px-3 py-2">
+            {#if titleIcon}
+                {@html npcRoleIconHtml(titleIcon, 16)}<!-- eslint-disable-line svelte/no-at-html-tags -->
+            {/if}
             <span class="min-w-0 flex-1 truncate font-mono text-xs font-bold uppercase tracking-widest text-pop-yellow">
                 {title}
             </span>

@@ -4122,7 +4122,7 @@ ${escapedMessage}
                 kind: "board",
                 x: board.x,
                 y: board.y,
-                sprite: "resources/npcs/board.png?v=2",
+                sprite: "resources/npcs/board.png?v=3",
             });
         }
     }
@@ -4148,6 +4148,7 @@ ${escapedMessage}
 
     private spawnNpcEntity(npc: NpcInfo): void {
         // Sprite sheets are 3 frames x 4 direction rows: down, left, right, up, plus sit rows 4-7.
+        // The board is a single 96x64 frame instead.
         const facingRow = { down: 0, left: 1, right: 2, up: 3 }[npc.facing ?? "down"];
         const row = npc.pose === "sit" ? 4 + facingRow : facingRow;
         this.monsterManager?.handle({
@@ -4156,7 +4157,7 @@ ${escapedMessage}
             x: npc.x,
             y: npc.y,
             textureUrl: npc.sprite,
-            frameStart: row * 3 + 1,
+            frameStart: npc.kind === "board" ? 0 : row * 3 + 1,
             name: npc.name,
             hp: 0,
             maxHp: 0,

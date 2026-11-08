@@ -122,10 +122,12 @@ Do not edit generated `src/i18n/i18n-*.ts` files directly.
   pure catalogs. Potions carry `potion: true` in `Inventory/items.ts` and are consumed by
   clicking them in the Inventory bag (`usePotion` → `/api/game/potion/use`, then a refresh).
 - Leaderboard boards also arrive as NPC entities with `kind: "board"` (`Services/leaderboard.ts`,
-  `GET /api/game/boards`); the sprite is `resources/npcs/board.png?v=2` — a large wooden
-  notice board rendered double-size (`Monster.ts` scales board sprites 2×, no name badge,
-  but the click target stays). Click or X opens
-  `NpcChat/LeaderboardPanel.svelte` (a `FloatingWindow` at `w-[1024px]`, header = the
+  `GET /api/game/boards`); the sprite is `resources/npcs/board.png?v=3` — a cork notice board
+  (OpenGameArt "bulletin board and items" by bleutailfly, **OGA-BY 3.0**, attribution kept
+  here) loaded as a single 96×64 frame (`Monster.ts` overrides the spritesheet frame size for
+  `board.png`, spawn uses frame 0); no name badge, but the click target stays (96×66 hit area).
+  Click or X opens `NpcChat/LeaderboardPanel.svelte` (a `FloatingWindow` at `w-[1024px]`
+  `h-[60vh]` so the body scrolls inside, star `titleIcon` in the header, header text = the
   board's admin title, currently "Roots Board"): the board never reveals its metric
   or scores — the header shows a per-metric riddle and every score renders `??`, only the
   ranking is real. The panel is tabbed: `BoardInfo.tabs` comes from the game service sorted by
@@ -143,12 +145,12 @@ Do not edit generated `src/i18n/i18n-*.ts` files directly.
   Expanded it lists every quest as compact rows
   (200px wide, 13px titles, hairline progress bars, `p-0.5`/`px-1.5 py-0.5`; the reward
   line is `mb-0 leading-none` and the progress bar sits flush (`mt-0`) under it, other
-  sub-rows use `mt-px`; **Q** toggles;
+  sub-rows use `mt-px`; **J** toggles (Q is WorkAdventure's AZERTY move-left key);
   a 45s poll auto-expands
   when a new assignmentId appears)
   (`Services/quests.ts`, claim). The shell is translucent like the top bar
-  (`bg-contrast/80 backdrop-blur`); the header carries the borderless npc-role `scroll`
-  glyph plus a mono uppercase pop-yellow title, and each row's type marker is pixel art
+  (`bg-contrast/80 backdrop-blur`); the header carries the borderless npc-role `item_bag`
+  glyph (kept distinct from Rowan's `scroll`) plus a mono uppercase pop-yellow title, and each row's type marker is pixel art
   (kill `item_sword`, visit `npc-map`, talk `npc-quill`, collect `item_bag`, timesheet
   `npc-scroll`) rather than an emoji, with purple→gold
   gradient progress bars, gold CLAIM

@@ -1,4 +1,16 @@
-const ICONS = new Set(["scroll", "leaf", "quill", "map", "anvil", "flask", "coin", "rune", "star", "armory"]);
+const ICONS = new Set([
+    "scroll",
+    "leaf",
+    "quill",
+    "map",
+    "anvil",
+    "flask",
+    "coin",
+    "rune",
+    "star",
+    "armory",
+    "item_bag",
+]);
 
 /** Inline HTML for the badge role icon: a chip-free themed glyph at resources/icons. */
 export function npcRoleIconHtml(icon: string, size = 12): string {

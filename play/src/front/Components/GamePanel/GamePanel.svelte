@@ -43,7 +43,8 @@
             expanded = false;
             return;
         }
-        if (event.key !== "q" && event.key !== "Q") return;
+        // J (journal): Q is WorkAdventure's AZERTY move-left key.
+        if (event.key !== "j" && event.key !== "J") return;
         if (event.ctrlKey || event.metaKey || event.altKey) return;
         const target = event.target as HTMLElement | null;
         if (target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable)) {
@@ -86,12 +87,12 @@
             : 'rounded-md'}"
         aria-expanded={expanded}
         aria-label={$LL.gamePanel.title()}
-        title="Q"
+        title="J"
         onclick={() => (expanded = !expanded)}
     >
         <span class="flex items-center" aria-hidden="true">
             <!-- Icon markup comes from the fixed npcRoleIcons table, never from user input. -->
-            {@html npcRoleIconHtml("scroll", 16)}<!-- eslint-disable-line svelte/no-at-html-tags -->
+            {@html npcRoleIconHtml("item_bag", 16)}<!-- eslint-disable-line svelte/no-at-html-tags -->
         </span>
         <span class="min-w-0 flex-1 truncate font-mono text-sm font-bold uppercase tracking-wider text-pop-yellow"
             >{$LL.gamePanel.title()}</span
