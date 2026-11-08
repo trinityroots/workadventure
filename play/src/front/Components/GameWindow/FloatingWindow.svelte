@@ -8,9 +8,11 @@
         onClose: () => void;
         testid: string;
         widthClass?: string;
+        /** Fixed panel height for windows whose panes scroll internally (shop). */
+        heightClass?: string;
     }
 
-    let { title, headerExtra, children, onClose, testid, widthClass = "w-[360px]" }: Props = $props();
+    let { title, headerExtra, children, onClose, testid, widthClass = "w-[360px]", heightClass = "" }: Props = $props();
 
     function onKeyDown(event: KeyboardEvent) {
         if (event.key === "Escape") onClose();
@@ -24,7 +26,7 @@
     data-testid={testid}
 >
     <div
-        class="flex max-h-[82vh] {widthClass} max-w-[94vw] flex-col rounded-md border border-white/15 bg-contrast/95 shadow-[0_0_0_1px_rgba(0,0,0,.45),0_18px_50px_rgba(0,0,0,.55)] backdrop-blur-md"
+        class="flex {heightClass} max-h-[82vh] {widthClass} max-w-[94vw] flex-col rounded-md border border-white/15 bg-contrast/95 shadow-[0_0_0_1px_rgba(0,0,0,.45),0_18px_50px_rgba(0,0,0,.55)] backdrop-blur-md"
         role="dialog"
         aria-modal="true"
         aria-label={title}

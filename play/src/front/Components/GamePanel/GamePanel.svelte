@@ -52,12 +52,13 @@
         expanded = !expanded;
     }
 
+    // Pixel art matching the panel theme, not emoji.
     const TYPE_ICON: Record<string, string> = {
-        kill: "⚔",
-        visit: "🧭",
-        talk: "💬",
-        collect: "🎒",
-        timesheet: "⏳",
+        kill: "/static/images/items/item_sword.png",
+        visit: "resources/icons/npc-map.png",
+        talk: "resources/icons/npc-quill.png",
+        collect: "/static/images/items/item_bag.png",
+        timesheet: "resources/icons/npc-scroll.png",
     };
 
     function rewardLine(quest: QuestView): string | null {
@@ -76,17 +77,14 @@
 
 <div
     data-testid="game-panel"
-    class="pointer-events-auto fixed right-3 top-24 z-[250] w-[248px] max-w-[86vw] rounded-md border border-white/15 bg-contrast/95 text-white shadow-[0_0_0_1px_rgba(0,0,0,.45),0_10px_30px_rgba(0,0,0,.5)] backdrop-blur-md"
+    class="pointer-events-auto fixed right-3 top-24 z-[250] w-[248px] max-w-[86vw] rounded-md border border-white/15 bg-contrast/80 text-white shadow-[0_0_0_1px_rgba(0,0,0,.45),0_10px_30px_rgba(0,0,0,.5)] backdrop-blur"
 >
     <header
-        class="flex items-center gap-2 bg-black/25 px-2 py-1 {expanded
+        class="flex items-center gap-1.5 bg-black/25 px-2 py-1 {expanded
             ? 'rounded-t-md border-b border-white/10'
             : 'rounded-md'}"
     >
-        <span
-            class="flex h-7 w-7 items-center justify-center rounded border border-pop-yellow/50 bg-black/40 text-pop-yellow"
-            aria-hidden="true"
-        >
+        <span class="flex items-center" aria-hidden="true">
             <!-- Icon markup comes from the fixed npcRoleIcons table, never from user input. -->
             {@html npcRoleIconHtml("scroll", 16)}<!-- eslint-disable-line svelte/no-at-html-tags -->
         </span>
@@ -105,7 +103,7 @@
     </header>
 
     {#if expanded}
-        <div class="max-h-[45vh] space-y-1 overflow-y-auto p-1.5 no-scroll-bar">
+        <div class="max-h-[45vh] space-y-0.5 overflow-y-auto p-1 no-scroll-bar">
             {#if $questsStore.loading}
                 <p class="px-1 py-1.5 text-sm italic text-white/50">{$LL.gamePanel.loading()}</p>
             {:else if $questsStore.error}
@@ -117,15 +115,20 @@
                     {@const pct = Math.min(100, (quest.progress / Math.max(1, quest.count)) * 100)}
                     {@const done = quest.status === "completed"}
                     <div
-                        class="rounded border px-2 py-1.5 {done
+                        class="rounded border px-1.5 py-1 {done
                             ? 'border-emerald-400/50 bg-emerald-400/10 shadow-[0_0_10px_rgba(52,211,153,.15)]'
                             : 'border-white/10 bg-white/5'}"
                     >
                         <div class="flex items-start gap-1.5">
-                            <span class="mt-px text-sm leading-none" aria-hidden="true"
-                                >{TYPE_ICON[quest.type] ?? "•"}</span
-                            >
-                            <span class="flex-1 text-sm font-medium leading-snug">{quest.title}</span>
+                            {#if TYPE_ICON[quest.type]}
+                                <img
+                                    src={TYPE_ICON[quest.type]}
+                                    alt=""
+                                    class="mt-px h-3.5 w-3.5 shrink-0 [image-rendering:pixelated]"
+                                    aria-hidden="true"
+                                />
+                            {/if}
+                            <span class="flex-1 text-[13px] font-medium leading-snug">{quest.title}</span>
                             {#if done}
                                 <button
                                     type="button"
@@ -141,20 +144,20 @@
                             {/if}
                         </div>
                         {#if rewardLine(quest)}
-                            <p class="mt-1 pl-5 text-xs text-pop-yellow/80">{rewardLine(quest)}</p>
+                            <p class="mt-0.5 pl-4 text-[11px] text-pop-yellow/80">{rewardLine(quest)}</p>
                         {/if}
                         {#if !done}
-                            <div class="mt-1.5 flex items-center gap-1.5 pl-5">
-                                <div class="h-1.5 flex-1 overflow-hidden rounded-full bg-white/10">
+                            <div class="mt-0.5 flex items-center gap-1.5 pl-4">
+                                <div class="h-1 flex-1 overflow-hidden rounded-full bg-white/10">
                                     <div
                                         class="h-full rounded-full bg-gradient-to-r from-primary to-pop-yellow transition-all"
                                         style="width: {pct}%"
                                     ></div>
                                 </div>
-                                <span class="font-mono text-[11px] text-white/50">{Math.round(pct)}%</span>
+                                <span class="font-mono text-[10px] text-white/50">{Math.round(pct)}%</span>
                             </div>
                         {/if}
-                        <div class="mt-1 flex gap-1 pl-5">
+                        <div class="mt-0.5 flex gap-1 pl-4">
                             <span
                                 class="rounded px-1 py-px text-[10px] uppercase tracking-wide {quest.repeat === 'daily'
                                     ? 'bg-sky-500/20 text-sky-300'
