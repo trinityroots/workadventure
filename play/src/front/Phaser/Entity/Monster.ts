@@ -73,18 +73,25 @@ export class Monster extends Container {
         this.hpBar = scene.add.graphics();
         this.add(this.hpBar);
 
-        if (npc && name) {
-            this.usernameDisplay = new UsernameDisplay(
-                scene as unknown as GameScene,
-                x,
-                y - NPC_BADGE_OFFSET,
-                name,
-                undefined,
-                npcRoleIconHtml(npc.icon, NPC_BADGE_ICON_SIZE),
-            );
+        if (npc) {
+            // Boards carry no name badge, but stay clickable; they render double-size.
+            if (npc.kind === "board") {
+                this.sprite.setOrigin(0.5, 0.75).setScale(2);
+            } else if (name) {
+                this.usernameDisplay = new UsernameDisplay(
+                    scene as unknown as GameScene,
+                    x,
+                    y - NPC_BADGE_OFFSET,
+                    name,
+                    undefined,
+                    npcRoleIconHtml(npc.icon, NPC_BADGE_ICON_SIZE),
+                );
+            }
             this.setSize(32, 64);
             this.setInteractive(
-                new Phaser.Geom.Rectangle(-16, -48, 32, 64),
+                npc.kind === "board"
+                    ? new Phaser.Geom.Rectangle(-32, -48, 64, 64)
+                    : new Phaser.Geom.Rectangle(-16, -48, 32, 64),
                 Phaser.Geom.Rectangle.Contains, // eslint-disable-line @typescript-eslint/unbound-method
             );
             this.on(Phaser.Input.Events.POINTER_DOWN, () => {

@@ -137,7 +137,9 @@
                             {/if}
                         </div>
                         {#if rewardLine(quest)}
-                            <p class="mt-px pl-4 text-[11px] text-pop-yellow/80">{rewardLine(quest)}</p>
+                            <p class="mt-px mb-0 leading-none pl-4 text-[11px] text-pop-yellow/80">
+                                {rewardLine(quest)}
+                            </p>
                         {/if}
                         {#if !done}
                             <div class="mt-0 flex items-center gap-1.5 pl-4">

@@ -122,8 +122,11 @@ Do not edit generated `src/i18n/i18n-*.ts` files directly.
   pure catalogs. Potions carry `potion: true` in `Inventory/items.ts` and are consumed by
   clicking them in the Inventory bag (`usePotion` → `/api/game/potion/use`, then a refresh).
 - Leaderboard boards also arrive as NPC entities with `kind: "board"` (`Services/leaderboard.ts`,
-  `GET /api/game/boards`); the sprite is `resources/npcs/board.png`. Click or X opens
-  `NpcChat/LeaderboardPanel.svelte` (a `FloatingWindow`): the board never reveals its metric
+  `GET /api/game/boards`); the sprite is `resources/npcs/board.png?v=2` — a large wooden
+  notice board rendered double-size (`Monster.ts` scales board sprites 2×, no name badge,
+  but the click target stays). Click or X opens
+  `NpcChat/LeaderboardPanel.svelte` (a `FloatingWindow` at `w-[1024px]`, header = the
+  board's admin title, currently "Roots Board"): the board never reveals its metric
   or scores — the header shows a per-metric riddle and every score renders `??`, only the
   ranking is real. The panel is tabbed: `BoardInfo.tabs` comes from the game service sorted by
   admin `sortOrder`, a `leaderboard` tab shows the riddle + ranking, an `html` tab shows the
@@ -138,8 +141,9 @@ Do not edit generated `src/i18n/i18n-*.ts` files directly.
   (title + expand control); the header is one full-width button, so a click anywhere on it
   toggles, and the cards are separated by dividers rather than a border box per row.
   Expanded it lists every quest as compact rows
-  (200px wide, 13px titles, hairline progress bars, `p-0.5`/`px-1.5 py-0.5`; the progress
-  bar sits flush (`mt-0`) under the reward line, other sub-rows use `mt-px`; **Q** toggles;
+  (200px wide, 13px titles, hairline progress bars, `p-0.5`/`px-1.5 py-0.5`; the reward
+  line is `mb-0 leading-none` and the progress bar sits flush (`mt-0`) under it, other
+  sub-rows use `mt-px`; **Q** toggles;
   a 45s poll auto-expands
   when a new assignmentId appears)
   (`Services/quests.ts`, claim). The shell is translucent like the top bar
