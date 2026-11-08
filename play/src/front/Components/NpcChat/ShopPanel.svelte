@@ -219,7 +219,7 @@
         onClose={closeShop}
         testid="shop-panel"
         widthClass="w-[460px]"
-        heightClass="h-[74vh]"
+        heightClass="h-[52vh]"
     >
         {#snippet headerExtra()}
             <span
@@ -245,7 +245,7 @@
             <div class="flex items-start gap-2">
                 <!-- Left: item slots -->
                 <div class="w-[40%] rounded-md border-2 border-[#5a4020] bg-[#6b4a2b] p-1.5">
-                    <div class="grid max-h-[56vh] grid-cols-3 gap-1.5 overflow-y-auto">
+                    <div class="grid max-h-[38vh] grid-cols-3 gap-1.5 overflow-y-auto">
                         {#each slots as slot (slot.id + (slot.owned ? "-own" : "-cat"))}
                             <button
                                 type="button"

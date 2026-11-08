@@ -103,7 +103,7 @@
     </header>
 
     {#if expanded}
-        <div class="max-h-[45vh] space-y-0.5 overflow-y-auto p-1 no-scroll-bar">
+        <div class="max-h-[45vh] space-y-px overflow-y-auto p-0.5 no-scroll-bar">
             {#if $questsStore.loading}
                 <p class="px-1 py-1.5 text-sm italic text-white/50">{$LL.gamePanel.loading()}</p>
             {:else if $questsStore.error}
@@ -115,7 +115,7 @@
                     {@const pct = Math.min(100, (quest.progress / Math.max(1, quest.count)) * 100)}
                     {@const done = quest.status === "completed"}
                     <div
-                        class="rounded border px-1.5 py-1 {done
+                        class="rounded border px-1.5 py-0.5 {done
                             ? 'border-emerald-400/50 bg-emerald-400/10 shadow-[0_0_10px_rgba(52,211,153,.15)]'
                             : 'border-white/10 bg-white/5'}"
                     >
@@ -144,10 +144,10 @@
                             {/if}
                         </div>
                         {#if rewardLine(quest)}
-                            <p class="mt-0.5 pl-4 text-[11px] text-pop-yellow/80">{rewardLine(quest)}</p>
+                            <p class="mt-px pl-4 text-[11px] text-pop-yellow/80">{rewardLine(quest)}</p>
                         {/if}
                         {#if !done}
-                            <div class="mt-0.5 flex items-center gap-1.5 pl-4">
+                            <div class="mt-px flex items-center gap-1.5 pl-4">
                                 <div class="h-1 flex-1 overflow-hidden rounded-full bg-white/10">
                                     <div
                                         class="h-full rounded-full bg-gradient-to-r from-primary to-pop-yellow transition-all"
@@ -157,7 +157,7 @@
                                 <span class="font-mono text-[10px] text-white/50">{Math.round(pct)}%</span>
                             </div>
                         {/if}
-                        <div class="mt-0.5 flex gap-1 pl-4">
+                        <div class="mt-px flex gap-1 pl-4">
                             <span
                                 class="rounded px-1 py-px text-[10px] uppercase tracking-wide {quest.repeat === 'daily'
                                     ? 'bg-sky-500/20 text-sky-300'

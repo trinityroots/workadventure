@@ -13,7 +13,7 @@ const FRAME_SIZE = 32;
 const MOVE_SPEED = 64;
 const BAR_WIDTH = 28;
 const NPC_BADGE_OFFSET = 26;
-const NPC_BADGE_ICON_SIZE = 16;
+const NPC_BADGE_ICON_SIZE = 13;
 
 /**
  * A monster (or NPC) rendered natively by the game: a spritesheet entity with a
