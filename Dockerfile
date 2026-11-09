@@ -26,7 +26,8 @@ COPY libs/math-utils/package.json libs/math-utils/package.json
 COPY libs/tailwind/package.json libs/tailwind/package.json
 COPY libs/store-utils/package.json libs/store-utils/package.json
 COPY libs/shared-utils/package.json libs/shared-utils/package.json
-RUN npm ci --workspace=workadventure-play --workspace=@workadventure/iframe-api-typings...
+RUN npm ci --workspace=workadventure-play --workspace=@workadventure/iframe-api-typings... \
+ || npm ci --workspace=workadventure-play --workspace=@workadventure/iframe-api-typings...
 COPY libs ./libs
 COPY --from=proto-builder /usr/libs/messages/src ./libs/messages/src
 COPY play ./play
@@ -54,7 +55,7 @@ COPY libs/store-utils/package.json libs/store-utils/package.json
 COPY libs/shared-utils/package.json libs/shared-utils/package.json
 ENV NODE_ENV=production
 ENV UWS_HTTP_MAX_HEADERS_SIZE=16384
-RUN npm ci --omit=dev --workspace workadventure-play
+RUN npm ci --omit=dev --workspace workadventure-play || npm ci --omit=dev --workspace workadventure-play
 COPY --from=builder /usr/src/libs /usr/src/libs
 COPY --from=builder --chown=node:node /usr/src/play /usr/src/play
 RUN chown -R node:node /usr/src/play
