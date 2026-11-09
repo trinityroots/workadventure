@@ -4122,7 +4122,7 @@ ${escapedMessage}
                 kind: "board",
                 x: board.x,
                 y: board.y,
-                sprite: "resources/npcs/board.png?v=4",
+                sprite: "resources/npcs/board.png?v=5",
             });
         }
     }
