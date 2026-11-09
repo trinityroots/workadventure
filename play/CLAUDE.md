@@ -132,7 +132,9 @@ Do not edit generated `src/i18n/i18n-*.ts` files directly.
   at 72×60 on screen, spawn uses frame 0); no name badge, but the click target stays (a 72×60
   hit area covering the panel and the legs).
   Click or X opens `NpcChat/LeaderboardPanel.svelte` (a `FloatingWindow` at `w-[1024px]`
-  `h-[60vh]` so the body scrolls inside, star `titleIcon` in the header, header text = the
+  `h-[75vh]`; its body is one `flex h-full flex-col` column so the tab strip stays fixed and
+  the active pane takes `flex-1` — the leaderboard list scrolls, the html iframe fills the
+  rest), star `titleIcon` in the header, header text = the
   board's admin title, currently "Roots Board"): the board never reveals its metric
   or scores — the header shows a per-metric riddle and every score renders `??`, only the
   ranking is real. The panel is tabbed: `BoardInfo.tabs` comes from the game service sorted by

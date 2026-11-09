@@ -33,69 +33,73 @@
         title={config.title}
         titleIcon="star"
         widthClass="w-[1024px]"
-        heightClass="h-[60vh]"
+        heightClass="h-[75vh]"
         onClose={closeLeaderboard}
         testid="leaderboard-panel"
     >
-        {#if tabs.length > 0}
-            <div class="mb-2 flex flex-wrap gap-1 border-b border-white/10 pb-2">
-                {#each tabs as tab (tab.id)}
-                    <button
-                        type="button"
-                        class="rounded border px-2 py-1 font-mono text-xs uppercase tracking-wide {activeTab?.id ===
-                        tab.id
-                            ? 'border-pop-yellow/40 bg-pop-yellow/20 text-pop-yellow'
-                            : 'border-white/10 text-white/60 hover:bg-white/5 hover:text-white'}"
-                        onclick={() => (activeTabId = tab.id)}
-                    >
-                        {tab.title}
-                    </button>
-                {/each}
-            </div>
-        {/if}
-
-        {#if !activeTab || activeTab.type === "leaderboard"}
-            <p class="mb-2 font-mono text-xs italic text-white/55">“{riddle()}”</p>
-
-            {#if $leaderboardStore.loading}
-                <div class="font-mono text-xs italic text-pop-yellow/80">Loading…</div>
-            {:else if $leaderboardStore.error}
-                <div class="text-xs text-red-400">Could not load the board.</div>
-            {:else if $leaderboardStore.entries.length === 0}
-                <div class="text-xs text-white/50">No entries yet.</div>
-            {:else}
-                <div class="flex flex-col gap-1.5">
-                    {#each $leaderboardStore.entries as entry, index (entry.user)}
-                        <div
-                            class="flex items-center gap-2 rounded-md border px-2.5 py-2 text-sm text-white/90 {index <
-                            3
-                                ? 'border-pop-yellow/30 bg-black/35'
-                                : 'border-white/10 bg-black/35'}"
+        <div class="flex h-full min-h-0 flex-col">
+            {#if tabs.length > 0}
+                <div class="mb-2 flex shrink-0 flex-wrap gap-1 border-b border-white/10 pb-2">
+                    {#each tabs as tab (tab.id)}
+                        <button
+                            type="button"
+                            class="rounded border px-2 py-1 font-mono text-xs uppercase tracking-wide {activeTab?.id ===
+                            tab.id
+                                ? 'border-pop-yellow/40 bg-pop-yellow/20 text-pop-yellow'
+                                : 'border-white/10 text-white/60 hover:bg-white/5 hover:text-white'}"
+                            onclick={() => (activeTabId = tab.id)}
                         >
-                            <span
-                                class="w-6 text-right font-mono text-sm font-bold {rankColors[index] ??
-                                    'text-white/40'}"
-                            >
-                                {index + 1}
-                            </span>
-                            <span class="flex-1 truncate">{entry.user.split("@")[0]}</span>
-                            <span class="font-mono font-semibold text-white/60">??</span>
-                        </div>
+                            {tab.title}
+                        </button>
                     {/each}
                 </div>
             {/if}
-        {:else if activeTab.html?.trim()}
-            <!-- Sandboxed so the admin's own <style> runs in isolation instead of leaking into the panel. -->
-            <div class="h-[50vh] w-full">
-                <iframe
-                    class="block h-full w-full border-0 bg-white"
-                    title={activeTab.title}
-                    sandbox="allow-popups"
-                    srcdoc={activeTab.html}
-                ></iframe>
-            </div>
-        {:else}
-            <div class="text-xs text-white/50">Nothing posted yet.</div>
-        {/if}
+
+            {#if !activeTab || activeTab.type === "leaderboard"}
+                <div class="min-h-0 flex-1 overflow-y-auto">
+                    <p class="mb-2 font-mono text-xs italic text-white/55">“{riddle()}”</p>
+
+                    {#if $leaderboardStore.loading}
+                        <div class="font-mono text-xs italic text-pop-yellow/80">Loading…</div>
+                    {:else if $leaderboardStore.error}
+                        <div class="text-xs text-red-400">Could not load the board.</div>
+                    {:else if $leaderboardStore.entries.length === 0}
+                        <div class="text-xs text-white/50">No entries yet.</div>
+                    {:else}
+                        <div class="flex flex-col gap-1.5">
+                            {#each $leaderboardStore.entries as entry, index (entry.user)}
+                                <div
+                                    class="flex items-center gap-2 rounded-md border px-2.5 py-2 text-sm text-white/90 {index <
+                                    3
+                                        ? 'border-pop-yellow/30 bg-black/35'
+                                        : 'border-white/10 bg-black/35'}"
+                                >
+                                    <span
+                                        class="w-6 text-right font-mono text-sm font-bold {rankColors[index] ??
+                                            'text-white/40'}"
+                                    >
+                                        {index + 1}
+                                    </span>
+                                    <span class="flex-1 truncate">{entry.user.split("@")[0]}</span>
+                                    <span class="font-mono font-semibold text-white/60">??</span>
+                                </div>
+                            {/each}
+                        </div>
+                    {/if}
+                </div>
+            {:else if activeTab.html?.trim()}
+                <!-- Sandboxed so the admin's own <style> runs in isolation instead of leaking into the panel. -->
+                <div class="min-h-0 w-full flex-1">
+                    <iframe
+                        class="block h-full w-full border-0 bg-white"
+                        title={activeTab.title}
+                        sandbox="allow-popups"
+                        srcdoc={activeTab.html}
+                    ></iframe>
+                </div>
+            {:else}
+                <div class="text-xs text-white/50">Nothing posted yet.</div>
+            {/if}
+        </div>
     </FloatingWindow>
 {/if}
