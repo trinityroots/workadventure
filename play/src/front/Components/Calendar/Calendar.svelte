@@ -76,10 +76,7 @@
     <div class="h-px bg-white/10" aria-hidden="true"></div>
 
     {#if !$userIsConnected && get(externalSvelteComponentService.getComponentsByZone("calendarButton")).size == 0}
-        <Button variant="secondary" onclick={goToLoginPage}>{$LL.menu.profile.login()}</Button>
-    {/if}
-    {#if $userIsConnected && !$isActivatedStore}
-        <Button variant="secondary" onclick={connectCalendar}>{$LL.externalModule.calendar.connect()}</Button>
+        <Button variant="secondary" class="shrink-0" onclick={goToLoginPage}>{$LL.menu.profile.login()}</Button>
     {/if}
     {#if get(externalSvelteComponentService.getComponentsByZone("calendarButton")).size > 0}
         <div class="flex flex-col items-center justify-center">
@@ -95,7 +92,14 @@
         onselect={(date) => (selectedDay = startOfDay(date))}
     />
 
-    {#if day}
+    <!-- Unconnected players get the connect action in the slot the event list would occupy. -->
+    {#if !$isActivatedStore}
+        <div class="flex min-h-0 flex-1 flex-col items-center justify-center gap-3">
+            <Button variant="secondary" class="shrink-0" onclick={connectCalendar}
+                >{$LL.externalModule.calendar.connect()}</Button
+            >
+        </div>
+    {:else if day}
         <div class="-mx-1 min-h-0 flex-1 overflow-y-auto px-1">
             <section class="flex flex-col gap-1 pb-2">
                 <div class="flex flex-col gap-1 border-0 border-b border-solid border-white/10 py-1">

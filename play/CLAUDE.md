@@ -74,7 +74,9 @@ Do not edit generated `src/i18n/i18n-*.ts` files directly.
   player to that area in place; `#moveTo=<area>` is the in-app link form.
 - The calendar connect flow is `CORE_URL/auth/google?return=<play origin>`; core redirects back with
   `?calendar=connected`, which `consumeCalendarConnectedParam()` (CalendarLoader) strips before the
-  first refresh. The panel's Connect button shows whenever `isActivatedStore` is false.
+  first refresh. The agenda's lower slot is one `{:else if}` chain keyed on `isActivatedStore`
+  alone — unconnected players get the Connect button there, connected ones get the day's event list
+  (or the no-meetings line), so the button never shows once Google is linked.
 - Mic auto-mute: `startMicAutoMute()` (MainLayout onMount) mutes an idle microphone when the window
   loses focus or the tab hides (`focusStore` + `visibilityStore`, same machinery as PrivacyShutdown);
   `isInActiveConversationStore` gates it so a running conversation keeps its mic.
