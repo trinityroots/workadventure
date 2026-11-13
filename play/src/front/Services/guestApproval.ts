@@ -1,5 +1,5 @@
 import { writable } from "svelte/store";
-import { PUSHER_URL } from "../Enum/EnvironmentVariable";
+import { CORE_URL } from "../Enum/EnvironmentVariable";
 
 export interface GuestHost {
     id: string;
@@ -43,17 +43,17 @@ export function storeAuthToken(token: string): void {
     localStorage.setItem(AUTH_TOKEN_KEY, token);
 }
 
-async function pusherFetch(path: string, init: RequestInit = {}): Promise<Response> {
+async function coreFetch(path: string, init: RequestInit = {}): Promise<Response> {
     const headers = new Headers(init.headers);
     headers.set("Authorization", `Bearer ${storedAuthToken() ?? ""}`);
     if (init.body) {
         headers.set("Content-Type", "application/json");
     }
-    return fetch(`${PUSHER_URL}${path}`, { ...init, headers });
+    return fetch(`${CORE_URL}${path}`, { ...init, headers });
 }
 
 export async function fetchGuestHosts(): Promise<GuestHost[]> {
-    const response = await pusherFetch("/guest/hosts");
+    const response = await coreFetch("/api/guest/hosts");
     if (!response.ok) {
         throw new Error(`Cannot load the team members (status ${response.status})`);
     }
@@ -64,7 +64,7 @@ export async function sendGuestRequest(
     hostId: string,
     guestName: string,
 ): Promise<"sent" | "already_pending" | "host_offline" | "invalid"> {
-    const response = await pusherFetch("/guest/requests", {
+    const response = await coreFetch("/api/guest/requests", {
         method: "POST",
         body: JSON.stringify({ hostId, guestName }),
     });
@@ -81,7 +81,7 @@ export async function sendGuestRequest(
 }
 
 export async function fetchGuestStatus(): Promise<{ status: GuestStatus; authToken?: string }> {
-    const response = await pusherFetch("/guest/requests/current");
+    const response = await coreFetch("/api/guest/requests/current");
     if (!response.ok) {
         throw new Error(`Cannot read the request status (status ${response.status})`);
     }
@@ -89,7 +89,7 @@ export async function fetchGuestStatus(): Promise<{ status: GuestStatus; authTok
 }
 
 export async function fetchGuestInbox(): Promise<GuestInboxRequest[]> {
-    const response = await pusherFetch("/guest/inbox");
+    const response = await coreFetch("/api/guest/inbox");
     if (!response.ok) {
         throw new Error(`Cannot read the guest inbox (status ${response.status})`);
     }
@@ -101,7 +101,10 @@ export async function fetchGuestInbox(): Promise<GuestInboxRequest[]> {
  * (not enabled, or not a team member), so the caller can stop polling.
  */
 export async function refreshGuestInbox(): Promise<boolean> {
-    const response = await pusherFetch("/guest/inbox");
+    if (!CORE_URL) {
+        return false;
+    }
+    const response = await coreFetch("/api/guest/inbox");
     if (response.status === 404 || response.status === 403 || response.status === 401) {
         guestInboxStore.set([]);
         return false;
@@ -116,7 +119,7 @@ export async function refreshGuestInbox(): Promise<boolean> {
 export async function answerGuestRequest(requestId: string, approve: boolean): Promise<boolean> {
     // Hide the request right away so it cannot be answered twice; a failed answer comes back with the next refresh.
     guestInboxStore.update((requests) => requests.filter((request) => request.id !== requestId));
-    const response = await pusherFetch(`/guest/inbox/${encodeURIComponent(requestId)}/answer`, {
+    const response = await coreFetch(`/api/guest/inbox/${encodeURIComponent(requestId)}/answer`, {
         method: "POST",
         body: JSON.stringify({ approve }),
     });

@@ -1,7 +1,7 @@
 import { get } from "svelte/store";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-vi.mock("../../../src/front/Enum/EnvironmentVariable", () => ({ PUSHER_URL: "https://pusher.test" }));
+vi.mock("../../../src/front/Enum/EnvironmentVariable", () => ({ CORE_URL: "https://core.test" }));
 
 import {
     answerGuestRequest,
@@ -54,7 +54,7 @@ describe("guest approval requests", () => {
         vi.stubGlobal("fetch", fetchMock);
         expect(await fetchGuestHosts()).toEqual([{ id: "h1", name: "Mali" }]);
         const [url, init] = fetchMock.mock.calls[0];
-        expect(url).toBe("https://pusher.test/guest/hosts");
+        expect(url).toBe("https://core.test/api/guest/hosts");
         expect(new Headers(init.headers).get("Authorization")).toBe("Bearer my-token");
     });
 
@@ -96,7 +96,7 @@ describe("guest approval requests", () => {
         vi.stubGlobal("fetch", fetchMock);
         expect(await answerGuestRequest("r1", true)).toBe(true);
         const [url, init] = fetchMock.mock.calls[0];
-        expect(url).toBe("https://pusher.test/guest/inbox/r1/answer");
+        expect(url).toBe("https://core.test/api/guest/inbox/r1/answer");
         expect(JSON.parse(init.body)).toEqual({ approve: true });
         expect(get(guestInboxStore)).toEqual([]);
     });

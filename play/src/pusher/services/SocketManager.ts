@@ -954,11 +954,6 @@ export class SocketManager implements ZoneEventListener {
         return room;
     }
 
-    /** Logged-in users connected to any room served by this pusher. */
-    public getOnlineMembers(): { email: string; name: string }[] {
-        return [...this.rooms.values()].flatMap((room) => room.getLoggedMembers());
-    }
-
     public getRooms(): Map<string, PusherRoom> {
         return this.rooms;
     }
