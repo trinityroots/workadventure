@@ -436,6 +436,8 @@ export class IoSocketController {
                         roomId,
                         userId: undefined,
                         userUuid: userData.userUuid,
+                        authIdentifier: userIdentifier,
+                        isGuest: tokenData?.guest === "approved",
                         isLogged,
                         ipAddress,
                         characterTextures,

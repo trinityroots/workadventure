@@ -31,6 +31,8 @@ export type ConnectingSocketData = {
     roomId: string;
     userId?: number; // User Id served by the back
     userUuid: string; // Admin UUID
+    authIdentifier?: string; // Email (or anonymous id) from the session token
+    isGuest?: boolean; // External guest approved by a team member
     isLogged: boolean;
     ipAddress: string;
     characterTextures: CharacterTextureMessage[];

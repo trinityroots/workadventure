@@ -76,6 +76,7 @@ import { clientEventsEmitter } from "./ClientEventsEmitter";
 import { gaugeManager } from "./GaugeManager";
 import { apiClientRepository } from "./ApiClientRepository";
 import { adminService } from "./AdminService";
+import { withGuestLabel } from "./GuestLabel";
 import type { ShortMapDescription } from "./ShortMapDescription";
 import { matrixProvider } from "./MatrixProvider";
 import RecordingService from "./RecordingService";
@@ -396,7 +397,7 @@ export class SocketManager implements ZoneEventListener {
         const message = noUndefined(joinRoomFrontMessage);
 
         socketData.viewport = message.viewportMessage;
-        socketData.name = message.name;
+        socketData.name = withGuestLabel(message.name, socketData.isGuest === true);
         socketData.availabilityStatus = message.availabilityStatus;
 
         const streamToBack = socketData.backConnection;
@@ -951,6 +952,11 @@ export class SocketManager implements ZoneEventListener {
         await room.init();
         this.rooms.set(roomUrl, room);
         return room;
+    }
+
+    /** Logged-in users connected to any room served by this pusher. */
+    public getOnlineMembers(): { email: string; name: string }[] {
+        return [...this.rooms.values()].flatMap((room) => room.getLoggedMembers());
     }
 
     public getRooms(): Map<string, PusherRoom> {

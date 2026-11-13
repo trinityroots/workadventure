@@ -50,6 +50,18 @@ export class PusherRoom {
         socket.getUserData().pusherRoom = this;
     }
 
+    /** The logged-in users currently connected to this room (anonymous visitors are left out). */
+    public getLoggedMembers(): { email: string; name: string }[] {
+        const members: { email: string; name: string }[] = [];
+        for (const socket of this.listeners) {
+            const { authIdentifier, name, isLogged } = socket.getUserData();
+            if (isLogged && authIdentifier) {
+                members.push({ email: authIdentifier, name });
+            }
+        }
+        return members;
+    }
+
     public leave(socket: PusherWebSocket): void {
         this.positionNotifier.removeViewport(socket);
         this.listeners.delete(socket);

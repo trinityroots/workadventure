@@ -7,6 +7,9 @@ import uWebsockets from "uWebSockets.js";
 import { adminApi } from "./services/AdminApi";
 import { IoSocketController } from "./controllers/IoSocketController";
 import { AuthenticateController } from "./controllers/AuthenticateController";
+import { GuestApprovalController } from "./controllers/GuestApprovalController";
+import { GuestApprovalStore } from "./services/GuestApprovalStore";
+import { socketManager } from "./services/SocketManager";
 import { MapController } from "./controllers/MapController";
 import { PrometheusController } from "./controllers/PrometheusController";
 import { DebugController } from "./controllers/DebugController";
@@ -17,6 +20,7 @@ import { SwaggerController } from "./controllers/SwaggerController";
 import {
     ALLOWED_CORS_ORIGIN,
     ENABLE_OPENAPI_ENDPOINT,
+    GUEST_APPROVAL_ENABLED,
     PROMETHEUS_PORT,
     GRPC_MAX_MESSAGE_SIZE,
 } from "./enums/EnvironmentVariable";
@@ -80,6 +84,9 @@ class App {
 
         // Http controllers
         new AuthenticateController(this.app);
+        if (GUEST_APPROVAL_ENABLED) {
+            new GuestApprovalController(this.app, new GuestApprovalStore(), () => socketManager.getOnlineMembers());
+        }
         new MapController(this.app);
         if (PROMETHEUS_PORT) {
             this.prometheusWebserver = express();
