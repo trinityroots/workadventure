@@ -10,7 +10,15 @@ import Debug from "debug";
 import type { AuthTokenData } from "../services/JWTTokenManager";
 import { jwtTokenManager } from "../services/JWTTokenManager";
 import { openIDClient } from "../services/OpenIDClient";
-import { DISABLE_ANONYMOUS, FRONT_URL, MATRIX_PUBLIC_URI, PUSHER_URL } from "../enums/EnvironmentVariable";
+import {
+    DISABLE_ANONYMOUS,
+    FRONT_URL,
+    GUEST_APPROVAL_ENABLED,
+    MATRIX_PUBLIC_URI,
+    OPENID_ALLOWED_EMAIL_DOMAINS,
+    PUSHER_URL,
+} from "../enums/EnvironmentVariable";
+import { isEmailDomainAllowed } from "../services/EmailDomainAllowlist";
 import { adminService } from "../services/AdminService";
 import { validateQuery } from "../services/QueryValidator";
 import { VerifyDomainService } from "../services/verifyDomain/VerifyDomainService";
@@ -356,6 +364,28 @@ export class AuthenticateController extends BaseHttpController {
             const email = userInfo.email || userInfo.sub;
             if (!email) {
                 throw new Error("No email in the response");
+            }
+            if (!isEmailDomainAllowed(email, OPENID_ALLOWED_EMAIL_DOMAINS)) {
+                if (!GUEST_APPROVAL_ENABLED) {
+                    console.warn(`Login refused: email domain not allowed for ${email}`);
+                    res.status(403);
+                    res.send("Access denied: your email domain is not allowed to join this world.");
+                    return;
+                }
+                // External guest: the pass stays pending until a team member lets them in.
+                const guestToken = await jwtTokenManager.createAuthToken(
+                    email,
+                    undefined,
+                    undefined,
+                    userInfo?.locale,
+                    undefined,
+                    undefined,
+                    undefined,
+                    "pending",
+                );
+                res.clearCookie("playUri");
+                res.type("html").send(Mustache.render(this.redirectToRoomFile, { authToken: guestToken, playUri }));
+                return;
             }
             const authToken = await jwtTokenManager.createAuthToken(
                 email,

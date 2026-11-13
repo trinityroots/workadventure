@@ -1,4 +1,5 @@
 import type { FrontConfigurationInterface } from "../../common/FrontConfigurationInterface";
+import { parseAllowedEmailDomains } from "../services/EmailDomainAllowlist";
 import { EnvironmentVariables } from "./EnvironmentVariableValidator";
 
 const envChecking = EnvironmentVariables.safeParse(process.env);
@@ -58,6 +59,8 @@ export const REDIS_PASSWORD = env.REDIS_PASSWORD;
 export const OPID_CLIENT_ID = env.OPENID_CLIENT_ID || env.OPID_CLIENT_ID || "";
 export const OPID_CLIENT_SECRET = env.OPENID_CLIENT_SECRET || env.OPID_CLIENT_SECRET || "";
 export const OPID_CLIENT_ISSUER = env.OPENID_CLIENT_ISSUER || env.OPID_CLIENT_ISSUER || "";
+export const OPENID_ALLOWED_EMAIL_DOMAINS = parseAllowedEmailDomains(env.OPENID_ALLOWED_EMAIL_DOMAINS);
+export const GUEST_APPROVAL_ENABLED: boolean = env.GUEST_APPROVAL_ENABLED;
 if (OPID_CLIENT_ID && !PUSHER_URL) {
     throw new Error("Missing PUSHER_URL environment variable.");
 }

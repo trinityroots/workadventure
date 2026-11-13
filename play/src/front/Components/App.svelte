@@ -34,7 +34,9 @@
     import { FileListener } from "../Phaser/FileUpload/FileListener";
     import { isStructuredCloneSupported } from "../Utils/BrowserCompatibility";
     import { gameSceneIsLoadedStore } from "../Stores/GameSceneStore";
+    import { isGuestPendingToken, storedAuthToken } from "../Services/guestApproval";
     import GameOverlay from "./GameOverlay.svelte";
+    import GuestGate from "./Guest/GuestGate.svelte";
     import CoWebsitesContainer from "./EmbedScreens/CoWebsitesContainer.svelte";
     import BrowserNotSupported from "./BrowserNotSupported/BrowserNotSupported.svelte";
 
@@ -46,8 +48,14 @@
     let canvas: HTMLCanvasElement;
     let handleCanvasClick: () => void;
     let browserNotSupported = $state(false);
+    let guestPending = $state(false);
 
     onMount(() => {
+        // An external guest waits outside until a team member lets them in: no game yet.
+        if (isGuestPendingToken(storedAuthToken())) {
+            guestPending = true;
+            return;
+        }
         // Check browser compatibility before initializing the app
         if (!isStructuredCloneSupported()) {
             browserNotSupported = true;
@@ -276,7 +284,9 @@
     });
 </script>
 
-{#if browserNotSupported}
+{#if guestPending}
+    <GuestGate />
+{:else if browserNotSupported}
     <BrowserNotSupported />
 {:else}
     <div
