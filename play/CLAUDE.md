@@ -71,7 +71,9 @@ Do not edit generated `src/i18n/i18n-*.ts` files directly.
   asks the header to take focus). The map script no longer registers its own search button.
 - Calendar meeting-room events keep the room URL in the Google Calendar event *location* with a bare
   area name in the hash (`…/~/trinityroots/office.wam#Lounge`). `CalendarJoinButton.goThere` walks the
-  player to that area in place; `#moveTo=<area>` is the in-app link form.
+  player to that area in place; `#moveTo=<area>` is the in-app link form. Read `meeting.joinUrl` into a local
+  before calling `onjoin` — the toast's `dismiss` dirties the derived `event`, so re-reading `meeting` after
+  `onjoin` yields undefined and the join silently returns.
 - The calendar connect flow is `CORE_URL/auth/google?return=<play origin>`; core redirects back with
   `?calendar=connected`, which `consumeCalendarConnectedParam()` (CalendarLoader) strips before the
   first refresh. The agenda's lower slot is one `{:else if}` chain keyed on `isActivatedStore`
@@ -93,9 +95,9 @@ Do not edit generated `src/i18n/i18n-*.ts` files directly.
   selects sit rows if an admin sets it). Sheets whose art changed are served with `?v=2`
   because play's static files use `max-age=86400` — and `MonsterManager.loadTexture` reserves a unique
   key per URL load (a shared key once made every NPC render the first sprite). Badge icons
-  size with `calc(px * var(--username-dom-scale, 1))` so they track zoom like the status dot. Clicking one walks the player
-  to an adjacent tile (`GameScene.onNpcClicked`) and opens `NpcChat/NpcChatPanel.svelte` on
-  arrival; **X** opens the nearest NPC within 120px (same focus/input guards as calendar's L). Opening a chat seeds the NPC's `greeting` (from `GET /api/game/npc/list`) as the
+  size with `calc(px * var(--username-dom-scale, 1))` so they track zoom like the status dot. Clicking an NPC does nothing;
+  **X** opens the nearest NPC within 120px (same focus/input guards as calendar's L) and shows `NpcChat/NpcChatPanel.svelte`
+  for chat NPCs. Opening a chat seeds the NPC's `greeting` (from `GET /api/game/npc/list`) as the
   first NPC message, so every conversation starts with what you can ask that NPC about.
   **Every fixed overlay must carry `pointer-events-auto`** (RpgDialog, FloatingWindow, GamePanel, TradePanel): the MainLayout root is `pointer-events-none`, and without the
   class every click falls through to the game canvas — the panel renders but nothing responds, which reads as a freeze.
