@@ -28,7 +28,6 @@ export class Monster extends Container {
     private readonly hpBar: Graphics;
     private readonly stepListener: (time: number, delta: number) => void;
     private readonly usernameDisplay?: UsernameDisplay;
-    private readonly npc?: NpcInfo;
     private target: { x: number; y: number };
     private hp: number;
     private maxHp: number;
@@ -49,7 +48,6 @@ export class Monster extends Container {
         this.hp = hp;
         this.maxHp = maxHp;
         this.target = { x, y };
-        this.npc = npc;
 
         this.sprite = scene.add.sprite(0, 0, textureKey, frameStart).setOrigin(0.5, 0.5);
         // NPCs and boards stand still: only monsters get the two-frame idle cycle.
@@ -94,9 +92,6 @@ export class Monster extends Container {
                     : new Phaser.Geom.Rectangle(-16, -48, 32, 64),
                 Phaser.Geom.Rectangle.Contains, // eslint-disable-line @typescript-eslint/unbound-method
             );
-            this.on(Phaser.Input.Events.POINTER_DOWN, () => {
-                if (this.npc) (this.scene as unknown as GameScene).onNpcClicked(this.npc);
-            });
         } else if (name) {
             const nameplate = scene.add
                 .text(0, -40, name, {

@@ -45,8 +45,7 @@
 
     $effect(() => scheduleScroll($npcChatStore.messages.length, $npcChatStore.sending));
 
-    // X opens the nearest NPC when the player is already standing next to it;
-    // clicking an NPC walks the player over first (GameScene.onNpcClicked).
+    // X opens the nearest NPC when the player is already standing next to it.
     function onKeydown(event: KeyboardEvent): void {
         if (event.key !== "x" || event.ctrlKey || event.metaKey || event.altKey) return;
         if (get(inputFormFocusStore)) return;

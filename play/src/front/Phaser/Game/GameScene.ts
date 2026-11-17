@@ -135,12 +135,10 @@ import { StringUtils } from "../../Utils/StringUtils";
 import { PHASER_COLOR_DESIGN_SYSTEM_SECONDARY } from "../../Utils/DesignSystemPhaserColors";
 
 import { SuperLoaderPlugin } from "../Services/SuperLoaderPlugin";
-import { playSfx } from "../../Services/gameSfx";
 import { startMonsterStream, stopMonsterStream } from "../../Services/monsterStream";
-import { closeNpcChat, loadNpcList, openNpcChat } from "../../Services/npcList";
-import { closeShop, fetchMarketStatus, openShop } from "../../Services/shop";
-import { boardListStore, closeLeaderboard, loadBoards, openLeaderboard } from "../../Services/leaderboard";
-import { closeInventory } from "../../Components/Inventory/sidebar";
+import { loadNpcList } from "../../Services/npcList";
+import { fetchMarketStatus } from "../../Services/shop";
+import { loadBoards } from "../../Services/leaderboard";
 import type { NpcInfo } from "../../Enum/Npc";
 import { embedScreenLayoutStore } from "../../Stores/EmbedScreenLayoutStore";
 import { highlightedEmbedScreen } from "../../Stores/HighlightedEmbedScreenStore";
@@ -4179,33 +4177,6 @@ ${escapedMessage}
         } else {
             this.monsterManager?.handle({ op: "remove", id: existing });
         }
-    }
-
-    /** Clicking an NPC walks the player up to it, then opens its panel on arrival. */
-    public onNpcClicked(npc: NpcInfo): void {
-        playSfx("npcPop");
-        this.moveTo({ x: npc.x, y: npc.y + 32 }, true)
-            .then(({ cancelled }) => {
-                if (cancelled || !this.scene.isActive()) return;
-                closeInventory();
-                if (npc.kind === "board") {
-                    const board = get(boardListStore).find((entry) => entry.key === npc.id);
-                    if (board) {
-                        closeNpcChat();
-                        closeShop();
-                        openLeaderboard(board);
-                    }
-                } else if (npc.kind === "shop") {
-                    closeNpcChat();
-                    closeLeaderboard();
-                    openShop(npc).catch(() => undefined);
-                } else {
-                    closeShop();
-                    closeLeaderboard();
-                    openNpcChat(npc);
-                }
-            })
-            .catch(() => undefined);
     }
 
     /**
