@@ -28,9 +28,10 @@
 
     // A meeting in this WorkAdventure: walk to its area, or travel to its map, without reloading the page.
     function goThere(clickEvent: MouseEvent) {
+        const joinUrl = meeting?.joinUrl;
         onjoin?.();
-        if (!meeting?.joinUrl) return;
-        const url = new URL(meeting.joinUrl);
+        if (!joinUrl) return;
+        const url = new URL(joinUrl);
         // Another WorkAdventure, or a link the module could not resolve (the admin's redirect): follow it.
         if (url.origin !== window.location.origin) return;
         clickEvent.preventDefault();
