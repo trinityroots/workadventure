@@ -243,6 +243,17 @@ export const EnvironmentVariables = z.object({
         "Policy for avatar naming: 'user_input', 'allow_override_opid', or 'force_opid'",
     ),
     OPENID_TAGS_CLAIM: z.string().optional().describe("JWT claim containing user tags/roles"),
+    OPENID_ALLOWED_EMAIL_DOMAINS: z
+        .string()
+        .optional()
+        .describe(
+            "Comma separated list of email domains allowed to log in (e.g. 'example.com,example.org'). Empty means every domain is allowed",
+        ),
+    GUEST_APPROVAL_ENABLED: BoolAsString.optional()
+        .transform((val) => toBool(val, false))
+        .describe(
+            "If true, people whose email is not in OPENID_ALLOWED_EMAIL_DOMAINS can enter as guests once a team member approves them. Defaults to false",
+        ),
 
     DISABLE_ANONYMOUS: BoolAsString.optional()
         .transform((val) => toBool(val, false))

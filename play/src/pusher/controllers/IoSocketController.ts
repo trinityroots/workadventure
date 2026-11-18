@@ -436,6 +436,7 @@ export class IoSocketController {
                         roomId,
                         userId: undefined,
                         userUuid: userData.userUuid,
+                        isGuest: memberTags.includes("guest"),
                         isLogged,
                         ipAddress,
                         characterTextures,

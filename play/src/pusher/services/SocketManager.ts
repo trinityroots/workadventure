@@ -76,6 +76,7 @@ import { clientEventsEmitter } from "./ClientEventsEmitter";
 import { gaugeManager } from "./GaugeManager";
 import { apiClientRepository } from "./ApiClientRepository";
 import { adminService } from "./AdminService";
+import { withGuestLabel } from "./GuestLabel";
 import type { ShortMapDescription } from "./ShortMapDescription";
 import { matrixProvider } from "./MatrixProvider";
 import RecordingService from "./RecordingService";
@@ -396,7 +397,7 @@ export class SocketManager implements ZoneEventListener {
         const message = noUndefined(joinRoomFrontMessage);
 
         socketData.viewport = message.viewportMessage;
-        socketData.name = message.name;
+        socketData.name = withGuestLabel(message.name, socketData.isGuest === true);
         socketData.availabilityStatus = message.availabilityStatus;
 
         const streamToBack = socketData.backConnection;

@@ -31,6 +31,7 @@ export type ConnectingSocketData = {
     roomId: string;
     userId?: number; // User Id served by the back
     userUuid: string; // Admin UUID
+    isGuest?: boolean; // Outside guest approved by a team member (the admin API tags them "guest")
     isLogged: boolean;
     ipAddress: string;
     characterTextures: CharacterTextureMessage[];

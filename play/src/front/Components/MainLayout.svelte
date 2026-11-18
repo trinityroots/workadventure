@@ -48,6 +48,7 @@
     import { startMicAutoMute } from "../Stores/MicAutoMute";
     import { startPresenceHeartbeat, stopPresenceHeartbeat } from "../Services/presenceHeartbeat";
     import { startTradePolling, stopTradePolling } from "../Services/trade";
+    import { startGuestInboxPolling, stopGuestInboxPolling } from "../Services/guestApproval";
     import GamePanel from "./GamePanel/GamePanel.svelte";
 
     import FloatingWindow from "./GameWindow/FloatingWindow.svelte";
@@ -94,6 +95,7 @@
     import ShopPanel from "./NpcChat/ShopPanel.svelte";
     import LeaderboardPanel from "./NpcChat/LeaderboardPanel.svelte";
     import TradePanel from "./Trade/TradePanel.svelte";
+    import GuestInboxPopup from "./Guest/GuestInboxPopup.svelte";
     import ChevronLeftIcon from "./Icons/ChevronLeftIcon.svelte";
     import { IconArrowsMinimize, IconMessageCircle2, IconUserPlus } from "@wa-icons";
 
@@ -192,11 +194,13 @@
         startMicAutoMute();
         startPresenceHeartbeat();
         startTradePolling();
+        startGuestInboxPolling();
     });
 
     onDestroy(() => {
         stopPresenceHeartbeat();
         stopTradePolling();
+        stopGuestInboxPolling();
         document.removeEventListener("focusin", handleFocusInEvent);
         document.removeEventListener("focusout", handleFocusOutEvent);
         inputFormFocusStore.set(false);
@@ -496,6 +500,7 @@
             <ShopPanel />
             <LeaderboardPanel />
             <TradePanel />
+            <GuestInboxPopup />
             {#if $requestVisitCardsStore || $wokaMenuStore || $actionsMenuStore || $meetingInvitationRequestStore}
                 <div
                     transition:fly={{ x: 210, duration: 500 }}

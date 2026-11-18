@@ -21,6 +21,8 @@ export const AuthTokenData = z.object({
         }, z.string().array())
         .optional(),
     matrixUserId: z.string().optional(),
+    // Set for external guests: "pending" until a team member lets them in, then "approved".
+    guest: z.enum(["pending", "approved"]).optional(),
 });
 export type AuthTokenData = z.infer<typeof AuthTokenData>;
 
@@ -68,22 +70,46 @@ export class JWTTokenManager {
         tags?: string[],
         matrixUserId?: string,
         encryptedRefreshToken?: string,
+        guest?: "pending" | "approved",
     ): Promise<string> {
-        return new SignJWT({ identifier, accessToken, username, locale, tags, matrixUserId, encryptedRefreshToken })
-            .setExpirationTime("30d")
+        return new SignJWT({
+            identifier,
+            accessToken,
+            username,
+            locale,
+            tags,
+            matrixUserId,
+            encryptedRefreshToken,
+            guest,
+        })
+            .setExpirationTime(guest === "pending" ? "1h" : guest === "approved" ? "8h" : "30d")
             .setProtectedHeader({ alg: "HS256" })
             .sign(secret);
     }
 
-    public async verifyJWTToken(token: string, ignoreExpiration = false): Promise<AuthTokenData> {
+    /**
+     * Verifies a session token. A guest who is still waiting for approval is refused,
+     * unless the caller (the guest approval endpoints) explicitly allows it.
+     */
+    public async verifyJWTToken(
+        token: string,
+        ignoreExpiration = false,
+        allowPendingGuest = false,
+    ): Promise<AuthTokenData> {
+        let data: AuthTokenData;
         try {
-            return AuthTokenData.parse((await jwtVerify(token, secret)).payload);
+            data = AuthTokenData.parse((await jwtVerify(token, secret)).payload);
         } catch (error) {
             if (ignoreExpiration && error instanceof errors.JWTExpired) {
-                return AuthTokenData.parse(error.payload);
+                data = AuthTokenData.parse(error.payload);
+            } else {
+                throw new errors.JWTInvalid("Token is invalid");
             }
-            throw new errors.JWTInvalid("Token is invalid");
         }
+        if (data.guest === "pending" && (!allowPendingGuest || ignoreExpiration)) {
+            throw new errors.JWTInvalid("Guest is not approved yet");
+        }
+        return data;
     }
 }
 
